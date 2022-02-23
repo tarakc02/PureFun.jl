@@ -1,10 +1,6 @@
-include("../src/PureFun.jl")
-
-using .PureFun
-using .PureFun.Lazy
-using .PureFun.Linked
-import .PureFun.Lazy.@lz, .PureFun.Lazy.force
-using BenchmarkTools
+using PureFun.Lazy
+using PureFun.Linked
+import PureFun.Lazy.@lz, PureFun.Lazy.force
 
 suite = BenchmarkGroup()
 #suite["lazy-eval"] = BenchmarkGroup(["lazy+force", "vanilla"])
