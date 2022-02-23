@@ -1,4 +1,4 @@
-using .PureFun.Batched
+using PureFun.Batched
 
 @testset "Batched queues" begin
     @testset "Constructors" begin

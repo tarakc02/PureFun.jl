@@ -1,34 +1,5 @@
-using .PureFun.Lazy
-using .PureFun.Lazy: @lz
-
-function testfun(k)
-    #println("executing body of testfun")
-    sleep(k)
-    return rand(Int16)
-end
-
-function stest(k)
-    x = @lz testfun(k)
-    res = [Lazy.force(x) for _ in 1:5]
-    return res
-end
-
-
-function ptest(k)
-    x = @lz testfun(k)
-    res = [(Threads.@spawn Lazy.force($x)) for _ in 1:5]
-    return [fetch(r) for r in res]
-end
-
-
-#x = @lz testfun(1)
-#Lazy.force(x)
-#bloop = ptest(1);
-#bloops = stest(1);
-#
-#
-#@benchmark testfun(.2)
-#@benchmark ptest(.2)
+using PureFun.Lazy
+using PureFun.Lazy: @lz
 
 @testset "Lazy Streams" begin
 

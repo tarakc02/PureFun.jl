@@ -1,4 +1,4 @@
-[deps]
-BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
-DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+name = "PureFun"
+uuid = "5c24d6e1-cb81-4e79-8836-67b5b43306d6"
+authors = ["Tarak Shah <tarak@hrdag.org>"]
+version = "0.0.1"

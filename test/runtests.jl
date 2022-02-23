@@ -1,5 +1,4 @@
-include("../src/PureFun.jl")
-using .PureFun
+using PureFun
 using Test
 
 @test [] == detect_ambiguities(Core, PureFun)
@@ -18,7 +17,7 @@ end
 
 for t in tests
     #fp = joinpath(".", "test_$t.jl")
-    fp = joinpath(dirname(@__FILE__), "test_$t.jl")
+    fp = joinpath(dirname(@__FILE__), "src/test_$t.jl")
     println("$fp ...")
     include(fp)
 end
