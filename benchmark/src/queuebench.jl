@@ -1,11 +1,23 @@
+#=
+Benchmarks for queue implementations
+
+Basic Queue operations:
+- head: get the front element
+- snoc: insert an element at the end of the queue
+- tail: return a new queue without the first element
+
+Not sure if individual ops are the right level for these benchmarks. So also
+including some where we iterate to fill up a queue and then iterate to empty it
+again. What else?
+
+=#
 module QueueBenchmarks
 
-using PureFun
-using .PureFun.RealTimeQueue
+MODULE = PureFun.RealTimeQueue
+Queue = MODULE.Queue
 
-Queue = RealTimeQueue.Queue
-using BenchmarkTools
-
+# note: the normal constructor may do something more efficient than this, but
+# want to measure performance with lots of `snoc` and `tail` operations
 function snoc_repeatedly(iter)
     out = Queue{Int64}()
     for i in iter out = snoc(out, i) end
@@ -21,21 +33,11 @@ function qmin(iter)
     return minsofar
 end
 
-function basemin(iter)
-    collected = collect(iter)
-    minsofar = first(collected)
-    for i in iter
-        if i < minsofar minsofar = i end
-    end
-    return minsofar
-end
-
 suite = BenchmarkGroup()
 suite["in+out"] = BenchmarkGroup()
 suite["in+out"]["128"] = @benchmarkable qmin(x) setup=x=rand(Int64, 128)
 suite["in+out"]["256"] = @benchmarkable qmin(x) setup=x=rand(Int64, 256)
 suite["in+out"]["512"] = @benchmarkable qmin(x) setup=x=rand(Int64, 512)
-suite["in+out"]["128-baseline"] = @benchmarkable basemin(x) setup=x=rand(Int64, 128)
 
 suite["snoc"] = BenchmarkGroup()
 suite["snoc"]["into empty"] = @benchmarkable q=snoc(q0, 14) setup=q0=Queue{Int64}()
