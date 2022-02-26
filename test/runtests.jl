@@ -7,13 +7,16 @@ using Test
 include("src/queue-tests.jl")
 include("src/list-tests.jl")
 include("src/stream-tests.jl")
+include("src/heap-tests.jl")
 
-queues = [PureFun.Queues.Batched.Queue,
-          PureFun.Queues.RealTime.Queue]
+queues  = [PureFun.Queues.Batched.Queue,
+           PureFun.Queues.RealTime.Queue]
 
-lists = [PureFun.Lists.Linked.List]
+lists   = [PureFun.Lists.Linked.List]
 
 streams = [PureFun.Lazy.Stream]
+
+heaps   = [PureFun.Heaps.Pairing.Heap]
 
 for q in queues
     println(); println(q)
@@ -28,4 +31,9 @@ end
 for s in streams
     println(); println(s)
     StreamTests.test(s)
+end
+
+for h in heaps
+    println(); println(h)
+    HeapTests.test(h)
 end

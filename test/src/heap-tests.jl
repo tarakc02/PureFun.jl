@@ -1,0 +1,43 @@
+module HeapTests
+
+using PureFun
+using Test
+using Random: shuffle
+
+function test_constructors(Heap)
+    @testset "Constructors" begin
+        l = Heap{Int64}()
+        m = push(l, 4)
+        @test l isa Heap
+        @test m isa Heap
+        @test isempty(l)
+        @test !isempty(m)
+        @test Heap(1:10) isa Heap
+        @test !isempty(Heap(1:10))
+    end
+end
+
+function test_accessors(Heap)
+    @testset "Element Accessors" begin
+        l = Heap(shuffle(1:10))
+        @test first(l) == 1
+        @test first(tail(l)) == 2
+        @test first(tail(tail(l))) == 3
+        m = tail(tail(tail(tail(l))))
+    end
+end
+
+function test_inorder_iteration(Heap)
+    @testset "should iterate in order, regardless of insertion order" begin
+        l = Heap(shuffle(1:100))
+        @test all(collect(l) .== 1:100)
+    end
+end
+
+function test(Heap)
+    test_constructors(Heap), test_accessors(Heap), test_inorder_iteration(Heap)
+end
+
+end
+
+

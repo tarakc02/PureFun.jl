@@ -12,4 +12,8 @@ include("queues/batchedqueue.jl")
 include("queues/realtimequeue.jl")
 end
 
+module Heaps
+include("heaps/pairing-heap.jl")
+end
+
 end

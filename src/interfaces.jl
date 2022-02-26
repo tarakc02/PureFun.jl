@@ -16,7 +16,9 @@ end in `!`).
 # note: all containers are expected to have implemented `Base.isempty`
 
 # `push` is provided as an analogue to `Base.push!`, and `append` as `append!`
-export push, cons, snoc, append, ⧺, tail
+export push, cons, snoc, append, ⧺, tail,
+       #merge,
+       find_min, delete_min, insert
 
 
 # anything that implements `PureFun.cons`, `Base.first`, and `PureFun.tail` can register as an
@@ -50,7 +52,7 @@ function snoc end
 function setindex end
 
 # operations for PFHeap
-function merge end
+#function merge end
 function find_min end
 function delete_min end
 push(xs::PFList, x) = cons(x, xs)
@@ -118,6 +120,7 @@ ordering(x) = Base.Order.Forward
 ordering(x::Ordered{T, O}, y::Ordered{T, O}) where {T, O} = ordering(x)
 ordering(x::Ordered{T}, y::T) where T = ordering(x)
 ordering(x::T, y::Ordered{T}) where T = ordering(y)
+ordering(x::T, y::T) where T = ordering(x)
 
 lt(x, y) = Base.Order.lt(ordering(x, y), x, y)
 leq(x, y) = !Base.Order.lt(ordering(x, y), y, x)

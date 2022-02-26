@@ -25,6 +25,13 @@ function test_accessors(List)
     end
 end
 
+function test_iterator(List)
+    @testset "Iterates in expected order" begin
+        l = List(1:10)
+        @test all(collect(l) .== 1:10)
+    end
+end
+
 function test_etc(List)
     @testset "reverse, append, length" begin
         l = List(1:10)
