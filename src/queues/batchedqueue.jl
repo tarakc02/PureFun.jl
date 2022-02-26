@@ -1,9 +1,9 @@
 module Batched
 
-using ..PureFun
-using ..PureFun.Linked
+using ...PureFun
+using ...PureFun.Lists.Linked
 
-struct Queue{T, F, R} <: PureFun.AbQueue{T} where {F <: Linked.List{T}, R <: Linked.List{T}}
+struct Queue{T, F, R} <: PureFun.PFQueue{T} where {F <: Linked.List{T}, R <: Linked.List{T}}
     front::F
     rear::R
 end
@@ -13,8 +13,8 @@ NonEmpty{T} = Queue{T, Linked.NonEmpty{T}, R} where {R <: Linked.List{T}}
 
 front(q::Queue) = q.front
 rear(q::Queue) = q.rear
-PureFun.is_empty(q::Empty) = true
-PureFun.is_empty(q::NonEmpty) = false
+Base.isempty(q::Empty) = true
+Base.isempty(q::NonEmpty) = false
 PureFun.empty(q::NonEmpty{T}) where T = Empty{T}()
 PureFun.empty(q::Empty) = q
 
@@ -29,7 +29,7 @@ function checkf(f::Linked.Empty, r::Linked.NonEmpty)
 end
 checkf(f, r) = Queue(f, r)
 
-PureFun.head(q::NonEmpty) = head(front(q))
+Base.first(q::NonEmpty) = first(front(q))
 PureFun.snoc(q::Queue, x) = checkf(front(q), cons(x, rear(q)))
 PureFun.tail(q::NonEmpty) = checkf(tail(front(q)), rear(q))
 
@@ -40,7 +40,7 @@ end
 
 function Base.show(::IO, ::MIME"text/plain", bq::Queue)
     println("a batched queue type $(typeof(bq))")
-    !is_empty(bq) || return nothing
+    !isempty(bq) || return nothing
     println("next element: $(head(bq))")
 end
 

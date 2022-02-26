@@ -4,22 +4,28 @@ using Test
 @test [] == detect_ambiguities(Core, PureFun)
 @test [] == detect_ambiguities(Base, PureFun)
 
-tests = [
-    "linked_list",
-    "stream"
-   ]
+include("src/queue-tests.jl")
+include("src/list-tests.jl")
+include("src/stream-tests.jl")
 
-if length(ARGS) > 0
-    tests = ARGS
+queues = [PureFun.Queues.Batched.Queue,
+          PureFun.Queues.RealTime.Queue]
+
+lists = [PureFun.Lists.Linked.List]
+
+streams = [PureFun.Lazy.Stream]
+
+for q in queues
+    println(); println(q)
+    QueueTests.test(q)
 end
 
-@testset "PureFun" begin
-
-for t in tests
-    #fp = joinpath(".", "test_$t.jl")
-    fp = joinpath(dirname(@__FILE__), "src/test_$t.jl")
-    println("$fp ...")
-    include(fp)
+for l in lists
+    println(); println(l)
+    ListTests.test(l)
 end
 
+for s in streams
+    println(); println(s)
+    StreamTests.test(s)
 end
