@@ -23,7 +23,7 @@ export push, cons, snoc, append, ⧺, tail,
 
 # anything that implements `PureFun.cons`, `Base.first`, and `PureFun.tail` can register as an
 # implementation of a stack/linked list
-abstract type PFList{T} <: AbstractArray{T, 1} end
+abstract type PFList{T} end
 # a PFSet must implement `insert` and `in`
 abstract type PFSet{T} <: AbstractSet{T} end
 abstract type PFStream{T} end
@@ -67,6 +67,7 @@ const ⧺ = append
 
 Base.iterate(iter::Listy) = isempty(iter) ? nothing : (first(iter), tail(iter))
 Base.iterate(iter::Listy, state) = isempty(state) ? nothing : (first(state), tail(state))
+
 Base.IndexStyle(::Listy) = IndexLinear()
 Base.length(iter::Listy) = isempty(iter) ? 0 : 1 + length(tail(iter))
 Base.size(iter::Listy) = (length(iter),)

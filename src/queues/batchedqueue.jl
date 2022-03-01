@@ -38,10 +38,4 @@ function Queue(iter)
     Queue(l, empty(l))
 end
 
-function Base.show(::IO, ::MIME"text/plain", bq::Queue)
-    println("a batched queue type $(typeof(bq))")
-    !isempty(bq) || return nothing
-    println("next element: $(head(bq))")
-end
-
 end

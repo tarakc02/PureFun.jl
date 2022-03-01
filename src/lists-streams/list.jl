@@ -22,7 +22,7 @@ List{T} = Union{Empty{T}, NonEmpty{T}} where {T}
 Empty(T) = Empty{T}()
 Base.empty(::List{T}) where {T} = Empty{T}()
 
-PureFun.cons(x, xs) = NonEmpty(x, xs)
+PureFun.cons(x::T, xs::List{T}) where T = NonEmpty(x, xs)
 Base.first(l::NonEmpty) = l.head
 PureFun.tail(l::NonEmpty) = l.tail
 
@@ -56,9 +56,25 @@ list
 =#
 
 Base.reverse(l::Empty) = l
-Base.reverse(l::NonEmpty) = reverse(first(l), tail(l))
-Base.reverse(h, t::Empty) = cons(h, t)
-Base.reverse(h, t::NonEmpty) = reverse(t) ⧺ h
+
+function Base.reverse(l::NonEmpty)
+    rev(l, empty(l))
+end
+
+function rev(l::NonEmpty, accum)
+    while !isempty(l)
+        accum = cons(first(l), accum)
+        l = tail(l)
+    end
+    return accum
+end
+
+#function rev(l::NonEmpty, accum)
+#    new_accum = cons(first(l), accum)
+#    tl = tail(l)
+#    isempty(tl) && return new_accum
+#    rev(tl, new_accum)
+#end
 
 end
 
