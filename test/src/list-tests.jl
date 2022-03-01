@@ -32,6 +32,16 @@ function test_iterator(List)
     end
 end
 
+function stress_test(List)
+    @testset "stress test cons, reverse, iterate" begin
+        iter = 1:50_000
+        l = List(iter)
+        r = reverse(l)
+        @test all(l .== iter)
+        @test all(r .== reverse(iter))
+    end
+end
+
 function test_etc(List)
     @testset "reverse, append, length" begin
         l = List(1:10)
@@ -45,7 +55,8 @@ function test_etc(List)
 end
 
 function test(List)
-    test_constructors(List), test_accessors(List), test_etc(List)
+    test_constructors(List), test_accessors(List),
+    stress_test(List), test_etc(List)
 end
 
 end

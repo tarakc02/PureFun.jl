@@ -34,8 +34,16 @@ function test_inorder_iteration(Heap)
     end
 end
 
+function stress_test(Heap)
+    @testset "stress test insert and iterate" begin
+        l = Heap(shuffle(1:100_000));
+        @test all(l .== 1:100_000)
+    end
+end
+
 function test(Heap)
-    test_constructors(Heap), test_accessors(Heap), test_inorder_iteration(Heap)
+    test_constructors(Heap), test_accessors(Heap),
+    test_inorder_iteration(Heap), stress_test(Heap)
 end
 
 end

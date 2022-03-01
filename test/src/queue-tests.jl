@@ -27,6 +27,13 @@ function test_snoc(Queue)
     end
 end
 
+function stress_test(Queue)
+    @testset "stress test snoc and iterate" begin
+        l = Queue(1:50_000);
+        @test all(l .== 1:50_000)
+    end
+end
+
 function test_accessors(Queue)
     @testset "Element Accessors (first/tail)" begin
         l = Queue(1:10)
