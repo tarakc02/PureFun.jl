@@ -1,34 +1,33 @@
-include("../src/PureFun.jl")
+module QueueBenchmarks
 
-using .PureFun
-using .PureFun.Batched
-using BenchmarkTools
+using ..PureFun
+using ..BenchmarkTools
 
-function snoc_repeatedly(iter)
-    out = Batched.Queue{Int64}()
+function snoc_repeatedly(Queue, iter)
+    out = Queue{eltype(iter)}()
     for i in iter out = snoc(out, i) end
     return out
 end
 
-suite = BenchmarkGroup()
-suite["snoc"] = BenchmarkGroup()
-suite["snoc"]["into empty"] = @benchmarkable q=snoc(q0, 14) setup=q0=Batched.Queue{Int64}()
-suite["snoc"]["into len128"] = @benchmarkable q=snoc(q0, 14) setup=q0=snoc_repeatedly(rand(Int64, 128))
-suite["snoc"]["into len256"] = @benchmarkable q=snoc(q0, 14) setup=q0=snoc_repeatedly(rand(Int64, 256))
-suite["snoc"]["into len512"] = @benchmarkable q=snoc(q0, 14) setup=q0=snoc_repeatedly(rand(Int64, 512))
+function qmin(q)
+    min = first(q)
+    for x in q
+        if x < min min = x end
+    end
+    min
+end
 
-suite["head"] = BenchmarkGroup()
-suite["head"]["after 1 snoc"] = @benchmarkable head(q) setup = q=snoc(Batched.Queue{Int64}(), 97310)
-suite["head"]["after 128 snocs"] = @benchmarkable head(q) setup=(q=snoc_repeatedly(1:128))
-suite["head"]["after 256 snocs"] = @benchmarkable head(q) setup=(q=snoc_repeatedly(1:256))
-suite["head"]["after 512 snocs"] = @benchmarkable head(q) setup=(q=snoc_repeatedly(1:512))
+function testq(Queue, iter)
+    q = snoc_repeatedly(Queue, iter)
+    qmin(q)
+end
 
-suite["tail"] = BenchmarkGroup()
-suite["tail"]["after 1 snoc"] = @benchmarkable tail(q) setup = q=snoc(Batched.Queue{Int64}(), 97310)
-suite["tail"]["after 128 snocs"] = @benchmarkable tail(q) setup=(q=snoc_repeatedly(1:128))
-suite["tail"]["after 256 snocs"] = @benchmarkable tail(q) setup=(q=snoc_repeatedly(1:256))
-suite["tail"]["after 512 snocs"] = @benchmarkable tail(q) setup=(q=snoc_repeatedly(1:512))
+function addbm!(suite, Queue)
+    suite[Queue] = BenchmarkGroup()
+    suite[Queue]["len128"] = @benchmarkable q=testq($Queue, iter) setup=iter=rand(Int16, 128)
+    suite[Queue]["len256"] = @benchmarkable q=testq($Queue, iter) setup=iter=rand(Int16, 256)
+    suite[Queue]["len512"] = @benchmarkable q=testq($Queue, iter) setup=iter=rand(Int16, 512)
+end
 
-tune!(suite)
-results = run(suite, verbose=false)
 
+end

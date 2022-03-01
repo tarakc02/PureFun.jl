@@ -9,3 +9,28 @@ separate project.toml for each of tests, benchmarks, and docs.
 using Pkg, BenchmarkTools
 Pkg.activate("..")
 using PureFun
+
+include("src/bench_queue.jl")
+include("src/bench_list.jl")
+
+queues  = [PureFun.Queues.Batched.Queue,
+           PureFun.Queues.RealTime.Queue]
+
+lists   = [PureFun.Lists.Linked.List]
+
+streams = [PureFun.Lazy.Stream]
+
+heaps   = [PureFun.Heaps.Pairing.Heap]
+
+suite = BenchmarkGroup()
+
+for l in lists
+    ListBenchmarks.addbm!(suite, l)
+end
+
+for q in queues
+    QueueBenchmarks.addbm!(suite, q)
+end
+
+tune!(suite)
+results = run(suite, verbose=false)
