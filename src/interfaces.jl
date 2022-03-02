@@ -16,7 +16,7 @@ end in `!`).
 # note: all containers are expected to have implemented `Base.isempty`
 
 # `push` is provided as an analogue to `Base.push!`, and `append` as `append!`
-export push, cons, snoc, append, ⧺, tail,
+export push, cons, snoc, append, ⧺, head, tail,
        #merge,
        find_min, delete_min, insert
 
@@ -44,6 +44,7 @@ abstract type PFHeap{T} end
 # shorthand for data structures that implement `Base.first` and `PureFun.tail`
 const Listy{T} = Union{PFList{T}, PFQueue{T}, PFStream{T}, PFHeap{T}} where T
 
+const head = Base.first
 function cons end
 function tail end
 function append end
@@ -79,6 +80,9 @@ function Base.getindex(l::Listy, i)
     i == 1 && return first(l)
     getindex(tail(l), i - 1)
 end
+
+Base.rest(l::Listy) = tail(l)
+Base.rest(l::Listy, itr_state) = itr_state
 
 
 function insert end
