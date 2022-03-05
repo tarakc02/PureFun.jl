@@ -2,7 +2,7 @@ module Unrolled
 
 #using PureFun
 using ...PureFun
-using PureFun.Lists.Linked
+using ...PureFun.Lists.Linked
 
 # a fixed length vector {{{
 #abstract type Fixed{N,T} <: PureFun.PFList{T} end
@@ -89,7 +89,7 @@ Base.isempty(::List{T,N,L}) where {T, N, L<:Linked.NonEmpty} = false
 
 List(e::Linked.List{ Fixed{N,T} }) where {T,N} = List{T,N,typeof(e)}(e)
 List{T,N}() where {T,N} = List(Linked.Empty{ Fixed{N, T} }())
-List{T}() where T = List{T,32}()
+List{T}() where T = List{T,4}()
 
 function PureFun.cons(x, xs::Empty{T,N}) where {T,N}
     List{T,N,Linked.NonEmpty{ Fixed{N,T} }}(cons(init(x, chunksize(xs)), xs.l))
@@ -110,10 +110,23 @@ PureFun.tail(l::List) = almostempty(first(l.l)) ? List(tail(l.l)) : List(cons(ta
 # }}}
 
 # construct from an iterable + iteration utils {{{
-List{N}(iter) where N = foldr( cons, iter; init=List{eltype(iter), N}()  )
-List(iter) = foldr( cons, iter; init=List{eltype(iter), 32}()  )
-
-Base.iterate(iter::Empty) = nothing
+#List{N}(iter) where N = foldr( cons, iter; init=List{eltype(iter), N}()  )
+List(iter) = List{4}(iter)
+function List{N}(iter) where N
+    l = Linked.List{ Fixed{N,eltype(iter)} }()
+    for chunk in Iterators.partition(iter, N)
+        if length(chunk) == N
+            l = cons(Fixed(chunk), l)
+        else
+            lc = init(chunk[1], UInt8(N))
+            for i in 2:length(chunk)
+                lc = cons(chunk[i], lc)
+            end
+            l = cons(reverse(lc), l)
+        end
+    end
+    return List(reverse(l))
+end
 
 Base.@propagate_inbounds function Base.iterate(iter::List)
     chunk = first(iter.l)
@@ -122,13 +135,14 @@ Base.@propagate_inbounds function Base.iterate(iter::List)
     return nextval[1], (iter.l, nextval[2])
 end
 
-Base.@propagate_inbounds function Base.iterate(iter::List, state)
+Base.@propagate_inbounds function Base.iterate(iter::List{T,N,L}, state) where {T,N,L}
     chunklist, curindex = state
-    curchunk, nextchunks... = chunklist
+    curchunk = first(chunklist)
     nextval = iterate(curchunk, curindex)
     while isnothing(nextval)
+        nextchunks = tail(chunklist)
         isempty(nextchunks) && return nothing
-        chunklist = nextchunks
+        chunklist = nextchunks::Linked.NonEmpty{ Fixed{N,T} }
         newchunk = first(chunklist)
         nextval = iterate(newchunk)
     end
@@ -166,53 +180,11 @@ function _reverse(l::List, accum)
 end
 # }}}
 
-end
-#tmpa = Fixed(1:128)
-#tmpb = Linked.List(1:10_000)
-
-using .Unrolled
-tmp = Unrolled.List{128}(1:10_000)
-
-minimum(x for x in tmp)
-maximum(x for x in tmp)
-
-function tf1(iter)
-    x = iterate(iter)
-    return iterate(iter, x[2])
+PureFun.append(l::Empty{T}, s::List{T}) where T = s
+PureFun.append(l::Empty, el) = cons(el, l)
+function PureFun.append(l1::List{T,N}, l2::List{T,N}) where {T,N}
+    l12 = l1.l ⧺ l2.l
+    List{T,N,typeof(l12)}(l12)
 end
 
-function tf2(iter)
-    f = Iterators.flatten(iter.l)
-    x = iterate(f)
-    return iterate(f, x[2])
 end
-
-@btime minimum(minimum(el for el in chunk) for chunk in $tmp.l)
-@btime minimum(x for x in $tmp)
-@btime minimum(x for x in Iterators.flatten($tmp.l))
-@btime sum(x for x in Iterators.flatten($tmp.l))
-@btime sum(x for x in $tmp)
-#@btime minimum(x for x in $tmpx)
-
-@btime reverse($tmpc)
-@btime reverse($tmpb)
-@btime reverse($tmpa)
-
-@btime length($tmpa)
-@btime length($tmpb)
-
-collect(tmp)
-
-@btime length(tmp)
-@btime fastlength(tmp)
-
-tmp2 = Linked.List([x for x in tmp])
-
-@btime collect(tmp)
-@btime minimum(x for x in tmp)
-@btime collect(tmp2)
-
-cons(99, n) |> length
-
-
-@code_warntype iterate(tmpc, iterate(tmpc)[2])

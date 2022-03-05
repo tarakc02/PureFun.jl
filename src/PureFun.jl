@@ -5,6 +5,7 @@ include("lists-streams/stream.jl")
 
 module Lists
 include("lists-streams/list.jl")
+include("lists-streams/unrolled.jl")
 end
 
 module Queues

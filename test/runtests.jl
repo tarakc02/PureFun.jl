@@ -12,7 +12,8 @@ include("src/heap-tests.jl")
 queues  = [PureFun.Queues.Batched.Queue,
            PureFun.Queues.RealTime.Queue]
 
-lists   = [PureFun.Lists.Linked.List]
+lists   = [PureFun.Lists.Linked.List,
+           PureFun.Lists.Unrolled.List]
 
 streams = [PureFun.Lazy.Stream]
 

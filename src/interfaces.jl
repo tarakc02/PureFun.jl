@@ -66,10 +66,16 @@ const ⧺ = append
 #function head end
 #function tail end
 
-Base.iterate(iter::Listy) = isempty(iter) ? nothing : (first(iter), tail(iter))
-Base.iterate(iter::Listy, state) = isempty(state) ? nothing : (first(state), tail(state))
+Base.iterate(iter::Listy) = isempty(iter) ? nothing : (first(iter), iter)
+function Base.iterate(iter::Listy, state)
+    nxt = tail(state)
+    isempty(nxt) && return nothing
+    return first(nxt), nxt
+    #isempty(state) ? nothing : (first(state), tail(state))
+end
 
 Base.IndexStyle(::Listy) = IndexLinear()
+Base.IteratorSize(::Listy) = Base.SizeUnknown()
 Base.length(iter::Listy) = isempty(iter) ? 0 : 1 + length(tail(iter))
 Base.size(iter::Listy) = (length(iter),)
 Base.eltype(::Listy{T}) where T = T
