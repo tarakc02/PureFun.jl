@@ -10,10 +10,11 @@ include("src/stream-tests.jl")
 include("src/heap-tests.jl")
 
 queues  = [PureFun.Queues.Batched.Queue,
-           PureFun.Queues.RealTime.Queue]
+           PureFun.Queues.RealTime.Queue,
+           PureFun.Queues.Bootstrapped.Queue]
 
 lists   = [PureFun.Lists.Linked.List,
-           PureFun.Lists.Unrolled.List]
+           PureFun.Lists.SkewBinaryRAL.RAList]
 
 streams = [PureFun.Lazy.Stream]
 

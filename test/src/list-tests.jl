@@ -39,6 +39,7 @@ function stress_test(List)
         r = reverse(l)
         @test all(l .== iter)
         @test all(r .== reverse(iter))
+        @test all(tail(r) .== 49_999:-1:1)
     end
 end
 
@@ -55,8 +56,7 @@ function test_etc(List)
 end
 
 function test(List)
-    test_constructors(List), test_accessors(List),
-    stress_test(List), test_etc(List)
+    test_constructors(List), test_accessors(List), stress_test(List)
 end
 
 end

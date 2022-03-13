@@ -43,8 +43,17 @@ function test_accessors(Queue)
     end
 end
 
+function test_iterators(Queue)
+    @testset "iterate" begin
+        l = Queue(1:10)
+        @test all([x for x in l] .== 1:10)
+    end
+end
+
+
 function test(Queue)
-    test_constructors(Queue), test_snoc(Queue), test_accessors(Queue)
+    test_constructors(Queue), test_snoc(Queue),
+    test_accessors(Queue), test_iterators(Queue), stress_test(Queue)
 end
 
 end
