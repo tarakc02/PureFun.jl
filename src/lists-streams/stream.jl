@@ -39,7 +39,8 @@ macro cons(T, headexpr, tailexpr)
 end
 
 Base.empty(::Stream{T}) where {T} = Empty{T}()
-(Base.first(s::NonEmpty{T})::T) where {T} = force(s.head)::T
+(PureFun.head(s::NonEmpty{T})::T) where {T} = force(s.head)::T
+#(Base.first(s::NonEmpty{T})::T) where {T} = force(s.head)::T
 (PureFun.tail(s::NonEmpty{T})::Stream{T}) where {T} = force(s.tail)::Stream{T}
 
 #PureFun.take(k::Int64, s::Empty) = s

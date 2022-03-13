@@ -17,43 +17,39 @@ end in `!`).
 
 # `push` is provided as an analogue to `Base.push!`, and `append` as `append!`
 export push, cons, snoc, append, ⧺, head, tail,
-       #merge,
        find_min, delete_min, insert
 
 
-# anything that implements `PureFun.cons`, `Base.first`, and `PureFun.tail` can register as an
-# implementation of a stack/linked list
+# anything that implements `PureFun.cons`, `PureFun.head`, and `PureFun.tail` can
+# register as an implementation of a stack/linked list
 abstract type PFList{T} end
-# a PFSet must implement `insert` and `in`
+# a PFSet must implement `PureFun.insert` and `Base.in`
 abstract type PFSet{T} <: AbstractSet{T} end
 abstract type PFStream{T} end
-#Base.eltype(::PFStream{T}) where T = T
 # a PFDict should implement `PureFun.setindex` and `Base.getindex`
 abstract type PFDict{K, V} <: AbstractDict{K, V} end
-#Base.eltype(::PFDict{K, V}) where {K, V} = Pair{K, V}
+
 #=
 
-A `PFQueue` must implement `PureFun.push` and `Base.first`. Sticking with the
-conventions in DataStructures.jl, though it means `push` has different meanings
-for different data types
+A `PFQueue` must implement `PureFun.snoc`, `PureFun.head`, and `PureFun.tail`
 
 =#
 abstract type PFQueue{T} end
 abstract type PFHeap{T} end
 
-# shorthand for data structures that implement `Base.first` and `PureFun.tail`
+# shorthand for data structures that implement `PureFun.head` and `PureFun.tail`
 const Listy{T} = Union{PFList{T}, PFQueue{T}, PFStream{T}, PFHeap{T}} where T
 
-const head = Base.first
 function cons end
+function head end
 function tail end
 function append end
+const ⧺ = append
 
 function snoc end
-function setindex end
+#function setindex end
 
 # operations for PFHeap
-#function merge end
 function find_min end
 function delete_min end
 push(xs::PFList, x) = cons(x, xs)
@@ -61,47 +57,57 @@ push(xs::PFQueue, x) = snoc(xs, x)
 push(xs::PFSet, x) = insert(xs, x)
 push(xs::PFHeap, x) = insert(xs, x)
 
-const ⧺ = append
-#function ⧺ end
-#function head end
-#function tail end
+Base.first(xs::PFList) = head(xs)
+Base.first(xs::PFStream) = head(xs)
+Base.first(xs::PFHeap) = minimum(xs)
+Base.first(xs::PFQueue) = head(xs)
 
+Base.rest(l::Listy) = tail(l)
+Base.rest(l::Listy, itr_state) = tail(itr_state)
+
+# fallback implementations of methods for list-like containers {{{
 Base.iterate(iter::Listy) = isempty(iter) ? nothing : (first(iter), iter)
 function Base.iterate(iter::Listy, state)
     nxt = tail(state)
     isempty(nxt) && return nothing
     return first(nxt), nxt
-    #isempty(state) ? nothing : (first(state), tail(state))
 end
 
 Base.IndexStyle(::Listy) = IndexLinear()
 Base.IteratorSize(::Listy) = Base.SizeUnknown()
-Base.length(iter::Listy) = isempty(iter) ? 0 : 1 + length(tail(iter))
 Base.size(iter::Listy) = (length(iter),)
 Base.eltype(::Listy{T}) where T = T
 Base.firstindex(l::Listy) = 1
 
-function Base.getindex(l::Listy, i)
-    isempty(l) && BoundsError(l, i)
-    i == 1 && return first(l)
-    getindex(tail(l), i - 1)
+function Base.length(iter::Listy)
+    len = 0
+    while !isempty(iter)
+        len += 1
+        iter = tail(iter)
+    end
+    return len
 end
 
-Base.rest(l::Listy) = tail(l)
-Base.rest(l::Listy, itr_state) = itr_state
+Base.reverse(l::PFList) = foldl(push, l, init=empty(l))
+append(l1::PFList, l2::PFList) = foldl(push, reverse(l1), init=l2)
 
+function Base.getindex(l::Listy, ind)
+    cur = l
+    i = ind
+    while i > 1 && !isempty(cur)
+        i -= 1
+        cur = tail(cur)
+    end
+    i > 1 && throw(BoundsError(l, ind))
+    return head(cur)
+end
+
+# }}}
 
 function insert end
-#function member end
 
 Base.union(s::PFSet, iter) = foldl(push, iter, init = s)
-function Base.union(s::PFSet, sets...)
-    out = s
-    for s₀ in sets
-        out = union(s, s₀)
-    end
-    return out
-end
+Base.union(s::PFSet, sets...) = reduce(union, sets, init=s)
 
 function Base.intersect(s::PFSet, iter)
     out = empty(s)
@@ -110,16 +116,10 @@ function Base.intersect(s::PFSet, iter)
     end
     return out
 end
-
-function Base.intersect(s::PFSet, sets...)
-    out = s
-    for s₀ in sets
-        out = intersect(out, s₀)
-    end
-    return out
-end
+Base.intersect(s::PFSet, sets...) = reduce(sets, intersect, init=s)
 
 Base.eltype(::PFSet{T}) where T = T
+
 
 struct Ordered{T, O <: Base.Order.Ordering}
     elem::T
