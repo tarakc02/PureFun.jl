@@ -1,7 +1,6 @@
 # # A purely functional red-black tree
 #
 # Based on the book *Purely Functional Data Structures*
-import Base.show, Base.length
 import Base.Order.Ordering, Base.Order.ForwardOrdering, Base.Order.Forward
 
 abstract type RB{T, O <: Ordering} end
