@@ -28,17 +28,17 @@ end
 Queue{T}() where T = Queue(Lazy.Stream{T}(), Linked.List{T}(), Lazy.Stream{T}())
 
 function rotate(f::Lazy.Empty{T}, r::Linked.NonEmpty{T}, s::Lazy.Stream) where T
-    @cons T first(r) s
+    @cons T head(r) s
 end
 
 function rotate(f::Lazy.NonEmpty{T}, r::Linked.NonEmpty{T}, s::Lazy.Stream{T}) where T 
-    cc = @cons T first(r) s
-    @cons T first(f) rotate(tail(f), tail(r), cc)
+    cc = @cons T head(r) s
+    @cons T head(f) rotate(tail(f), tail(r), cc)
 end
 
 function exec(f, r, s::Lazy.NonEmpty) 
     # forcing this suspension
-    tmp = first(s)
+    tmp = head(s)
     Queue(f, r, tail(s))
 end
 function exec(f, r, s::Lazy.Empty)
@@ -46,7 +46,8 @@ function exec(f, r, s::Lazy.Empty)
     Queue(f_prime, empty(r), f_prime)
 end
 
-Base.first(q::NonEmpty) = first(front(q))
+PureFun.head(q::NonEmpty) = head(front(q))
+#Base.first(q::NonEmpty) = first(front(q))
 PureFun.snoc(q::Queue, x) = exec(front(q), cons(x, rear(q)), sched(q))
 PureFun.tail(q::NonEmpty) = exec(tail(front(q)), rear(q), sched(q))
 
@@ -58,7 +59,7 @@ end
 function Base.show(::IO, ::MIME"text/plain", bq::Queue)
     println("a realtime queue type $(typeof(bq))")
     !isempty(bq) || return nothing
-    println("next element: $(first(bq))")
+    println("next element: $(head(bq))")
 end
 
 end

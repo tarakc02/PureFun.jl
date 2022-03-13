@@ -20,8 +20,8 @@ Base.isempty(::NonEmpty) = false
 const leq = PureFun.leq
 elem(h) = h.x
 heaps(h) = h.hs
-PureFun.find_min(h::NonEmpty) = elem(h)
-Base.first(h::Heap) = find_min(h)
+#PureFun.find_min(h::NonEmpty) = elem(h)
+Base.minimum(h::NonEmpty) = elem(h)
 
 Base.length(h::Empty) = 0
 Base.length(h::NonEmpty{ T, Linked.Empty{ NonEmpty{T} } }) where T = 1
@@ -39,12 +39,12 @@ PureFun.insert(h::Heap{T}, x::T) where T = merge(NonEmpty(x, Linked.List{NonEmpt
 
 merge_pairs(::Linked.Empty{T}) where T = Heap{T}()
 function merge_pairs(l)
-    isempty(tail(l)) && return first(l)
+    isempty(tail(l)) && return head(l)
     hs = l
     merged = Heap{eltype(l)}()
     while !isempty(hs)
-        isempty(tail(hs)) && return merge(first(hs), merged)
-        h1, h2, hs = first(hs), first(tail(hs)), tail(tail(hs))
+        isempty(tail(hs)) && return merge(head(hs), merged)
+        h1, h2, hs = head(hs), head(tail(hs)), tail(tail(hs))
         merged = merge(merge(h1, h2), merged)
     end
     return merged

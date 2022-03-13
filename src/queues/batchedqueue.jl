@@ -29,7 +29,8 @@ function checkf(f::Linked.Empty, r::Linked.NonEmpty)
 end
 checkf(f, r) = Queue(f, r)
 
-Base.first(q::NonEmpty) = first(front(q))
+PureFun.head(q::NonEmpty) = head(front(q))
+#Base.first(q::NonEmpty) = first(front(q))
 PureFun.snoc(q::Queue, x) = checkf(front(q), cons(x, rear(q)))
 PureFun.tail(q::NonEmpty) = checkf(tail(front(q)), rear(q))
 
