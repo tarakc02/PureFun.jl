@@ -9,6 +9,8 @@ function snoc_repeatedly(Queue, iter)
     return out
 end
 
+fillrandq(Queue, n) = snoc_repeatedly(Queue, rand(Int16, n))
+
 function qmin(q)
     min = first(q)
     for x in q
@@ -24,10 +26,14 @@ end
 
 function addbm!(suite, Queue)
     suite[Queue] = BenchmarkGroup()
-    suite[Queue]["len128"] = @benchmarkable q=testq($Queue, iter) setup=iter=rand(Int16, 128)
-    suite[Queue]["len256"] = @benchmarkable q=testq($Queue, iter) setup=iter=rand(Int16, 256)
-    suite[Queue]["len512"] = @benchmarkable q=testq($Queue, iter) setup=iter=rand(Int16, 512)
+    suite[Queue]["snoc_empty"] = @benchmarkable snoc(q, x) setup=(q = $Queue{Int16}(); x = rand(Int16))
+    suite[Queue]["snoc_10k"] = @benchmarkable snoc(q, x) setup=(q=fillrandq($Queue, 10_000); x=rand(Int16))
+    suite[Queue]["firsttail"] = @benchmarkable tail(q) setup=q=fillrandq($Queue, 10_000)
+    suite[Queue]["secondtail"] = @benchmarkable tail(q) setup=q=tail(fillrandq($Queue, 10_000))
+    suite[Queue]["iter"] = @benchmarkable qmin(q) setup=q=fillrandq($Queue, 10_000)
+    #suite[Queue]["len128"] = @benchmarkable q=testq($Queue, iter) setup=iter=rand(Int16, 128)
+    #suite[Queue]["len256"] = @benchmarkable q=testq($Queue, iter) setup=iter=rand(Int16, 256)
+    #suite[Queue]["len512"] = @benchmarkable q=testq($Queue, iter) setup=iter=rand(Int16, 512)
 end
-
 
 end

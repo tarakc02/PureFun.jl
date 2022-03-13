@@ -14,10 +14,10 @@ include("src/bench_queue.jl")
 include("src/bench_list.jl")
 
 queues  = [PureFun.Queues.Batched.Queue,
-           PureFun.Queues.RealTime.Queue]
+           PureFun.Queues.RealTime.Queue,
+           PureFun.Queues.Bootstrapped.Queue]
 
-lists   = [PureFun.Lists.Linked.List,
-           PureFun.Lists.Unrolled.List]
+lists   = [PureFun.Lists.Linked.List, PureFun.Lists.SkewBinaryRAL.RAList]
 
 streams = [PureFun.Lazy.Stream]
 
@@ -35,3 +35,11 @@ end
 
 tune!(suite)
 results = run(suite, verbose=false)
+
+m1 = median(results["PureFun.Queues.Batched.Queue"])
+m2 = median(results["PureFun.Queues.Bootstrapped.Queue"])
+m3 = median(results["PureFun.Queues.RealTime.Queue"])
+
+ratio(m2, m1)
+ratio(m3, m1)
+ratio(m2, m3)
