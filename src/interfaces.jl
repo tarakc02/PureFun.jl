@@ -17,7 +17,8 @@ end in `!`).
 
 # `push` is provided as an analogue to `Base.push!`, and `append` as `append!`
 export push, cons, snoc, append, ⧺, head, tail,
-       find_min, delete_min, insert
+       find_min, delete_min, delete_max, insert,
+       delete
 
 
 # anything that implements `PureFun.cons`, `PureFun.head`, and `PureFun.tail` can
@@ -47,11 +48,13 @@ function append end
 const ⧺ = append
 
 function snoc end
-#function setindex end
+function setindex end
 
 # operations for PFHeap
-function find_min end
+#function find_min end
 function delete_min end
+function delete_max end
+function delete end
 push(xs::PFList, x) = cons(x, xs)
 push(xs::PFQueue, x) = snoc(xs, x)
 push(xs::PFSet, x) = insert(xs, x)

@@ -23,9 +23,6 @@ and `pop!` (remove the most recently added element).
 
 Time complexity of each operation.
 
-These abstractions enable higher level abstractions -- for example using a
-priority queue for best-first search or using a stack to enable backtracking in
-a maze solving algorithm.
-
-###
-
+These abstractions enable higher level abstractions -- for example using a heap
+(which gives fast access to the minimum element) for best-first search, or
+using a stack to enable backtracking in a maze solving algorithm.

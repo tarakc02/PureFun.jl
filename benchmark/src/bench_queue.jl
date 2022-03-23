@@ -31,9 +31,6 @@ function addbm!(suite, Queue)
     suite[Queue]["firsttail"] = @benchmarkable tail(q) setup=q=fillrandq($Queue, 10_000)
     suite[Queue]["secondtail"] = @benchmarkable tail(q) setup=q=tail(fillrandq($Queue, 10_000))
     suite[Queue]["iter"] = @benchmarkable qmin(q) setup=q=fillrandq($Queue, 10_000)
-    #suite[Queue]["len128"] = @benchmarkable q=testq($Queue, iter) setup=iter=rand(Int16, 128)
-    #suite[Queue]["len256"] = @benchmarkable q=testq($Queue, iter) setup=iter=rand(Int16, 256)
-    #suite[Queue]["len512"] = @benchmarkable q=testq($Queue, iter) setup=iter=rand(Int16, 512)
 end
 
 end

@@ -5,14 +5,47 @@
 # We can always find the mininmum and maximum nodes without doing a single
 # comparison
 function Base.minimum(tree::NE)
-    is_empty(tree.left) && return tree
+    isempty(tree.left) && return tree
     return minimum(tree.left)
 end
 
 function Base.maximum(tree::NE)
-    is_empty(tree.right) && return tree
+    isempty(tree.right) && return tree
     return maximum(tree.right)
 end
+
+findnode(::E, key, found, notfound) = notfound(key)
+function findnode(tree::NE, key, found::Function, notfound::Function)
+    candidate = tree
+    while !isempty(tree)
+        if smaller(key, tree)
+            tree = tree.left
+        else
+            candidate = tree
+            tree = tree.right
+        end
+    end
+    smaller(candidate, key) ? notfound(key) : found(candidate)
+end
+
+#function findnode(::E, key, candidate, found, notfound)
+#    smaller(candidate, key) ? notfound(key) : found(candidate)
+#end
+#
+#function findnode(tree::NE, key, found::Function, notfound::Function)
+#    smaller(key, tree) && findnode(tree.left, key, found, notfound)
+#    findnode(tree.right, key, tree, found, notfound)
+#end
+#
+#function findnode(tree::NE, key, candidate::NE, found, notfound)
+#    smaller(key, tree) && findnode(tree.left, key, candidate, found, notfound)
+#    findnode(tree.right, key, tree, found, notfound)
+#end
+
+const return_true(x) = true
+const return_false(x) = false
+contains2(tree::NE, key) = findnode(tree, key, return_true, return_false)
+
 
 # see exercise 2.3, instead of doing multiple comparisons at each step, we
 # maintain a `candidate` node, the largest node we've seen that is not less

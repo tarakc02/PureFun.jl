@@ -31,7 +31,7 @@ end
 turn_black(t::Black) = t
 
 # ## The main method
-function insert(tree::RB, key)
+function PureFun.insert(tree::RB, key)
     res = ins(tree, key)
     turn_black(res)
 end
@@ -39,7 +39,7 @@ end
 # ## The recursion
 #
 # recursion dispatches on color of node
-ins(::E{T}, key::T) where {T} = Red(key, E{T}(), E{T}())
+ins(tr::E{T,O}, key::T) where {T,O} = Red(key, E{T}(order(tr)), E{T,O}(order(tr)))
 function ins(t::Red, key)
     smaller(key, t) && return Red(t.elem, ins(t.left, key), t.right)
     smaller(t, key) && return Red(t.elem, t.left, ins(t.right, key))
@@ -80,6 +80,11 @@ function balance(key, left::RB, right::RedViolR)
     x = Black(key, left, right.left)
     z = turn_black(right.right)
     Red(right.elem, x, z)
+end
+
+function RB(iter, o::Ordering=Forward)
+    type = typeof(first(iter))
+    reduce(insert, iter, init = E{type}(o))
 end
 
 # done.

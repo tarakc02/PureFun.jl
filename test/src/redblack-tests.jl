@@ -1,16 +1,19 @@
 module RedBlackTests
-include("RedBlack.jl")
 
+using PureFun
+using PureFun.RedBlack
+using Test
 
 # setup {{{
-using Test, .RedBlack
-import .RedBlack.Red, .RedBlack.Black, .RedBlack.NE, .RedBlack.is_empty, .RedBlack.RB
+import .RedBlack.Red, .RedBlack.Black, .RedBlack.NE, .RedBlack.E,  .RedBlack.RB
+
+is_balanced(t::E) = true
 
 function is_balanced(t::NE)
     black_height(t.left) == black_height(t.right)
 end
 
-black_height(::E{T}) where {T} = 0
+black_height(::E) = 0
 
 function black_height(t::Red)
     bhl = black_height(t.left)
@@ -30,8 +33,8 @@ is_bst(::E) = true
 function is_bst(t)
     is_bst(t.left) || return false
     is_bst(t.right) || return false
-    !is_empty(t.left) && t.left.elem >= t.elem && return false
-    !is_empty(t.right) && t.right.elem <= t.elem && return false
+    !isempty(t.left) && t.left.elem >= t.elem && return false
+    !isempty(t.right) && t.right.elem <= t.elem && return false
     return true
 end
 
@@ -51,72 +54,51 @@ function is_redblack(t::Black)
     is_redblack(t.left) && is_redblack(t.right)
 end
 
-function array2tree(x::Array{T, 1}) where {T}
-    tree = E{T}()
-    for element in x
-        tree = insert(tree, element)
-    end
-    return tree
-end
+rand_tree(size) = RB(rand(Int64, size))
 
-function rand_tree(size)
-    tree = E{Int64}()
-    for x in rand(Int64, size)
-        tree = insert(tree, x)
-    end
-    return tree
-end
 # }}}
 
 @testset "insert elements" begin #{{{
-    inorder = array2tree(collect(1:100))
-    backward = array2tree(reverse(collect(1:100)))
-    random = rand_tree(100)
+    inorder = RedBlack.RB(1:100)
+    backward = RedBlack.RB(reverse(1:100))
+    random = RedBlack.RB(rand(Int64, 100))
 
     @test length(inorder) == 100
     @test length(backward) == 100
     @test length(random) == 100
 
-    @test contains(inorder, 1)
-    @test contains(inorder, 2)
-    @test contains(inorder, 3)
-    @test contains(inorder, 4)
-    @test contains(inorder, 5)
-    @test contains(inorder, 59)
-    @test contains(inorder, 93)
-    @test contains(inorder, 100)
+    @test 1 in inorder
+    @test 2 in inorder
+    @test 3 in inorder
+    @test 4 in inorder
+    @test 5 in inorder
+    @test 59 in inorder
+    @test 93 in inorder
+    @test 100 in inorder
 
-    @test contains(backward, 1)
-    @test contains(backward, 2)
-    @test contains(backward, 3)
-    @test contains(backward, 4)
-    @test contains(backward, 5)
-    @test contains(backward, 59)
-    @test contains(backward, 93)
-    @test contains(backward, 100)
+    @test 1 in backward
+    @test 2 in backward
+    @test 3 in backward
+    @test 4 in backward
+    @test 5 in backward
+    @test 59 in backward
+    @test 93 in backward
+    @test 100 in backward
 
-    inorder2 = insert(inorder, 101)
-    @test !contains(inorder, 101)
-    @test contains(inorder2, 101)
+    inorder2 = RedBlack.insert(inorder, 101)
+    @test 101 ∉ inorder
+    @test 101 ∈ inorder2
 
-    backward2 = insert(backward, 101)
-    @test !contains(backward, 101)
-    @test contains(backward2, 101)
+    backward2 = RedBlack.insert(backward, 101)
+    @test 101 ∉ backward
+    @test 101 ∈ backward2
 end
 # }}}
 
-#@testset "range operators" begin
-#    inorder = array2tree(collect(1:10))
-#    backward = array2tree(reverse(collect(1:10)))
-#
-#    @test [el for el in between(inorder, 3, 5)] == [3, 4, 5]
-#    @test [el for el in between(backward, 6, 9)] == [6, 7, 8, 9]
-#end
-
 @testset "maintain ordering" begin # {{{
-    inorder = array2tree(collect(1:100))
-    backward = array2tree(reverse(collect(1:100)))
-    random = rand_tree(1000)
+    inorder = RedBlack.RB(1:100)
+    backward = RedBlack.RB(reverse(1:100))
+    random = RedBlack.RB(rand(Int64, 100))
 
     @test is_bst(inorder)
     @test is_bst(backward)
@@ -124,19 +106,10 @@ end
 end
 # }}}
 
-#@testset "dictionary-style" begin #{{{
-#    dict = E{Pair{Symbol, Int64}}()
-#    dict = insert(dict, :a => 17)
-#    dict = insert(dict, :b => 5)
-#
-#    @test contains(dict, :a)
-#end
-# }}}
-
 @testset "maintain black balance" begin #{{{
-    inorder = array2tree(collect(1:100))
-    backward = array2tree(reverse(collect(1:100)))
-    random = rand_tree(1000)
+    inorder = RB(1:100)
+    backward = RB(reverse(1:100))
+    random = RB(rand(Int64, 100))
 
     @test is_balanced(inorder)
     @test is_balanced(backward)
@@ -145,8 +118,8 @@ end
 # }}}
 
 @testset "no red-red violations" begin #{{{
-    inorder = array2tree(collect(1:100))
-    backward = array2tree(reverse(collect(1:100)))
+    inorder = RB(1:100)
+    backward = RB(reverse(1:100))
     random = rand_tree(1000)
 
     @test is_redblack(inorder)
@@ -155,56 +128,85 @@ end
 end
 # }}}
 
-#@testset "delete-min preserves invariants" begin
-#    inorder = array2tree(collect(1:100))
-#    backward = array2tree(reverse(collect(1:100)))
-#    random = rand_tree(1000)
-#
-#    function test_del(tree)
-#        m = minimum(tree)
-#        t = delete_min(tree)
-#
-#        while !is_empty(t)
-#            @test !contains(t, m)
-#            @test  contains(tree, m)
-#            @test is_redblack(t)
-#            @test is_bst(t)
-#            @test is_balanced(t)
-#            m = minimum(t)
-#            t = delete_min(t)
-#        end
-#    end
-#
-#
-#    function find_problem(tree)
-#        t = tree
-#        while !is_empty(t)
-#            t_new = delete_min(t);
-#            try
-#                is_balanced(t_new)
-#            catch 
-#                return t
-#            end
-#            t = t_new;
-#        end
-#    end
-#
-#    test_del(inorder)
-#    test_del(backward)
-#    test_del(random)
-#end
+@testset "delete-min preserves invariants" begin # {{{
+    inorder = RB(1:100)
+    backward = RB(reverse(1:100))
+    random = rand_tree(1000)
 
-#@testset "iteration" begin
-#    function nattree(n)
-#        tree = E{Int64}()
-#        for element in 1:n
-#            tree = insert(tree, element)
-#        end
-#        return tree
-#    end
-#
-#    test = nattree(100);
-#    @test all([x for x in test] .== 1:100)
-#end
+    function test_del(tree)
+        m = minimum(tree)
+        t = delete_min(tree)
+
+        while !isempty(t)
+            @test m ∉ t
+            @test m ∈ tree
+            @test is_redblack(t)
+            @test is_bst(t)
+            @test is_balanced(t)
+            m = minimum(t)
+            t = delete_min(t)
+        end
+    end
+
+    test_del(inorder)
+    test_del(backward)
+    test_del(random)
+end
+
+# }}}
+
+@testset "delete-max preserves invariants" begin # {{{
+    inorder = RB(1:100)
+    backward = RB(reverse(1:100))
+    random = rand_tree(1000)
+
+    function test_del(tree)
+        m = maximum(tree)
+        t = delete_max(tree)
+
+        while !isempty(t)
+            @test m ∉ t
+            @test m ∈ tree
+            @test is_redblack(t)
+            @test is_bst(t)
+            @test is_balanced(t)
+            m = maximum(t)
+            t = delete_max(t)
+        end
+    end
+
+    test_del(inorder)
+    test_del(backward)
+    test_del(random)
+end
+
+# }}}
+
+@testset "arbitrary deletion preserves invariants" begin # {{{
+    seed = Set(rand(Int16, 200))
+    tree = RB(seed)
+    t = tree
+
+    function test_del(tree)
+        for s in seed
+            t = delete(tree, s)
+            @test s ∉ t
+            @test s ∈ tree
+            @test is_redblack(t)
+            @test is_bst(t)
+            @test is_balanced(t)
+            tree = t
+        end
+    end
+
+    test_del(tree)
+end
+
+# }}}
+
+@testset "iteration" begin # {{{
+    @test all(collect(RB(1:100) .== 1:100))
+end
+# }}}
 
 end

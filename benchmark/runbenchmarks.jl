@@ -12,6 +12,7 @@ using PureFun
 
 include("src/bench_queue.jl")
 include("src/bench_list.jl")
+include("src/bench_heap.jl")
 
 queues  = [PureFun.Queues.Batched.Queue,
            PureFun.Queues.RealTime.Queue,
@@ -21,7 +22,7 @@ lists   = [PureFun.Lists.Linked.List, PureFun.Lists.SkewBinaryRAL.RAList]
 
 streams = [PureFun.Lazy.Stream]
 
-heaps   = [PureFun.Heaps.Pairing.Heap]
+heaps   = [PureFun.Heaps.Pairing.Heap, PureFun.RedBlack.RB]
 
 suite = BenchmarkGroup()
 
@@ -31,6 +32,10 @@ end
 
 for q in queues
     QueueBenchmarks.addbm!(suite, q)
+end
+
+for h in heaps
+    HeapBenchmarks.addbm!(suite, h)
 end
 
 tune!(suite)

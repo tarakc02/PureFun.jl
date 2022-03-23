@@ -1,28 +1,25 @@
-include("src/RedBlack.jl")
+#using PureFun
+include("src/redblack/RedBlack.jl")
+using PureFun
 using .RedBlack
 
+using Pkg
+Pkg.activate("benchmark")
 using BenchmarkTools    
 using Random: randstring
 #using DataStructures: SortedSet, startof
 
 # helpers {{{
 function randstring_tree(size)
-    tree = E{String}()
+    tree = RedBlack.E{String}()
     for i in 1:size
         x = randstring("AB", 80)
-        tree = insert(tree, x)
+        tree = RedBlack.insert(tree, x)
     end
     return tree
 end
 
-function randint_tree(size)
-    tree = E{Int64}()
-    for i in 1:size
-        x = rand(Int64)
-        tree = insert(tree, x)
-    end
-    return tree
-end
+randint_tree(size) = RedBlack.RB(rand(Int64, size))
 
 #function randstring_set(size)
 #    set = SortedSet{String}()
@@ -34,7 +31,7 @@ end
 #end
 # }}}
 
-tree = randstring_tree(10_00);
+tree = randint_tree(10_00);
 dm1 = delete_min(tree) |> delete_min;
 dm2 = RedBlack.delete_min2(tree) |> delete_min;
 
@@ -65,10 +62,10 @@ set = randstring_set(1_000);
 
 # }}}
 
-@benchmark contains(tree, x) setup=(tree = randstring_tree(1); x=randstring("AB", 80))
+@benchmark RedBlack.contains(tree, x) setup=(tree = randstring_tree(1); x=randstring("AB", 80))
 @benchmark RedBlack.contains2(tree, x) setup=(tree = randstring_tree(1); x=randstring("AB", 80))
 
-@benchmark insert(tree, x) setup=(tree = randstring_tree(1); x=randstring("AB", 80))
+@benchmark RedBlack.insert(tree, x) setup=(tree = randstring_tree(1); x=randstring("AB", 80))
 @benchmark x in set setup=(set = randstring_set(1); x=randstring("AB", 80))
 
 function f()
@@ -95,7 +92,9 @@ end
 
 constr(::O) where {O <: Base.Order.Ordering} = O()
 
-@benchmark contains(tree, x) setup=(tree = randstring_tree(256); x=randstring("AB", 80))
+@benchmark RedBlack.contains(tree, x) setup=(tree = randstring_tree(256); x=randstring("AB", 80))
+@benchmark RedBlack.contains2(tree, x) setup=(tree = randstring_tree(256); x=randstring("AB", 80))
+
 @benchmark insert(tree, x) setup=(tree = randstring_tree(1_000); x=randstring("AB", 80))
 
 @benchmark tree.elem < x setup=(tree = randstring_tree(256); x=randstring("AB", 80))
@@ -110,7 +109,7 @@ constr(::O) where {O <: Base.Order.Ordering} = O()
 
 
 @benchmark insert(tree, x) setup=(tree = randstring_tree(1_000); x=randstring("AB", 80))
-@benchmark insert(tree, x) setup=(tree = randint_tree(10_000); x=rand(Int64))
+@benchmark RedBlack.insert(tree, x) setup=(tree = randint_tree(10_000); x=rand(Int64))
 @benchmark insert!(set, x) setup=(set = randstring_set(10_000); x=randstring("AB", 80))
 
 
@@ -159,8 +158,8 @@ const bigtree = randint_tree(1_000_000);
 @benchmark minimum($test)
 @benchmark first($settest)
 
-@benchmark delete_min(tree) setup=(tree=randstring_tree(1_000))
-@benchmark delete_min(tree) setup=(tree=randstring_tree(10_000))
+@benchmark RedBlack.delete_min(tree) setup=(tree=randint_tree(1_000))
+@benchmark RedBlack.delete_min(tree) setup=(tree=randint_tree(10_000))
 
 tree = randstring_tree(25);
 RedBlack.delete_min2(tree)
@@ -179,7 +178,7 @@ RedBlack.delete_min2(tree)
 ### iteration
 #
 
-@benchmark iterate(x) setup=(x=randstring_tree(100_000))
+@benchmark iterate(x) setup=(x=randstring_tree(1_000_000))
 @benchmark iterate(x, state) setup=(x = randstring_tree(100_000); (min, state) = iterate(x))
 
 @benchmark minimum(x) setup=(x=randstring_tree(1_000))

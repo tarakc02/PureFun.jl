@@ -19,4 +19,6 @@ module Heaps
 include("heaps/pairing-heap.jl")
 end
 
+include("redblack/RedBlack.jl")
+
 end

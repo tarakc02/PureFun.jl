@@ -39,3 +39,5 @@ for h in heaps
     println(); println(h)
     HeapTests.test(h)
 end
+
+include("src/redblack-tests.jl")

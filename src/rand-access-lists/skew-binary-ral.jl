@@ -59,7 +59,7 @@ function _tail(h::Tuple{ Int64, Node }, ts)
     cons( (w2, node.t1), cons((w2, node.t2), ts) )
 end
 
-Base.IteratorSize(::RAList) = true
+Base.IteratorSize(::RAList) = Base.HasLength()
 Base.length(ts::E) = 0
 function Base.length(ts::NE)
     len = 0
