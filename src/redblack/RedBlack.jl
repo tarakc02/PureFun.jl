@@ -7,6 +7,7 @@ include("basics.jl")
 include("insert.jl")
 include("traversal.jl")
 include("delete.jl")
+include("from-sorted.jl")
 
 function Base.show(::IO, ::MIME"text/plain", t::E{T}) where {T} 
     println("an empty rb-tree of type $(typeof(t))")

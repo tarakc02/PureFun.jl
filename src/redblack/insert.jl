@@ -82,9 +82,4 @@ function balance(key, left::RB, right::RedViolR)
     Red(right.elem, x, z)
 end
 
-function RB(iter, o::Ordering=Forward)
-    type = typeof(first(iter))
-    reduce(insert, iter, init = E{type}(o))
-end
-
 # done.

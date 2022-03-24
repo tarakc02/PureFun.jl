@@ -54,7 +54,7 @@ function is_redblack(t::Black)
     is_redblack(t.left) && is_redblack(t.right)
 end
 
-rand_tree(size) = RB(rand(Int64, size))
+rand_tree(size) = RB(rand(Int16, size))
 
 # }}}
 
@@ -120,7 +120,7 @@ end
 @testset "no red-red violations" begin #{{{
     inorder = RB(1:100)
     backward = RB(reverse(1:100))
-    random = rand_tree(1000)
+    random = rand_tree(5000)
 
     @test is_redblack(inorder)
     @test is_redblack(backward)
@@ -129,9 +129,10 @@ end
 # }}}
 
 @testset "delete-min preserves invariants" begin # {{{
+    small = RB(1:8)
     inorder = RB(1:100)
     backward = RB(reverse(1:100))
-    random = rand_tree(1000)
+    random = rand_tree(5000)
 
     function test_del(tree)
         m = minimum(tree)
@@ -148,6 +149,7 @@ end
         end
     end
 
+    test_del(small)
     test_del(inorder)
     test_del(backward)
     test_del(random)
@@ -158,7 +160,7 @@ end
 @testset "delete-max preserves invariants" begin # {{{
     inorder = RB(1:100)
     backward = RB(reverse(1:100))
-    random = rand_tree(1000)
+    random = rand_tree(5000)
 
     function test_del(tree)
         m = maximum(tree)
@@ -208,5 +210,17 @@ end
     @test all(collect(RB(1:100) .== 1:100))
 end
 # }}}
+
+@testset "alternate orderings" begin # {{{
+    inorder = RB(1:100)
+    backward = RB(1:100, Base.Order.Reverse)
+    @test all(collect(inorder) .== reverse(collect(backward)))
+end
+# }}}
+
+@testset "bugfixes and known issues" begin
+    @test all(RedBlack.RB(1:4) .== 1:4)
+    @test is_balanced(RedBlack.RB(1:8))
+end
 
 end
