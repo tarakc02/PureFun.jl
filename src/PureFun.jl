@@ -20,5 +20,6 @@ include("heaps/pairing-heap.jl")
 end
 
 include("redblack/RedBlack.jl")
+include("lists-streams/catenable-list.jl")
 
 end
