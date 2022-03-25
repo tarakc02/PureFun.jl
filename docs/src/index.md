@@ -1,9 +1,4 @@
-@def title = "PureFun.jl"
-@def tags = ["data-structures", "algorithms", "functional-programming", "julialang"]
-
 # Purely Functional Data Structures, in Julia
-
-\tableofcontents <!-- you can use \toc as well -->
 
 Wherein [I](https://tarakc02.github.io/) work my way through the book [*Purely
 Functional Data
