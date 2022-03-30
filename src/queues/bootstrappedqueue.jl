@@ -4,6 +4,10 @@ using ...PureFun
 using ...PureFun.Lists.Linked
 using ...PureFun.Lazy: @lz, Susp
 
+function snoclist(l::Linked.List{T}, x::T) where T
+    isempty(l) ? cons(x, l)::Linked.NonEmpty{T} : cons(head(l), snoclist(tail(l), x))::Linked.NonEmpty{T}
+end
+
 struct ReverseLater{T}
     s::Susp
 end
@@ -12,52 +16,65 @@ function force(reversal::ReverseLater{T}) where T
     PureFun.Lazy.force(reversal.s)::Linked.NonEmpty{T}
 end
 
-abstract type Queue{T} <: PureFun.PFQueue{T} end
-struct Empty{T} <: Queue{T} end
-struct NonEmpty{T, M, R} <: Queue{T} where {M <: Queue{ ReverseLater{T} }, R <: Linked.List{T}}
+struct Empty{T} <: PureFun.PFQueue{T} end
+struct NonEmpty{T} <: PureFun.PFQueue{T}
     lenfm::Int
     f::Linked.NonEmpty{T}
-    m::M
+    m::Union{ Empty{ReverseLater{T}},NonEmpty{ReverseLater{T}} }
     lenr::Int
-    r::R
+    r::Linked.List{T}
 end
 
-function NonEmpty(lenfm, f::Linked.NonEmpty{T}, m::M, lenr, r::R) where {T,M,R}
-    NonEmpty{T,M,R}(lenfm, f, m, lenr, r)
-end
+Queue{T} = Union{ Empty{T},NonEmpty{T} } where T
 
 Base.empty(::Queue{T}) where {T} = Empty{T}()
 Base.isempty(::Empty) = true
 Base.isempty(::NonEmpty) = false
 
-function PureFun.snoc(e::Empty, x)
-    T = typeof(x)
-    lenfm = 1
-    f = cons(x, Linked.List{T}())
-    m = Empty{ReverseLater{T}}()
-    lenr = 0
-    r = Linked.List{T}()
-    NonEmpty(lenfm, f, m, lenr, r)
+PureFun.head(q::NonEmpty) = head(q.f)
+
+issmall(q::NonEmpty) = isempty(q.r) && q.lenfm<4
+smallish(q::NonEmpty) = q.lenfm+q.lenr<4 && isempty(q.m)
+
+function PureFun.snoc(q::Empty{T}, x) where T
+    NonEmpty(1, cons(x, Linked.List{T}()),
+             Empty{ReverseLater{T}}(),
+             0, Linked.List{T}())
 end
 
-PureFun.snoc(q::NonEmpty, x) = checkq(q.lenfm, q.f, q.m, q.lenr+1, cons(x, q.r))
-PureFun.head(q::NonEmpty) = head(q.f)
+function PureFun.snoc(q::NonEmpty{T}, x) where T
+    if issmall(q)
+        NonEmpty(q.lenfm+1,
+                 snoclist(q.f,x),
+                 q.m::Empty{ReverseLater{T}},
+                 0, q.r::Linked.Empty{T})
+    elseif smallish(q)
+        NonEmpty(q.lenfm+q.lenr,
+                 foldl(snoclist, reverse(q.r), init=q.f)::Linked.NonEmpty{T},
+                 q.m, 0, empty(q.r))
+    else
+        checkq(q.lenfm, q.f, q.m, q.lenr+1, cons(x, q.r))
+    end
+end
+
 PureFun.tail(q::NonEmpty) = checkq(q.lenfm-1, tail(q.f), q.m, q.lenr, q.r)
 
 function checkq(lenfm, f, m, lenr, r)
-    if lenr<=lenfm 
+    if lenr<=lenfm
         checkf(lenfm, f, m, lenr, r)
     else 
         checkf(lenfm+lenr, f, snoc(m, ReverseLater(r)), 0, empty(r))
     end
 end
 
-checkf(lenfm, f::Linked.Empty, m::Empty, lenr, r) = Empty{eltype(f)}()
-function checkf(lenfm, f::Linked.Empty, m::NonEmpty, lenr, r)
-    NonEmpty(lenfm, force(head(m)), tail(m), lenr, r)
+checkf(lenfm, f::Linked.Empty{T}, m::Empty, lenr, r) where T = Empty{T}()
+function checkf(lenfm, f::Linked.Empty{T}, m::NonEmpty, lenr, r) where T
+    NonEmpty(lenfm, force(head(m)), tail(m), lenr, r)::NonEmpty{T}
 end
-checkf(lenfm, f, m, lenr, r) = NonEmpty(lenfm, f, m, lenr, r)
 
+function checkf(lenfm, f::Linked.List{T}, m, lenr, r) where T
+    NonEmpty(lenfm, f, m, lenr, r)::NonEmpty{T}
+end
 
 Queue{T}() where T = Empty{T}()
 function Queue(iter)

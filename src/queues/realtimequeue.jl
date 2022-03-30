@@ -47,7 +47,6 @@ function exec(f, r, s::Lazy.Empty)
 end
 
 PureFun.head(q::NonEmpty) = head(front(q))
-#Base.first(q::NonEmpty) = first(front(q))
 PureFun.snoc(q::Queue, x) = exec(front(q), cons(x, rear(q)), sched(q))
 PureFun.tail(q::NonEmpty) = exec(tail(front(q)), rear(q), sched(q))
 

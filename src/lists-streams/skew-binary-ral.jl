@@ -1,7 +1,7 @@
 module SkewBinaryRAL
 
 using ...PureFun
-using PureFun.Lists.Linked
+using ...PureFun.Lists.Linked
 
 # type definitions {{{
 struct Leaf{α}
@@ -59,7 +59,7 @@ function _tail(h::Tuple{ Int64, Node }, ts)
     cons( (w2, node.t1), cons((w2, node.t2), ts) )
 end
 
-Base.IteratorSize(::RAList) = Base.HasLength()
+#Base.IteratorSize(::RAList) = Base.HasLength()
 Base.length(ts::E) = 0
 function Base.length(ts::NE)
     len = 0
@@ -84,7 +84,11 @@ function lookup(xs::NE, i::Integer)
     lookup_tree(w,i,tree(xs))
 end
 
-function lookup_tree(w,i,t::Node)
+#function lookup_tree(w,i,t::Leaf)
+#    i == 0 ? elem(t) : throw(BoundsError(t, i))
+#end
+
+function lookup_tree(w,i,t::Tree)
     while i > 0
         isleaf(t) && throw(BoundsError(t, i))
         w = div(w, 2)

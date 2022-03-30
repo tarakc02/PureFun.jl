@@ -79,7 +79,7 @@ end
 Base.IndexStyle(::Listy) = IndexLinear()
 Base.IteratorSize(::Listy) = Base.SizeUnknown()
 Base.size(iter::Listy) = (length(iter),)
-Base.eltype(::Listy{T}) where T = T
+Base.eltype(::Type{<:Listy{T}}) where T = T
 Base.firstindex(l::Listy) = 1
 
 function Base.length(iter::Listy)

@@ -26,11 +26,12 @@ end
 
 function addbm!(suite, Queue)
     suite[Queue] = BenchmarkGroup()
-    suite[Queue]["snoc_empty"] = @benchmarkable snoc(q, x) setup=(q = $Queue{Int16}(); x = rand(Int16))
-    suite[Queue]["snoc_10k"] = @benchmarkable snoc(q, x) setup=(q=fillrandq($Queue, 10_000); x=rand(Int16))
-    suite[Queue]["firsttail"] = @benchmarkable tail(q) setup=q=fillrandq($Queue, 10_000)
-    suite[Queue]["secondtail"] = @benchmarkable tail(q) setup=q=tail(fillrandq($Queue, 10_000))
-    suite[Queue]["iter"] = @benchmarkable qmin(q) setup=q=fillrandq($Queue, 10_000)
+    #suite[Queue]["head_256"] = @benchmarkable head(q) setup=q=fillrandq($Queue, 256)
+    suite[Queue]["fill256"] = @benchmarkable snoc_repeatedly($Queue, xs) setup=xs=rand(Int, 256)
+    #suite[Queue]["snoc_empty"] = @benchmarkable snoc(q, x) setup=(q = $Queue{Int16}(); x = rand(Int16))
+    #suite[Queue]["snoc_256"] = @benchmarkable snoc(q, x) setup=(q=fillrandq($Queue, 256); x=rand(Int16))
+    suite[Queue]["firsttail"] = @benchmarkable tail(q) setup=q=fillrandq($Queue, 256)
+    suite[Queue]["iterate256"] = @benchmarkable minimum(q) setup=q=fillrandq($Queue, 256)
 end
 
 end

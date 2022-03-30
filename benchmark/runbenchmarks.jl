@@ -18,7 +18,9 @@ queues  = [PureFun.Queues.Batched.Queue,
            PureFun.Queues.RealTime.Queue,
            PureFun.Queues.Bootstrapped.Queue]
 
-lists   = [PureFun.Lists.Linked.List, PureFun.Lists.SkewBinaryRAL.RAList]
+lists   = [PureFun.Lists.Linked.List,
+           PureFun.Lists.SkewBinaryRAL.RAList,
+           PureFun.Catenable.List]
 
 streams = [PureFun.Lazy.Stream]
 
@@ -41,9 +43,23 @@ end
 tune!(suite)
 results = run(suite, verbose=false)
 
-m1 = median(results["PureFun.Queues.Batched.Queue"])
-m2 = median(results["PureFun.Queues.Bootstrapped.Queue"])
-m3 = median(results["PureFun.Queues.RealTime.Queue"])
+m = median(results)
+m = minimum(results)
+
+judge(
+      #m[PureFun.Catenable.List],
+      m[PureFun.Lists.SkewBinaryRAL.RAList],
+      m[PureFun.Lists.Linked.List]
+     )
+
+judge(m[PureFun.Queues.Bootstrapped.Queue],
+      m[PureFun.Queues.Batched.Queue])
+
+m[PureFun.Queues.RealTime.Queue]
+m[PureFun.Queues.Bootstrapped.Queue]
+m[PureFun.Queues.Batched.Queue]
+
+m3 = median(results[PureFun.Queues.RealTime.Queue])
 
 ratio(m2, m1)
 ratio(m3, m1)

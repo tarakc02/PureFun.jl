@@ -27,8 +27,8 @@ end
 
 function test_iterator(List)
     @testset "Iterates in expected order" begin
-        l = List(1:10)
-        @test all(collect(l) .== 1:10)
+        l = List(1:1000)
+        @test all(collect(l) .== 1:1000)
     end
 end
 
@@ -58,6 +58,7 @@ end
 function test(List)
     test_constructors(List),
     test_accessors(List),
+    test_iterator(List),
     stress_test(List),
     test_etc(List)
 end

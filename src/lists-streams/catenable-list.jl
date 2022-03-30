@@ -1,23 +1,21 @@
 module Catenable
 
 using ...PureFun
-using ...PureFun.Queues.Bootstrapped
-#using ...PureFun.Queues.Bootstrapped: Queue
 using ...PureFun.Lazy: @lz, Susp
+
+const Queue = PureFun.Queues.Bootstrapped.Queue
 
 struct SuspList{T}
     s::Susp
 end
 
-Cats{T} = Union{ Bootstrapped.Empty{SuspList{T}},Bootstrapped.NonEmpty{SuspList{T}} } where T
-
 struct Empty{T} <: PureFun.PFList{T} end
 struct NonEmpty{T} <: PureFun.PFList{T}
     head::T
-    tail::Cats{T}
+    tail::Queue{SuspList{T}}
 end
 
-List{T} = Union{Empty{T}, NonEmpty{T}} where {T}
+List{T} = Union{Empty{T}, NonEmpty{T}} where T
 List{T}() where T = Empty{T}()
 
 suspend(l::NonEmpty{T}) where T = SuspList{T}(@lz l)
@@ -38,17 +36,17 @@ PureFun.append(xs::NonEmpty, ys::NonEmpty) = link(xs, suspend(ys))
 
 link(xs, ys) = NonEmpty(head(xs), snoc(xs.tail, ys))
 
-singleton(x) = NonEmpty(x, Bootstrapped.Empty{ SuspList{typeof(x)} }())
+singleton(x) = NonEmpty(x, Queue{ SuspList{typeof(x)} }())
 
 PureFun.cons(x, xs::List) = singleton(x) ⧺ xs
 PureFun.snoc(xs::List, x) = xs ⧺ singleton(x)
 
 PureFun.tail(xs::List) = isempty(xs.tail) ? empty(xs) : link_all(xs.tail)
 
-function link_all(q)
+function link_all(q::Queue{ SuspList{T} }) where T
     t = force(head(q))
     q2 = tail(q)
-    isempty(q2) ? t : link(t, SuspList{eltype(t)}(@lz link_all(q2)))
+    isempty(q2) ? t : link(t, SuspList{T}(@lz link_all(q2)))
 end
 
 function List(iter)

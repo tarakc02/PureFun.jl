@@ -14,7 +14,8 @@ queues  = [PureFun.Queues.Batched.Queue,
            PureFun.Queues.Bootstrapped.Queue]
 
 lists   = [PureFun.Lists.Linked.List,
-           PureFun.Lists.SkewBinaryRAL.RAList]
+           PureFun.Lists.SkewBinaryRAL.RAList,
+           PureFun.Catenable.List ]
 
 streams = [PureFun.Lazy.Stream]
 

@@ -18,12 +18,13 @@ end
 
 function addbm!(suite, List)
     suite[List] = BenchmarkGroup()
-    suite[List]["load-reverse-len512"] = @benchmarkable q=testl($List, iter) setup=iter=rand(Int16, 512)
-    suite[List]["load-reverse-len2048"] = @benchmarkable q=testl($List, iter) setup=iter=rand(Int16, 2048)
-    suite[List]["cons512"] = @benchmarkable q=cons_repeatedly($List, iter) setup=iter=rand(Int16, 512)
-    suite[List]["cons2048"] = @benchmarkable q=cons_repeatedly($List, iter) setup=iter=rand(Int16, 2048)
-    suite[List]["sum512"] = @benchmarkable q=sum(x for x in l) setup=l=$List(rand(Int16, 512))
-    suite[List]["sum2048"] = @benchmarkable q=sum(x for x in l) setup=l=$List(rand(Int16, 2048))
+    #suite[List]["cons"] = @benchmarkable cons(x, xs) setup=(xs=$List(rand(Int, 10)); x=rand(Int))
+    #suite[List]["tail"] = @benchmarkable tail(xs) setup=xs=$List(rand(Int, 128))
+    #suite[List]["head"] = @benchmarkable head(xs) setup=xs=$List(rand(Int, 128))
+    suite[List]["reverse"] = @benchmarkable reverse(xs) setup=(xs=$List(rand(Int, 128)))
+    suite[List]["append"] = @benchmarkable xs ⧺ ys setup=(xs=$List(rand(Int, 100)); ys=$(List(rand(Int, 100))))
+    suite[List]["getindex"] = @benchmarkable xs[i] setup=(xs=$List(rand(Int, 256)); i=rand(1:256))
+    suite[List]["fill"] = @benchmarkable $List(xs) setup=(xs=rand(Int, 256))
+    suite[List]["empty"] = @benchmarkable minimum(xs) setup=(xs=$List(rand(Int, 256)))
 end
-
 end

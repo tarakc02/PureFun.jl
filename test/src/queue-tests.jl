@@ -30,7 +30,10 @@ end
 function stress_test(Queue)
     @testset "stress test snoc and iterate" begin
         l = Queue(1:50_000);
+        l2 = Queue{Int}()
+        for i in 1:630 l2 = snoc(l2, i) end
         @test all(l .== 1:50_000)
+        @test all(l2 .== 1:630)
     end
 end
 
