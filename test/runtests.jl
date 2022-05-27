@@ -14,6 +14,8 @@ queues  = [PureFun.Queues.Batched.Queue,
            PureFun.Queues.Bootstrapped.Queue]
 
 lists   = [PureFun.Lists.Linked.List,
+           PureFun.Lists.Unrolled.List{32},
+           #PureFun.DenseLinkedList.PackedList{8},
            PureFun.Lists.SkewBinaryRAL.RAList,
            PureFun.Catenable.List ]
 
