@@ -19,8 +19,14 @@ queues  = [PureFun.Queues.Batched.Queue,
            PureFun.Queues.Bootstrapped.Queue]
 
 lists   = [PureFun.Lists.Linked.List,
-           PureFun.Lists.SkewBinaryRAL.RAList,
-           PureFun.Catenable.List]
+           PureFun.Lists.Unrolled.List{8},
+           PureFun.Lists.Unrolled.List{32},
+           PureFun.Lists.Unrolled.List{4},
+           #PureFun.DenseLinkedList.PackedList{4},
+           #PureFun.DenseLinkedList.PackedList{8},
+           #PureFun.Lists.SkewBinaryRAL.RAList,
+           #PureFun.Catenable.List,
+          ]
 
 streams = [PureFun.Lazy.Stream]
 
@@ -48,7 +54,8 @@ m = minimum(results)
 
 judge(
       #m[PureFun.Catenable.List],
-      m[PureFun.Lists.SkewBinaryRAL.RAList],
+      m[PureFun.Lists.Unrolled.List{8}],
+      #m[PureFun.Lists.SkewBinaryRAL.RAList],
       m[PureFun.Lists.Linked.List]
      )
 
@@ -64,3 +71,17 @@ m3 = median(results[PureFun.Queues.RealTime.Queue])
 ratio(m2, m1)
 ratio(m3, m1)
 ratio(m2, m3)
+
+
+ref = rand(Int, 512)
+
+@btime l1 = PureFun.Lists.Linked.List($ref)
+@btime l2 = PureFun.DenseLinkedList.PackedList{8}($ref)
+
+l1 = PureFun.Lists.Linked.List(ref)
+l2 = PureFun.DenseLinkedList.PackedList{8}(ref)
+l3 = collect(ref)
+
+@btime minimum($l1)
+@btime minimum($l2)
+@btime minimum($l3)
