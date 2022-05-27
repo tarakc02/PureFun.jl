@@ -39,16 +39,16 @@ end
 # ## The recursion
 #
 # recursion dispatches on color of node
-ins(tr::E{T,O}, key::T) where {T,O} = Red(key, E{T}(order(tr)), E{T,O}(order(tr)))
+ins(tr::E, key) = Red(key, empty(tr), empty(tr))
 function ins(t::Red, key)
     smaller(key, t) && return Red(t.elem, ins(t.left, key), t.right)
     smaller(t, key) && return Red(t.elem, t.left, ins(t.right, key))
-    return t
+    return Red(key, t.left, t.right)
 end
 function ins(t::Black, key)
     smaller(key, t) && return balance(t.elem, ins(t.left, key), t.right)
     smaller(t, key) && return balance(t.elem, t.left, ins(t.right, key))
-    return t
+    return Black(key, t.left, t.right)
 end
 
 # ## Balance

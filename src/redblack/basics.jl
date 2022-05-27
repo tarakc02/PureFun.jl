@@ -23,7 +23,7 @@ struct NE{T,C,O<:Ordering} <: RB{T,O} where C
     elem::T
     left::Union{E{T,O}, NE{T,:red,O}, NE{T,:black,O}}
     right::Union{E{T, O}, NE{T, :red, O}, NE{T, :black, O}}
-    length::Int
+    #length::Int
     order::O
 end
 
@@ -36,9 +36,10 @@ RB{T,O}() where {T,O} = E{T,O}()
 # parameter based on the function arguments. I expect all subtypes of
 # `Ordering` to be singleton types, so we can pick up `order` from `left` or
 # `right` and it would be the same
-function NE{C}(elem::T, left::RB{T, O}, right::RB{T, O}) where {T, C, O <: Ordering}
-    len = 1 + length(left) + length(right)
-    NE{T, C, O}(elem, left, right, len, order(left))
+NE{T,C}(elem, left, right, ord) where {T,C} = NE{T,C,typeof(ord)}(elem,left,right,ord)
+function NE{C}(elem, left::RB, right::RB) where C
+    #len = 1 + length(left) + length(right)
+    NE{eltype(left), C}(elem, left, right, order(left))
 end
 
 # We won't use `NE` directly, instead we'll use these types for now. When we
@@ -82,11 +83,11 @@ is_black(node) = false
 is_black(node::Black) = true
 
 Base.length(::E) = 0
-Base.length(t::NE) = t.length
+Base.length(t::NE) = 1 + length(t.left) + length(t.right)
 
 order(t::RB) = t.order
 left(t::NE) = t.left
 right(t::NE) = t.right
 elem(t::NE) = t.elem
 Base.eltype(t::RB{T,O}) where {T,O} = T
-Base.IteratorSize(::RB) = Base.HasLength()
+Base.IteratorSize(::RB) = Base.SizeUnknown()

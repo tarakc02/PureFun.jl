@@ -51,11 +51,18 @@ function RBDict{K,V}(ord=Base.Order.Forward) where {K,V}
     RBDict{K,V,typeof(ord), typeof(t)}(t)
 end
 
-RBDict{O}(t::NonRed{ Pair{K,V} }) where {K,V,O} = RBDict{K,V,O,typeof(t)}(t)
+RBDict(t::NonRed{ Pair{K,V},O }) where {K,V,O} = RBDict{K,V,O,typeof(t)}(t)
 
 function RBDict(iter, o::Ordering=Forward)
     t = RB(iter, dictorder(o))
-    RBDict{typeof(o)}(t)
+    RBDict(t)
+end
+
+Base.isempty(d::RBDict) = isempty(d.t)
+
+function Base.empty(d::RBDict{K,V,O,T}) where {K,V,O,T}
+    t = empty(d.t)
+    RBDict{K,V,O,typeof(t)}(t)
 end
 
 PureFun.setindex(d::RBDict, k, v) = RBDict(insert(d.t, Pair(k,v)))
