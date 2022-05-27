@@ -30,7 +30,10 @@ construct an empty linked List, or a linked list containing the elements of
 """
 List{T}() where T = Empty{T}()
 List(iter::List) = iter
-List(iter)  = foldr( cons, iter; init=Empty(eltype(iter)) )
+#List(iter)  = foldr( cons, iter; init=Empty(eltype(iter)) )
+function List(iter)
+    foldl(push, reverse(iter); init=Empty(eltype(iter)))
+end
 
 end
 
