@@ -1,7 +1,7 @@
 module DenseLinkedList
 
 using ..PureFun
-using ..PureFun.Lists.Linked
+using ..PureFun.Linked
 
 struct Empty{K,T} <: PureFun.PFList{T}  where K end
 
@@ -98,7 +98,7 @@ end
 
 end
 
-#@btime l = PureFun.Lists.Linked.List(1:19)
+#@btime l = PureFun.Linked.List(1:19)
 #@btime pl = PureFun.DenseLinkedList.PackedList{16}(1:19)
 #
 #@btime cons(0, $l)
@@ -116,5 +116,5 @@ end
 #@btime cons_repeatedly(PureFun.DenseLinkedList.PackedList{16,Int}(), 1:19)
 #@btime reverse(foldl(push, 1:19, init=PureFun.DenseLinkedList.PackedList{16,Int}()))
 #@btime foldl(push, reverse(1:19), init=PureFun.DenseLinkedList.PackedList{16,Int}())
-#@btime foldl(push, reverse(1:19), init=PureFun.Lists.Linked.List{Int}())
+#@btime foldl(push, reverse(1:19), init=PureFun.Linked.List{Int}())
 

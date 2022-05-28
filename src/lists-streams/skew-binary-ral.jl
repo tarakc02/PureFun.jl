@@ -1,7 +1,7 @@
-module SkewBinaryRAL
+module RandomAccess
 
-using ...PureFun
-using ...PureFun.Lists.Linked
+using ..PureFun
+using ..PureFun.Linked
 
 # type definitions {{{
 struct Leaf{α}
@@ -18,12 +18,12 @@ Tree{α} = Union{ Node{α},Leaf{α} } where α
 E{α} = Linked.Empty{ Tuple{Int64, Tree{α} }} where α
 NE{α} = Linked.NonEmpty{ Tuple{Int64, Tree{α} }} where α
 
-RAList{α} = Union{ E{α},NE{α} } where α
-Base.eltype(::RAList{α}) where α = α
+List{α} = Union{ E{α},NE{α} } where α
+Base.eltype(::List{α}) where α = α
 # }}}
 
 # accessors and utilities {{{
-RAList{α}() where α = E{α}()
+List{α}() where α = E{α}()
 isleaf(t::Tree) = false
 isleaf(::Leaf) = true
 elem(t::Tree) = t.x
@@ -37,7 +37,7 @@ tree(xs) = (xs.head)[2]
 # }}}
 
 # PFList API {{{
-RAList(iter)  = foldr( cons, iter; init=E{eltype(iter)}() )
+List(iter)  = foldr( cons, iter; init=E{eltype(iter)}() )
 PureFun.cons(x::α, ts::E{α}) where α = cons(sing(x), ts)
 function PureFun.cons(x::α, ts::NE{α}) where α 
     ts2 = ts.tail
@@ -59,7 +59,7 @@ function _tail(h::Tuple{ Int64, Node }, ts)
     cons( (w2, node.t1), cons((w2, node.t2), ts) )
 end
 
-#Base.IteratorSize(::RAList) = Base.HasLength()
+#Base.IteratorSize(::List) = Base.HasLength()
 Base.length(ts::E) = 0
 function Base.length(ts::NE)
     len = 0
@@ -111,8 +111,10 @@ Base.getindex(xs::NE, i::Integer) = lookup(xs, i-1)
 function update(xs::NE, i::Integer, y)
     w = weight(xs)
     t = tree(xs)
-    i<w ? (w, update_tree(w, i, y, t)) : cons((w,t), update(xs.tail, i-w, y))
+    i<w ? cons((w, update_tree(w, i, y, t)), tail(xs) ) : cons((w,t), update(xs.tail, i-w, y))
 end
+
+PureFun.setindex(xs::NE, i, y) = update(xs, i-1, y)
 
 update_tree(w, i, y, t::Leaf) = i == 0 ? Leaf(y) : throw(BoundsError(t, i))
 
@@ -120,7 +122,7 @@ function update_tree(w, i, y, t::Node)
     i == 0 && return Node(y, t.t1, t.t2)
     w2 = div(w,2)
     if i <= w2
-        return Node(elem(t), update_tree(w2, i-1, y, t.t1), t2)
+        return Node(elem(t), update_tree(w2, i-1, y, t.t1), t.t2)
     else
         return Node(elem(t), t.t1, update_tree(w2, i-1-w2, y, t.t2))
     end

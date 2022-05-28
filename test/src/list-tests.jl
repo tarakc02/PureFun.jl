@@ -22,6 +22,10 @@ function test_accessors(List)
         @test first(l) == 1
         @test first(tail(l)) == 2
         @test first(tail(tail(l))) == 3
+        @test l[5] == 5
+        l2 = Base.setindex(l, 3, 99)
+        @test l[3] == 3
+        @test l2[3] == 99
     end
 end
 

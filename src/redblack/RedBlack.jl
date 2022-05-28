@@ -1,7 +1,7 @@
 module RedBlack
 
-using PureFun
-using PureFun.Lists.Linked
+using ..PureFun
+using ..PureFun.Linked
 
 include("basics.jl")
 include("insert.jl")

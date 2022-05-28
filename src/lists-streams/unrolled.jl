@@ -1,8 +1,8 @@
 module Unrolled
 
 #using PureFun
-using ...PureFun
-using ...PureFun.Lists.Linked
+using ..PureFun
+using ..PureFun.Linked
 
 # a fixed length vector {{{
 #abstract type Fixed{N,T} <: PureFun.PFList{T} end

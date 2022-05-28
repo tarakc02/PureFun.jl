@@ -1,8 +1,8 @@
 module Bootstrapped
 
-using ...PureFun
-using ...PureFun.Lists.Linked
-using ...PureFun.Lazy: @lz, Susp
+using ..PureFun
+using ..PureFun.Linked
+using ..PureFun.Lazy: @lz, Susp
 
 function snoclist(l::Linked.List{T}, x::T) where T
     isempty(l) ? cons(x, l)::Linked.NonEmpty{T} : cons(head(l), snoclist(tail(l), x))::Linked.NonEmpty{T}

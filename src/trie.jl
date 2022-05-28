@@ -3,8 +3,8 @@ module Tries
 using PureFun
 using PureFun: PFDict, setindex
 
-const List = PureFun.Lists.Linked.List
-const Queue = PureFun.Queues.Bootstrapped.Queue
+const List = PureFun.Linked.List
+const Queue = PureFun.Bootstrapped.Queue
 
 
 Option{T} = Union{Some{T}, Nothing} where T

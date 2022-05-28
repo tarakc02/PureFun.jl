@@ -1,7 +1,7 @@
 module Batched
 
-using ...PureFun
-using ...PureFun.Lists.Linked
+using ..PureFun
+using ..PureFun.Linked
 
 struct Queue{T} <: PureFun.PFQueue{T}
     front::Linked.List{T}

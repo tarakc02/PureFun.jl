@@ -12,38 +12,43 @@ AKA linked lists, or stacks.
 
 Implemented by:
 
-- `PureFun.Lists.Linked.List`
-- `PureFun.Lists.SkewBinaryRAL.RAList`
+- `PureFun.Linked.List`
+- `PureFun.RandomAccess.List`: fast access to arbitrary elements, compared to
+  regular linked lists which take linear time to access elements
+- `PureFun.Catenable.List`: fast catenation (appending) of lists, which takes
+  O(n) time for regular linked lists
 
 All implentations support these operations in constant time:
 
-- `push` a new item to the front (alias: `cons`)
-- `first` retrieves the item at the front
+- `cons` a new item to the front (alias: `push`)
+- `head` retrieves the item at the front (alias: `first`)
 - `tail` returns the collection without the front element
 
-All `PFLists` also implement the following operations:
+All `PFLists` also implement the following operations, which may be slow:
 
-- `append`, or `⧺`: appends two lists
+- `append`, or `⧺`: appends two lists. Fast (constant time) for
+  `PureFun.Catenable.List`
 - `getindex` for array-like indexing. This is fast (log(n)) for
-  `SkewBinaryRAL.RAList`, and slow (linear) for `Linked.List`
+  `PureFun.RandomAccess.List`
+- `setindex`: for changing the value at an index. Fast for random-access lists
 - `reverse`
 
 ## PFQueue
 
 Implemented by:
 
-- `PureFun.Queues.Batched.Queue`: supports all operations in amortized constant
-  time. However, if the queue is used persistently, the time to get the `tail`
-  can devolve to the worst-case, which is linear
-- `PureFun.Queues.Bootstrapped.Queue`: all operations in amortized constant
-  time, and the amortized bounds extend to persistent use (!).
-- `PureFun.Queues.RealTime.Queue`: worst-case constant time operations (but
-  with a higher overhead than the other two).
+- `PureFun.Batched.Queue`: supports all operations in amortized constant time.
+  However, if the queue is used persistently, the time to get the `tail` can
+  devolve to the worst-case, which is linear
+- `PureFun.Bootstrapped.Queue`: all operations in amortized constant time, and
+  the amortized bounds extend to persistent use (!).
+- `PureFun.RealTime.Queue`: worst-case constant time operations (but with a
+  higher overhead than the other two).
 
 Operations:
 
-- `push` a new item to the back of the queue (alias: `snoc`)
-- `first` get the item at the front of the queue
+- `snoc` a new item to the back of the queue
+- `head` get the item at the front of the queue
 - `tail` returns the collection without the first item
 
 ## PFSet

@@ -17,8 +17,7 @@ end in `!`).
 
 # `push` is provided as an analogue to `Base.push!`, and `append` as `append!`
 export push, cons, snoc, append, ⧺, head, tail,
-       find_min, delete_min, delete_max, insert,
-       delete
+       delete_min, delete_max, insert, delete
 
 
 # anything that implements `PureFun.cons`, `PureFun.head`, and `PureFun.tail` can
@@ -44,11 +43,13 @@ const Listy{T} = Union{PFList{T}, PFQueue{T}, PFStream{T}, PFHeap{T}} where T
 function cons end
 function head end
 function tail end
+Base.tail(xs::Listy) = tail(xs)
 function append end
 const ⧺ = append
 
 function snoc end
 function setindex end
+Base.setindex(xs::PFList, i, y) = setindex(xs, i, y)
 
 # operations for PFHeap
 #function find_min end
@@ -105,11 +106,24 @@ function Base.getindex(l::Listy, ind)
     return head(cur)
 end
 
+function PureFun.setindex(l::PFList, ind, newval)
+    new = empty(l)
+    cur = l
+    i = ind
+    while i > 1 && !isempty(cur)
+        i -= 1
+        new = cons(head(cur), new)
+        cur = tail(cur)
+    end
+    i > 1 && throw(BoundsError(l, ind))
+    return reverse(cons(newval, new)) ⧺ tail(cur)
+end
+
 # }}}
 
 function insert end
 
-Base.union(s::PFSet, iter) = foldl(push, iter, init = s)
+Base.union(s::PFSet, iter) = foldl(insert, iter, init = s)
 Base.union(s::PFSet, sets...) = reduce(union, sets, init=s)
 
 function Base.intersect(s::PFSet, iter)

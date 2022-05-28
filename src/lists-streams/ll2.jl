@@ -1,8 +1,6 @@
 module Unrolled
-using ...PureFun
-using ...PureFun.Lists.Linked
-#using PureFun
-#using PureFun.Lists.Linked
+using ..PureFun
+using ..PureFun.Linked
 using StaticArrays
 
 struct Chunk{N,T} <: PureFun.PFList{T}

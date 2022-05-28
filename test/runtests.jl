@@ -9,19 +9,18 @@ include("src/list-tests.jl")
 include("src/stream-tests.jl")
 include("src/heap-tests.jl")
 
-queues  = [PureFun.Queues.Batched.Queue,
-           PureFun.Queues.RealTime.Queue,
-           PureFun.Queues.Bootstrapped.Queue]
+queues  = [PureFun.Batched.Queue,
+           PureFun.RealTime.Queue,
+           PureFun.Bootstrapped.Queue]
 
-lists   = [PureFun.Lists.Linked.List,
-           PureFun.Lists.Unrolled.List{32},
-           #PureFun.DenseLinkedList.PackedList{8},
-           PureFun.Lists.SkewBinaryRAL.RAList,
-           PureFun.Catenable.List ]
+lists   = [PureFun.Linked.List,
+           PureFun.Unrolled.List{32},
+           PureFun.RandomAccess.List,
+           PureFun.Catenable.List]
 
 streams = [PureFun.Lazy.Stream]
 
-heaps   = [PureFun.Heaps.Pairing.Heap]
+heaps   = [PureFun.Pairing.Heap]
 
 for q in queues
     println(); println(q)

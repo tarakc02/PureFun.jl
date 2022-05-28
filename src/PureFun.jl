@@ -1,26 +1,27 @@
 module PureFun
 
 include("interfaces.jl")
-include("lists-streams/stream.jl")
 
-module Lists
-include("lists-streams/list.jl")
-include("lists-streams/ll2.jl")
-include("lists-streams/skew-binary-ral.jl")
-end
+# basic lists, streams
+include("lists-streams/list.jl") # PureFun.Linked.List
+include("lists-streams/skew-binary-ral.jl") # PureFun.RandomAccess.List
+include("lists-streams/stream.jl") # PureFun.Lazy.Stream
 
-module Queues
-include("queues/batchedqueue.jl")
+## queues
+include("queues/batchedqueue.jl") # PureFun.Batch
 include("queues/realtimequeue.jl")
 include("queues/bootstrappedqueue.jl")
-end
 
-module Heaps
-include("heaps/pairing-heap.jl")
-end
-
-include("redblack/RedBlack.jl")
-include("lists-streams/catenable-list.jl")
+## these are also list implementations, but rely on lower-level implementations
+## of lists or queues which need to be defined first
+include("lists-streams/ll2.jl")
 include("lists-streams/packed.jl")
+include("lists-streams/catenable-list.jl")
+
+## Heaps
+include("heaps/pairing-heap.jl")
+
+# redblack (set, dict)
+include("redblack/RedBlack.jl")
 
 end

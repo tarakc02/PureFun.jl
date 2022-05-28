@@ -1,8 +1,8 @@
 module RealTime
 
-using ...PureFun
-using ...PureFun.Lazy
-using ...PureFun.Lists.Linked
+using ..PureFun
+using ..PureFun.Lazy
+using ..PureFun.Linked
 
 struct Queue{T, F, R, S} <: PureFun.PFQueue{T} where {F <: Lazy.Stream{T}, R <: Linked.List{T}, S <: Lazy.Stream{T}}
     front::F

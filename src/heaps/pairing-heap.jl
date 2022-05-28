@@ -1,7 +1,7 @@
 module Pairing
 
-using ...PureFun
-using ...PureFun.Lists.Linked
+using ..PureFun
+using ..PureFun.Linked
 
 struct Empty{T} <: PureFun.PFHeap{T} end
 

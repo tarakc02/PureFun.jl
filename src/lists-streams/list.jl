@@ -1,6 +1,6 @@
 module Linked
 
-using ...PureFun
+using ..PureFun
 
 struct Empty{T} <: PureFun.PFList{T} end
 
