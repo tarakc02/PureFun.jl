@@ -16,7 +16,6 @@ struct NonEmpty{T} <: PureFun.PFList{T}
 end
 
 List{T} = Union{Empty{T}, NonEmpty{T}} where T
-List{T}() where T = Empty{T}()
 
 suspend(l::NonEmpty{T}) where T = SuspList{T}(@lz l)
 function force(suspension::SuspList{T}) where T 
@@ -49,6 +48,31 @@ function link_all(q::Queue{ SuspList{T} }) where T
     isempty(q2) ? t : link(t, SuspList{T}(@lz link_all(q2)))
 end
 
+"""
+    Catenable.List{T}()
+    Catenable.List(iter)
+
+A `Catenable.List` supports the usual list operations, but unlike the
+`Linked.List` you can append two catenable lists in constant time.
+
+# Parameters
+`T::Type` element type (inferred if creating from `iter`)
+
+# Examples
+```@jldoctest
+julia> a = PureFun.Catenable.List(1:3);
+
+julia> b = PureFun.Catenable.List(4:5);
+
+julia> a ⧺ b
+1
+2
+7
+4
+5
+```
+"""
+List{T}() where T = Empty{T}()
 function List(iter)
     peek = first(iter)
     init = Empty{typeof(peek)}()

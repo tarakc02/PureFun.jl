@@ -1,24 +1,8 @@
-#=
-
-where they exist, trying to extend the appropriate functions in Base (or
-DataStructures?). open question is what to do about mutating ops (the ones that
-end in `!`).
-
-- `push` returns a new collection instead of mutating an existing one, this
-  matches as much as possible the semantics of `push!` which also returns the
-  updated collection
-
-- `pop`: does this make sense in a functional setting? i could return a tuple
-  of (value, newcollection) but that seems hacky. don't implement
-
-=#
-
 # note: all containers are expected to have implemented `Base.isempty`
 
 # `push` is provided as an analogue to `Base.push!`, and `append` as `append!`
 export push, cons, snoc, append, ⧺, head, tail,
        delete_min, delete_max, insert, delete
-
 
 # anything that implements `PureFun.cons`, `PureFun.head`, and `PureFun.tail` can
 # register as an implementation of a stack/linked list
@@ -40,7 +24,15 @@ abstract type PFHeap{T} end
 # shorthand for data structures that implement `PureFun.head` and `PureFun.tail`
 const Listy{T} = Union{PFList{T}, PFQueue{T}, PFStream{T}, PFHeap{T}} where T
 
+"""
+    cons(x, xs::PFList)
+    push(xs::PFList, x)
+
+Return the `PFList` that results from adding `x` to the front of `xs`.
+"""
 function cons end
+push(xs::PFList, x) = cons(x, xs)
+
 function head end
 function tail end
 Base.tail(xs::Listy) = tail(xs)
@@ -56,10 +48,9 @@ Base.setindex(xs::PFList, i, y) = setindex(xs, i, y)
 function delete_min end
 function delete_max end
 function delete end
-push(xs::PFList, x) = cons(x, xs)
-push(xs::PFQueue, x) = snoc(xs, x)
-push(xs::PFSet, x) = insert(xs, x)
-push(xs::PFHeap, x) = insert(xs, x)
+#push(xs::PFQueue, x) = snoc(xs, x)
+#push(xs::PFSet, x) = insert(xs, x)
+#push(xs::PFHeap, x) = insert(xs, x)
 
 Base.first(xs::PFList) = head(xs)
 Base.first(xs::PFStream) = head(xs)

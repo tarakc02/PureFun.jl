@@ -22,15 +22,42 @@ Base.isempty(::Empty) = true
 Base.isempty(::NonEmpty) = false
 
 """
-    Linked.List()
+    Linked.List{T}()
     Linked.List(iter)
 
 construct an empty linked List, or a linked list containing the elements of
-`iter`
+`iter`.
+
+# Parameters
+`T::Type` element type (inferred if creating from `iter`)
+
+# Examples
+```jldoctest
+julia> l = PureFun.Linked.List(1:3)
+1
+2
+3
+
+
+julia> m = cons(10, l)
+10
+1
+2
+3
+
+
+julia> head(l)
+1
+
+julia> head(m)
+10
+
+julia> all(tail(m) .== l)
+true
+```
 """
 List{T}() where T = Empty{T}()
 List(iter::List) = iter
-#List(iter)  = foldr( cons, iter; init=Empty(eltype(iter)) )
 function List(iter)
     foldl(push, reverse(iter); init=Empty(eltype(iter)))
 end

@@ -1,5 +1,10 @@
 # Purely Functional Data Structures, in Julia
 
+```@meta
+CurrentModule = PureFun
+DocSetup = quote using PureFun end
+```
+
 Wherein [I](https://tarakc02.github.io/) work my way through the book [*Purely
 Functional Data
 Structures*](https://www.goodreads.com/book/show/594288.Purely_Functional_Data_Structures),
@@ -21,3 +26,7 @@ Time complexity of each operation.
 These abstractions enable higher level abstractions -- for example using a heap
 (which gives fast access to the minimum element) for best-first search, or
 using a stack to enable backtracking in a maze solving algorithm.
+
+```@autodocs
+Modules = [PureFun.Linked, PureFun.Catenable, PureFun.RandomAccess]
+```
