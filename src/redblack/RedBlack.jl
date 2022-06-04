@@ -9,6 +9,7 @@ include("traversal.jl")
 include("delete.jl")
 include("from-sorted.jl")
 
+# pretty printing {{{
 function Base.show(::IO, ::MIME"text/plain", t::E{T}) where {T} 
     println("an empty rb-tree of type $(typeof(t))")
 end
@@ -36,22 +37,31 @@ function Base.show(::IO, ::MIME"text/plain", t::NonEmpty{T}) where {T}
         rn += 1
     end
 end
+# }}}
 
+# PFDict interface {{{
 dictkey(p::Pair) = p.first
 dictkey(x) = x
 dictorder(o) = Base.Order.By(dictkey, o)
 
-struct RBDict{K,V,O,T} <: PureFun.PFDict{K,V} where { T <: NonRed{Pair{K,V}} }
-    t::T
+struct RBDict{O,K,V} <: PureFun.PFDict{K,V} where O
+    t::NonRed{Pair{K,V}, Base.Order.By{typeof(PureFun.RedBlack.dictkey), O}}
 end
 
 function RBDict{K,V}(ord=Base.Order.Forward) where {K,V}
     o = dictorder(ord)
     t = E{ Pair{K,V} }(o)
-    RBDict{K,V,typeof(ord), typeof(t)}(t)
+    RBDict{typeof(ord),K,V}(t)
 end
 
-RBDict(t::NonRed{ Pair{K,V},O }) where {K,V,O} = RBDict{K,V,O,typeof(t)}(t)
+function RBDict{O,K,V}() where {O,K,V}
+    o = dictorder(O())
+    t = E{ Pair{K,V} }(o)
+    RBDict{O,K,V}(t)
+end
+
+
+RBDict(t::NonRed{ Pair{K,V},O }) where {K,V,O} = RBDict{O,K,V}(t)
 
 function RBDict(iter, o::Ordering=Forward)
     t = RB(iter, dictorder(o))
@@ -60,9 +70,9 @@ end
 
 Base.isempty(d::RBDict) = isempty(d.t)
 
-function Base.empty(d::RBDict{K,V,O,T}) where {K,V,O,T}
+function Base.empty(d::RBDict{O,K,V}) where {O,K,V}
     t = empty(d.t)
-    RBDict{K,V,O,typeof(t)}(t)
+    RBDict{O,K,V}(t)
 end
 
 PureFun.setindex(d::RBDict, k, v) = RBDict(insert(d.t, Pair(k,v)))

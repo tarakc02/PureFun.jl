@@ -4,53 +4,58 @@ using PureFun
 using PureFun: PFDict, setindex
 
 const List = PureFun.Linked.List
-const Queue = PureFun.Bootstrapped.Queue
-
 
 Option{T} = Union{Some{T}, Nothing} where T
 
-struct Trie{K,V,D} <: PFDict{K,V} where {D <: PFDict}
+struct Trie{K,V,M} <: PFDict{K,V}
     v::Option{V}
-    m::D
+    #m::PureFun.RedBlack.RBDict{eltype(K),Trie{K,V},Base.Order.Forward}
+    m::M
 end
+
+EdgeMapType(K,V) = PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering,eltype(K),Trie{K,V}}
 
 # Trie keys should be iterators over some simple key type,
 # use `simpletype` to get the inner key type from the outer type
 # e.g. String -> Char, PFList{T} -> T
-simpletype(t::Trie{K,V,D}) where {K,V,D} = eltype(K)
+simpletype(t::Trie{K,V}) where {K,V} = eltype(K)
 
-function Trie{K,V}(DictType=PureFun.RedBlack.RBDict) where {K,V} 
+function Trie{K,V}() where {K,V} 
     k = eltype(K)
-    edgemap = DictType{k,Trie{K,V}}()
+    edgemap = EdgeMapType(K,V)()
     Trie{K,V,typeof(edgemap)}(nothing, edgemap)
 end
 
-Trie{K,V}(v::Option{V}, m::M) where {K,V,M} = Trie{K,V,M}(v,m)
+function Trie{K,V}(v, m) where {K,V} 
+    k = eltype(K)
+    edgemap = EdgeMapType(K,V)()
+    Trie{K,V,EdgeMapType(K,V)}(v, m)
+end
 
-Trie{K}(v::Option{V}, m::M) where {K,V,M} = Trie{K,V,M}(v,m)
+edgemap(t::Trie{K,V}) where {K,V} = t.m
 
-Base.isempty(t::Trie) = isnothing(t.v) && isempty(t.m)
-Base.empty(t::Trie{K,V}) where {K,V} = Trie{K,V}(nothing, empty(t.m))
+Base.isempty(t::Trie) = isnothing(t.v) && isempty(edgemap(t))
+Base.empty(t::Trie{K,V}) where {K,V} = Trie{K,V}(nothing, empty(edgemap(t)))
 Base.IteratorSize(::Trie) = Base.SizeUnknown()
 
 function Base.get(t::Trie, keys, default)
     isempty(keys) && return default
     for k in keys
         isempty(t) && return default
-        t = get(t.m, k, empty(t))
+        t = get(edgemap(t), k, empty(t))::typeof(t)
     end
     isnothing(t.v) ? default : something(t.v)
 end
 
 function PureFun.setindex(trie::Trie{K,V}, keys, x) where {K,V}
-    isempty(keys) && return Trie{typeof(keys)}(Some(x), trie.m)
+    isempty(keys) && return Trie{K,V}(Some(x), trie.m)
     k,ks... = keys
     t = get(trie.m, k, empty(trie))
-    tprime = setindex(t, K(ks), x)
-    Trie{K,V}(trie.v, setindex(trie.m, k, tprime));
+    tprime = PureFun.setindex(t, K(ks), x)
+    Trie{K,V}(trie.v, PureFun.setindex(trie.m, k, tprime));
 end
 
-PureFun.insert(t::Trie, p::Pair) = setindex(t, p[1], p[2])
+PureFun.insert(t::Trie, p::Pair) = PureFun.setindex(t, p[1], p[2])
 
 function Trie(iter)
     peek = first(iter)
@@ -59,28 +64,16 @@ function Trie(iter)
     reduce(insert, iter, init=Trie{K,V}())
 end
 
-#function Base.iterate(t::Trie)
-#    K = keytype(t)
-#    buffer = List{simpletype(t)}()
-#    edgestates = List{Any}()
-#    if isnothing(t.v)
-#        iterate(t, (edgestates, buffer))
-#    else
-#        kv = K(reverse!(collect(buffer))) => something(t.v)
-#        kv, (edgestates, buffer)
-#    end
-#end
-
 function Base.iterate(t::Trie)
     K = keytype(t)
     buffer = List{simpletype(t)}()
     edgestates = List{Any}()
-    edgestates = isnothing(t.v) ? edgestates : cons((t.m, ()), edgestates) 
+    edgestates = isnothing(t.v) ? edgestates : cons((edgemap(t), ()), edgestates) 
     while isnothing(t.v)
-        edgeiter = iterate(t.m)
+        edgeiter = iterate(edgemap(t))
         isnothing(edgeiter) && return nothing
         e, st = edgeiter
-        edgestates = cons((t.m, st), edgestates)
+        edgestates = cons((edgemap(t), st), edgestates)
         buffer = cons(e[1], buffer)
         t = e[2]
     end
@@ -129,26 +122,32 @@ using PureFun
 using .Tries: Trie
 
 using Random
+ks = [randstring("abcdefg", rand(5:10)) for _ in 1:1000]
+vs = [rand(Int) for _ in 1:1000]
 
-ks = [randstring("abcdefg", rand(8:15)) for _ in 1:1000]
-vs = [rand(Int8) for _ in 1:1000]
-
-ks = ["tarak", "rashmi", "shah"]
-vs = [1, 2, 3]
-
+using BenchmarkTools
 
 
 t = Trie(k => v for (k,v) in zip(ks, vs));
-d = Dict(k => v for (k,v) in zip(ks, vs));
-rb = PureFun.RedBlack.RBDict(k => v for (k,v) in zip(ks, vs));
+rb = PureFun.RedBlack.RBDict(k => v for (k,v) in zip(ks, vs))
+d = Dict(k => v for (k,v) in zip(ks, vs))
 
-using BenchmarkTools
-@btime $rb["abfbbdgbagaec"]
-@btime $d["abfbbdgbagaec"]
-@btime $t["abfbbdgbagaec"]
+@benchmark t = Trie(k => v for (k,v) in zip($ks, $vs))
+@benchmark d = Dict(k => v for (k,v) in zip($ks, $vs))
+@benchmark rb = PureFun.RedBlack.RBDict(k => v for (k,v) in zip($ks, $vs))
+
+k = rand(ks)
+@assert t[k] == d[k]
+@btime $rb[$k]
+@btime $d[$k]
+@btime $t[$k]
+@btime get($t, $k, 0)
+@btime get($rb, $k, 0)
+
+@code_warntype get(t, k, 0)
 
 for kv in t println(kv) end
-for kv in t2 println(kv) end
+for kv in rb println(kv) end
 
 
 kv, st = iterate(t2);
