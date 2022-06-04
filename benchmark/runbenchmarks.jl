@@ -19,9 +19,11 @@ queues  = [PureFun.Queues.Batched.Queue,
            PureFun.Queues.Bootstrapped.Queue]
 
 lists   = [PureFun.Linked.List,
-           #PureFun.Unrolled.List{8},
+           PureFun.Unrolled.List{8},
+           PureFun.Unrolled.List{32},
            PureFun.RandomAccess.List,
-           #PureFun.Catenable.List
+           PureFun.VectorCopy.List
+           PureFun.Catenable.List
           ]
 
 streams = [PureFun.Lazy.Stream]
@@ -50,8 +52,9 @@ m = minimum(results)
 
 judge(
       #m[PureFun.Catenable.List],
-      #m[PureFun.Lists.Unrolled.List{8}],
-      m[PureFun.RandomAccess.List],
+      m[PureFun.Unrolled.List{8}], m[PureFun.Unrolled.List{32}],
+      #m[PureFun.RandomAccess.List],
+      #m[PureFun.VectorCopy.List],
       m[PureFun.Linked.List]
      )
 

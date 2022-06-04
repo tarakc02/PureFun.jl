@@ -6,6 +6,7 @@ include("interfaces.jl")
 include("lists-streams/list.jl") # PureFun.Linked.List
 include("lists-streams/skew-binary-ral.jl") # PureFun.RandomAccess.List
 include("lists-streams/stream.jl") # PureFun.Lazy.Stream
+include("lists-streams/vector-list.jl")
 
 ## queues
 include("queues/batchedqueue.jl") # PureFun.Batch
@@ -15,6 +16,8 @@ include("queues/bootstrappedqueue.jl")
 ## these are also list implementations, but rely on lower-level implementations
 ## of lists or queues which need to be defined first
 include("lists-streams/ll2.jl")
+#include("lists-streams/vector-unrolled-list.jl")
+
 include("lists-streams/packed.jl")
 include("lists-streams/catenable-list.jl")
 
