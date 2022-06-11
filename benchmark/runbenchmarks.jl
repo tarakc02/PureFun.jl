@@ -14,21 +14,21 @@ include("src/bench_queue.jl")
 include("src/bench_list.jl")
 include("src/bench_heap.jl")
 
-queues  = [PureFun.Queues.Batched.Queue,
-           PureFun.Queues.RealTime.Queue,
-           PureFun.Queues.Bootstrapped.Queue]
+queues  = [PureFun.Batched.Queue,
+           PureFun.RealTime.Queue,
+           PureFun.Bootstrapped.Queue]
 
 lists   = [PureFun.Linked.List,
            PureFun.Unrolled.List{8},
            PureFun.Unrolled.List{32},
            PureFun.RandomAccess.List,
-           PureFun.VectorCopy.List
+           PureFun.VectorCopy.List,
            PureFun.Catenable.List
           ]
 
 streams = [PureFun.Lazy.Stream]
 
-heaps   = [PureFun.Heaps.Pairing.Heap, PureFun.RedBlack.RB]
+heaps   = [PureFun.Pairing.Heap, PureFun.RedBlack.RB]
 
 suite = BenchmarkGroup()
 
@@ -53,19 +53,23 @@ m = minimum(results)
 judge(
       #m[PureFun.Catenable.List],
       m[PureFun.Unrolled.List{8}], m[PureFun.Unrolled.List{32}],
+      #m[PureFun.Unrolled.List{8}],
+      m[PureFun.Unrolled.List{32}],
       #m[PureFun.RandomAccess.List],
       #m[PureFun.VectorCopy.List],
       m[PureFun.Linked.List]
      )
 
-judge(m[PureFun.Queues.Bootstrapped.Queue],
-      m[PureFun.Queues.Batched.Queue])
+judge(m[PureFun.Pairing.Heap], m[PureFun.RedBlack.RB])
 
-m[PureFun.Queues.RealTime.Queue]
-m[PureFun.Queues.Bootstrapped.Queue]
-m[PureFun.Queues.Batched.Queue]
+judge(m[PureFun.Bootstrapped.Queue],
+      m[PureFun.Batched.Queue])
 
-m3 = median(results[PureFun.Queues.RealTime.Queue])
+m[PureFun.RealTime.Queue]
+m[PureFun.Bootstrapped.Queue]
+m[PureFun.Batched.Queue]
+
+m3 = median(results[PureFun.RealTime.Queue])
 
 ratio(m2, m1)
 ratio(m3, m1)

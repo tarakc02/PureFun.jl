@@ -156,4 +156,15 @@ function Base.show(::IO, ::MIME"text/plain", s::Listy)
     n <= 0 && println("...")
 end
 
-
+function Base.show(io::IO, ::MIME"text/html", s::Listy)
+    cur = s
+    n = 7
+    #println(io, "<pre>")
+    while n > 0 && !isempty(cur)
+        println(io, "  ", first(cur), "</br>")
+        cur = tail(cur)
+        n -= 1
+    end
+    n <= 0 && println(io, "  ...</br>")
+    #print(io, "</pre>")
+end
