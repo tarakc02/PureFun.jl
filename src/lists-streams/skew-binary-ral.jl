@@ -23,7 +23,6 @@ Base.eltype(::List{α}) where α = α
 # }}}
 
 # accessors and utilities {{{
-List{α}() where α = E{α}()
 isleaf(t::Tree) = false
 isleaf(::Leaf) = true
 elem(t::Tree) = t.x
@@ -37,7 +36,37 @@ tree(xs) = (xs.head)[2]
 # }}}
 
 # PFList API {{{
+"""
+    RandomAccess.List{T}()
+    RandomAccess.List(iter)
+
+A `RandomAccess.List` supports the usual list operations, and additionally
+provides access to get or set the *k*th index in O(log(k)) time, rather than
+O(k)
+
+# Parameters
+`T::Type` element type (inferred if creating from `iter`)
+
+# Examples
+```@jldoctest
+julia> rl = PureFun.RandomAccess.List(1:1_000)
+1
+2
+3
+4
+5
+6
+7
+...
+
+
+julia> rl[937]
+937
+```
+"""
+List{α}() where α = E{α}()
 List(iter)  = foldr( cons, iter; init=E{eltype(iter)}() )
+
 PureFun.cons(x::α, ts::E{α}) where α = cons(sing(x), ts)
 function PureFun.cons(x::α, ts::NE{α}) where α 
     ts2 = ts.tail
