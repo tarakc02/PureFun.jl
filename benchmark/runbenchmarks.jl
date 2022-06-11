@@ -7,7 +7,7 @@ project.toml mean, maybe that would be a better place. as it is, i'm keeping a
 separate project.toml for each of tests, benchmarks, and docs.
 =#
 using Pkg, BenchmarkTools
-Pkg.activate("..")
+Pkg.devdir("..")
 using PureFun
 
 include("src/bench_queue.jl")
@@ -19,8 +19,8 @@ queues  = [PureFun.Batched.Queue,
            PureFun.Bootstrapped.Queue]
 
 lists   = [PureFun.Linked.List,
-           PureFun.Unrolled.List{8},
-           PureFun.Unrolled.List{32},
+           #PureFun.Unrolled.List{8},
+           PureFun.Unrolled.List{16},
            PureFun.RandomAccess.List,
            PureFun.VectorCopy.List,
            PureFun.Catenable.List
@@ -48,43 +48,44 @@ tune!(suite)
 results = run(suite, verbose=false)
 
 m = median(results)
-m = minimum(results)
-
-judge(
-      #m[PureFun.Catenable.List],
-      m[PureFun.Unrolled.List{8}], m[PureFun.Unrolled.List{32}],
-      #m[PureFun.Unrolled.List{8}],
-      m[PureFun.Unrolled.List{32}],
-      #m[PureFun.RandomAccess.List],
-      #m[PureFun.VectorCopy.List],
-      m[PureFun.Linked.List]
-     )
-
-judge(m[PureFun.Pairing.Heap], m[PureFun.RedBlack.RB])
-
-judge(m[PureFun.Bootstrapped.Queue],
-      m[PureFun.Batched.Queue])
-
-m[PureFun.RealTime.Queue]
-m[PureFun.Bootstrapped.Queue]
-m[PureFun.Batched.Queue]
-
-m3 = median(results[PureFun.RealTime.Queue])
-
-ratio(m2, m1)
-ratio(m3, m1)
-ratio(m2, m3)
-
-
-ref = rand(Int, 512)
-
-@btime l1 = PureFun.Lists.Linked.List($ref)
-@btime l2 = PureFun.DenseLinkedList.PackedList{8}($ref)
-
-l1 = PureFun.Lists.Linked.List(ref)
-l2 = PureFun.DenseLinkedList.PackedList{8}(ref)
-l3 = collect(ref)
-
-@btime minimum($l1)
-@btime minimum($l2)
-@btime minimum($l3)
+println(m)
+#m = minimum(results)
+#
+#judge(
+#      #m[PureFun.Catenable.List],
+#      m[PureFun.Unrolled.List{8}], m[PureFun.Unrolled.List{32}],
+#      #m[PureFun.Unrolled.List{8}],
+#      m[PureFun.Unrolled.List{32}],
+#      #m[PureFun.RandomAccess.List],
+#      #m[PureFun.VectorCopy.List],
+#      m[PureFun.Linked.List]
+#     )
+#
+#judge(m[PureFun.Pairing.Heap], m[PureFun.RedBlack.RB])
+#
+#judge(m[PureFun.Bootstrapped.Queue],
+#      m[PureFun.Batched.Queue])
+#
+#m[PureFun.RealTime.Queue]
+#m[PureFun.Bootstrapped.Queue]
+#m[PureFun.Batched.Queue]
+#
+#m3 = median(results[PureFun.RealTime.Queue])
+#
+#ratio(m2, m1)
+#ratio(m3, m1)
+#ratio(m2, m3)
+#
+#
+#ref = rand(Int, 512)
+#
+#@btime l1 = PureFun.Lists.Linked.List($ref)
+#@btime l2 = PureFun.DenseLinkedList.PackedList{8}($ref)
+#
+#l1 = PureFun.Lists.Linked.List(ref)
+#l2 = PureFun.DenseLinkedList.PackedList{8}(ref)
+#l3 = collect(ref)
+#
+#@btime minimum($l1)
+#@btime minimum($l2)
+#@btime minimum($l3)

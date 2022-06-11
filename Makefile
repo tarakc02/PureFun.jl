@@ -16,3 +16,6 @@ showdocs: $(docs)
 
 test:
 	julia --project -e "using Pkg; Pkg.test()"
+
+benchmarks: 
+	julia --project=benchmark benchmark/runbenchmarks.jl
