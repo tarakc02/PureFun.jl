@@ -14,25 +14,35 @@ struct Node{α}
     t2::Union{ Node{α},Leaf{α} }
 end
 
-Tree{α} = Union{ Node{α},Leaf{α} } where α
-E{α} = Linked.Empty{ Tuple{Int64, Tree{α} }} where α
-NE{α} = Linked.NonEmpty{ Tuple{Int64, Tree{α} }} where α
+struct Tree{α}
+    w::Int
+    t::Union{ Node{α},Leaf{α} }
+end
 
-List{α} = Union{ E{α},NE{α} } where α
-Base.eltype(::List{α}) where α = α
+struct List{α} <: PureFun.PFList{α}
+    rl::Linked.List{ Tree{α} }
+end
+
 # }}}
 
 # accessors and utilities {{{
-isleaf(t::Tree) = false
-isleaf(::Leaf) = true
-elem(t::Tree) = t.x
-elem(t::Tuple{Int64, Tree}) = t[2].x
-isempty(::E) = true
-isempty(::NE) = false
+isleaf(tree::Tree) = tree.t isa Leaf
+isleaf(leaf::Leaf) = true
+isleaf(node::Node) = false
+Base.isempty(list::List) = isempty(list.rl)
+Base.empty(list::List{α}) where α = List(empty(list.rl))
 
-sing(x) = (1, Leaf(x))
-weight(xs) = (xs.head)[1]
-tree(xs) = (xs.head)[2]
+elem(tree::Tree) = tree.t.x
+elem(node::Node) = node.x
+elem(leaf::Leaf) = leaf.x
+weight(tree::Tree) = tree.w
+tree(t::Tree) = t.t
+
+elem(xs::List) = elem(tree(xs))
+weight(xs::List) = weight(head(xs.rl))
+tree(xs::List) = tree(head(xs.rl))
+
+sing(x) = Tree(1, Leaf(x))
 # }}}
 
 # PFList API {{{
@@ -64,38 +74,41 @@ julia> rl[937]
 937
 ```
 """
-List{α}() where α = E{α}()
-List(iter)  = foldr( cons, iter; init=E{eltype(iter)}() )
+#List{α}() where α = E{α}()
+List{α}() where α = List(Linked.List{ Tree{α} }())
+List(iter)  = foldr( cons, iter; init=List{eltype(iter)}() )
 
-PureFun.cons(x::α, ts::E{α}) where α = cons(sing(x), ts)
-function PureFun.cons(x::α, ts::NE{α}) where α 
-    ts2 = ts.tail
-    isempty(ts2) && return cons(sing(x), ts)
-    w1, w2 = weight(ts), weight(ts.tail)
+function PureFun.cons(x, xs::List)
+    isempty(xs) && return List(cons(sing(x), xs.rl))
+    ts2 = tail(xs.rl)
+    isempty(ts2) && return List(cons(sing(x), xs.rl))
+    w1, w2 = weight(xs.rl[1]), weight(xs.rl[2])
     if w1 == w2
-        cons(( 1+w1+w2, Node(x, tree(ts), tree(ts.tail)) ), ts2.tail)
+        List(cons( Tree( 1+w1+w2, Node(x, tree(xs.rl[1]), tree(xs.rl[2])) ), tail(ts2) ))
     else
-        cons(sing(x), ts)
+        List(cons(sing(x), xs.rl))
     end
 end
 
-PureFun.head(ts::NE) = elem(ts.head)
-PureFun.tail(ts::NE) = _tail(ts.head, ts.tail)
-_tail(h::Tuple{ Int64, Leaf }, ts) = ts
-function _tail(h::Tuple{ Int64, Node }, ts)
-    w, node = h
+PureFun.head(ts::List) = elem(head(ts.rl))
+PureFun.tail(ts::List) = _tail(head(ts.rl), tail(ts.rl))
+
+function _tail(h::Tree, ts)
+    isleaf(h) && return List(ts)
+    w, node = weight(h), tree(h)
+    node isa Leaf && return List(ts)
     w2 = div(w,2)
-    cons( (w2, node.t1), cons((w2, node.t2), ts) )
+    List(cons( Tree(w2, node.t1), cons(Tree(w2, node.t2), ts) ))
 end
 
-#Base.IteratorSize(::List) = Base.HasLength()
-Base.length(ts::E) = 0
-function Base.length(ts::NE)
+function Base.length(ts::List)
+    isempty(ts) && return 0
     len = 0
-    while !isempty(ts)
-        s = ts.head[1]
+    rl = ts.rl
+    while !isempty(rl)
+        s = weight(head(rl))
         len += s
-        ts = ts.tail
+        rl = tail(rl)
     end
     return len
 end
@@ -103,21 +116,19 @@ end
 # }}}
 
 # lookup {{{
-function lookup(xs::NE, i::Integer)
+function lookup(xs::List, i::Integer)
     w = weight(xs)
-    while i >= w && !isempty(xs)
-        xs = xs.tail
+    rl = xs.rl
+    while i >= w && !isempty(rl)
+        rl = tail(rl)
         i -= w
-        w = weight(xs)
+        w = weight(head(rl))
     end
-    lookup_tree(w,i,tree(xs))
+    lookup_tree(w,i,head(rl))
 end
 
-#function lookup_tree(w,i,t::Leaf)
-#    i == 0 ? elem(t) : throw(BoundsError(t, i))
-#end
-
 function lookup_tree(w,i,t::Tree)
+    t = tree(t)
     while i > 0
         isleaf(t) && throw(BoundsError(t, i))
         w = div(w, 2)
@@ -133,17 +144,21 @@ function lookup_tree(w,i,t::Tree)
 end
 
 
-Base.getindex(xs::NE, i::Integer) = lookup(xs, i-1)
+Base.getindex(xs::List, i::Integer) = lookup(xs, i-1)
 # }}}
 
 # update {{{
-function update(xs::NE, i::Integer, y)
-    w = weight(xs)
-    t = tree(xs)
-    i<w ? cons((w, update_tree(w, i, y, t)), tail(xs) ) : cons((w,t), update(xs.tail, i-w, y))
+function update(trees, i::Integer, y)
+    w = weight(head(trees))
+    t = tree(head(trees))
+    if i<w
+        cons(Tree(w, update_tree(w, i, y, t)), tail(trees) )
+    else
+        cons(head(trees), update(tail(trees), i-w, y))
+    end
 end
 
-PureFun.setindex(xs::NE, i, y) = update(xs, i-1, y)
+PureFun.setindex(xs::List, i, y) = List(update(xs.rl, i-1, y))
 
 update_tree(w, i, y, t::Leaf) = i == 0 ? Leaf(y) : throw(BoundsError(t, i))
 
@@ -156,6 +171,52 @@ function update_tree(w, i, y, t::Node)
         return Node(elem(t), t.t1, update_tree(w2, i-1-w2, y, t.t2))
     end
 end
+# }}}
+
+# iteration {{{
+
+#struct RalIterator{T}
+#    rl::Linked.List{ Tree{T} }
+#    curtree::Union{ Node{T},Leaf{T} }
+#    back::Linked.List{ Node{T} }
+#end
+#
+#function Base.iterate(xs::List{T}) where{T}
+#    it = RalIterator(
+#        xs.rl,
+#        tree(head(xs.rl)),
+#        Linked.List{ Node{T} }()
+#    )
+#    head(xs), it
+#end
+#
+#function Base.iterate(xs::List, it::RalIterator)
+#    trees = it.rl
+#    cur = it.curtree
+#    back = it.back
+#    # continue down the current branch if not at end
+#    if !isleaf(cur)
+#        new_it = RalIterator(trees, cur.t1, cons(cur, back))
+#        return elem(cur.t1), new_it
+#    end
+#    # backtrack up the tree until there's an unvisited right turn
+#    while !isempty(back) && cur === head(back).t2
+#        cur = head(back)
+#        back = tail(back)
+#    end
+#    # if the current tree is exhausted, move to the next one
+#    if isempty(back)
+#        trees = tail(trees)
+#        isempty(trees) && return nothing
+#        cur = tree(head(trees))
+#        new_it = RalIterator(trees, cur, empty(back))
+#        return elem(cur), new_it
+#    end
+#    cur = head(back).t2
+#    new_it = RalIterator( trees, cur, back )
+#    return elem(cur), new_it
+#end
+
 # }}}
 
 end
