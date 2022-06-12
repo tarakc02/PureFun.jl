@@ -10,6 +10,42 @@ Functional Data
 Structures*](https://www.goodreads.com/book/show/594288.Purely_Functional_Data_Structures),
 but in [Julia](https://docs.julialang.org/en/v1/) instead of ML.
 
+# What is a persistent data structure?
+
+Consider the following bit of code:
+
+```@repl
+x = 42
+y = x
+y += 1
+x
+```
+
+Compare to the similar looking code:
+
+```@repl
+x = [1,2,3]
+y = x
+push!(y, 4)
+x
+```
+
+In the first example, changing the value of `y` did not affect the value of
+`x`. However, in the second, I was able to change the contents of `x` without
+re-assigning it directly!
+
+Julia's base arrays, sets, and dictionaries are all mutable. This package
+provides data strucutres that are immutable, so they can be treated as values
+like in the first example:
+
+```@repl
+using PureFun
+x = PureFun.Linked.List(1:3)
+y = x
+push(y, 4) # note, this also won't modify `y` without re-assignment
+x
+```
+
 # APIs
 
 ## PFList

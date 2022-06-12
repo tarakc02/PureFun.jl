@@ -4,8 +4,8 @@
 export push, cons, snoc, append, ⧺, head, tail,
        delete_min, delete_max, insert, delete
 
-# anything that implements `PureFun.cons`, `PureFun.head`, and `PureFun.tail` can
-# register as an implementation of a stack/linked list
+# anything that implements `PureFun.cons`, `PureFun.head`, and `PureFun.tail`
+# can register as an implementation of a stack/linked list
 abstract type PFList{T} end
 # a PFSet must implement `PureFun.insert` and `Base.in`
 abstract type PFSet{T} <: AbstractSet{T} end
@@ -21,7 +21,8 @@ A `PFQueue` must implement `PureFun.snoc`, `PureFun.head`, and `PureFun.tail`
 abstract type PFQueue{T} end
 abstract type PFHeap{T} end
 
-# shorthand for data structures that implement `PureFun.head` and `PureFun.tail`
+# shorthand for data structures that implement `PureFun.head` and
+# `PureFun.tail`
 const Listy{T} = Union{PFList{T}, PFQueue{T}, PFStream{T}, PFHeap{T}} where T
 
 """
@@ -145,26 +146,18 @@ lt(x, y) = Base.Order.lt(ordering(x, y), x, y)
 leq(x, y) = !Base.Order.lt(ordering(x, y), y, x)
 eq(x, y) = x == y
 
-function Base.show(::IO, ::MIME"text/plain", s::Listy)
+function Base.show(io::IO, ::MIME"text/plain", s::Listy)
     cur = s
     n = 7
     while n > 0 && !isempty(cur)
-        println(first(cur))
+        print(io, first(cur))
         cur = tail(cur)
+        !isempty(cur) && n > 1 && print(io, "\n")
         n -= 1
     end
-    n <= 0 && println("...")
+    n <= 0 && print(io, "\n...")
 end
 
-function Base.show(io::IO, ::MIME"text/html", s::Listy)
-    cur = s
-    n = 7
-    #println(io, "<pre>")
-    while n > 0 && !isempty(cur)
-        println(io, "  ", first(cur), "</br>")
-        cur = tail(cur)
-        n -= 1
-    end
-    n <= 0 && println(io, "  ...</br>")
-    #print(io, "</pre>")
-end
+# compact (1-line) version of show
+Base.show(io::IO, s::Listy) = print(io, "$(typeof(s))", " length: $(length(s))")
+
