@@ -1,6 +1,5 @@
 using PureFun
 using PureFun.Linked: List
-using Base: rest
 
 #=
 
@@ -47,7 +46,7 @@ does we continue to match the previous opening bracket. We can overload
 
 function isvalid(input) 
     chars = List(input)
-    isvalid(first(chars), rest(chars), List{Char}())
+    isvalid(chars, List{Char}())
 end
 
 
@@ -59,13 +58,16 @@ matched with a closing later on. If it's a closing, we check that it closes the
 currently open bracket
 
 =#
-function isvalid(c, rem, opens)
+function isvalid(chars, opens)
+    isempty(chars) && return isempty(opens)
+    c = head(chars)
+    rest = tail(chars)
     if isopening(c)
-        !isempty(rem) && isvalid(first(rem), rest(rem), cons(c, opens))
+        isvalid(rest, cons(c, opens))
     elseif isclosing(c)
-        !isempty(opens) &&
-            ismatching(first(opens), c) &&
-            (isempty(rem) || isvalid(first(rem), rest(rem), rest(opens)))
+        isempty(opens) ?
+            false :
+            ismatching(head(opens), c) && isvalid(rest, tail(opens))
     else
         throw(DomainError(c, "character outside of valid alphabet"))
     end
