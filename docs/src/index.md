@@ -42,7 +42,7 @@ like in the first example:
 using PureFun
 x = PureFun.Linked.List(1:3)
 y = x
-push(y, 4) # note, this also won't modify `y` without re-assignment
+y = cons(4, y)
 x
 ```
 

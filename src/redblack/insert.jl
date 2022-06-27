@@ -31,7 +31,7 @@ end
 turn_black(t::Black) = t
 
 # ## The main method
-function PureFun.insert(tree::RB, key)
+function insert(tree::RB, key)
     res = ins(tree, key)
     turn_black(res)
 end

@@ -7,7 +7,7 @@ using Random: shuffle
 function test_constructors(Heap)
     @testset "Constructors" begin
         l = Heap{Int64}()
-        m = insert(l, 4)
+        m = push(l, 4)
         @test l isa Heap
         @test m isa Heap
         @test isempty(l)

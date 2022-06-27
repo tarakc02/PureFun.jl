@@ -53,7 +53,7 @@ end
 PureFun.head(xs::NE) = head(xs.head)
 
 function List{N}(iter) where N
-    foldl(PureFun.push, reverse(iter); init=List{N,eltype(iter)}())
+    foldl(pushfirst, reverse(iter); init=List{N,eltype(iter)}())
 end
 
 Base.eltype(xs::List{N,T}) where {N,T} = T
@@ -89,10 +89,10 @@ function Base.getindex(l::NE, ind)
     l.head.v[l.head.head + ind - 1]
 end
 
-function PureFun.setindex(l::NE, ind, val)
+function Base.setindex(l::NE, val, ind)
     (isempty(l) || ind < 0) && throw(BoundsError(l, ind))
     if ind > length(l.head)
-        cons(l.head, PureFun.setindex(l.tail, ind-length(l.head), val))
+        cons(l.head, Base.setindex(l.tail, val, ind-length(l.head)))
     else
         cons(Chunk(setindex(l.head.v, val, ind), l.head.head), l.tail)
     end

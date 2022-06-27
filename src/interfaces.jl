@@ -1,81 +1,57 @@
 # note: all containers are expected to have implemented `Base.isempty`
 
-# `push` is provided as an analogue to `Base.push!`, and `append` as `append!`
-export push, cons, snoc, append, ⧺, head, tail,
-       delete_min, delete_max, insert, delete
+export cons, pushfirst, snoc, push,
+       append, ⧺,
+       head, tail, rest,
+       setindex,
+       delete_min, delete_max,
+       delete
 
-# anything that implements `PureFun.cons`, `PureFun.head`, and `PureFun.tail`
-# can register as an implementation of a stack/linked list
+import StaticArrays.pushfirst, StaticArrays.push, StaticArrays.insert
+import Base.setindex
+
 abstract type PFList{T} end
-# a PFSet must implement `PureFun.insert` and `Base.in`
 abstract type PFSet{T} <: AbstractSet{T} end
 abstract type PFStream{T} end
-# a PFDict should implement `PureFun.setindex` and `Base.getindex`
 abstract type PFDict{K, V} <: AbstractDict{K, V} end
-
-#=
-
-A `PFQueue` must implement `PureFun.snoc`, `PureFun.head`, and `PureFun.tail`
-
-=#
 abstract type PFQueue{T} end
 abstract type PFHeap{T} end
 
-# shorthand for data structures that implement `PureFun.head` and
-# `PureFun.tail`
-const Listy{T} = Union{PFList{T}, PFQueue{T}, PFStream{T}, PFHeap{T}} where T
-
+# pflists {{{
 """
     cons(x, xs::PFList)
-    push(xs::PFList, x)
+    pushfirst(xs::PFList, x)
 
 Return the `PFList` that results from adding `x` to the front of `xs`.
 """
 function cons end
-push(xs::PFList, x) = cons(x, xs)
+pushfirst(xs::PFList, x) = cons(x, xs)
 
 function head end
 function tail end
-Base.tail(xs::Listy) = tail(xs)
+Base.tail(xs::PFList) = tail(xs)
 function append end
 const ⧺ = append
 
-function snoc end
-function setindex end
-Base.setindex(xs::PFList, i, y) = setindex(xs, i, y)
-
-# operations for PFHeap
-#function find_min end
-function delete_min end
-function delete_max end
-function delete end
-#push(xs::PFQueue, x) = snoc(xs, x)
-#push(xs::PFSet, x) = insert(xs, x)
-#push(xs::PFHeap, x) = insert(xs, x)
-
+# iteration/abstractarray stuff {{{
 Base.first(xs::PFList) = head(xs)
-Base.first(xs::PFStream) = head(xs)
-Base.first(xs::PFHeap) = minimum(xs)
-Base.first(xs::PFQueue) = head(xs)
+Base.rest(l::PFList) = tail(l)
+Base.rest(l::PFList, itr_state) = tail(itr_state)
 
-Base.rest(l::Listy) = tail(l)
-Base.rest(l::Listy, itr_state) = tail(itr_state)
-
-# fallback implementations of methods for list-like containers {{{
-Base.iterate(iter::Listy) = isempty(iter) ? nothing : (first(iter), iter)
-function Base.iterate(iter::Listy, state)
+Base.iterate(iter::PFList) = isempty(iter) ? nothing : (head(iter), iter)
+function Base.iterate(iter::PFList, state)
     nxt = tail(state)
     isempty(nxt) && return nothing
-    return first(nxt), nxt
+    return head(nxt), nxt
 end
 
-Base.IndexStyle(::Listy) = IndexLinear()
-Base.IteratorSize(::Listy) = Base.SizeUnknown()
-Base.size(iter::Listy) = (length(iter),)
-Base.eltype(::Type{<:Listy{T}}) where T = T
-Base.firstindex(l::Listy) = 1
+Base.IndexStyle(::Type{<:PFList}) = IndexLinear()
+Base.IteratorSize(::Type{<:PFList}) = Base.SizeUnknown()
+Base.size(iter::PFList) = (length(iter),)
+Base.eltype(::Type{<:PFList{T}}) where T = T
+Base.firstindex(l::PFList) = 1
 
-function Base.length(iter::Listy)
+function Base.length(iter::PFList)
     len = 0
     while !isempty(iter)
         len += 1
@@ -83,11 +59,17 @@ function Base.length(iter::Listy)
     end
     return len
 end
+# }}}
 
-Base.reverse(l::PFList) = foldl(push, l, init=empty(l))
-append(l1::PFList, l2::PFList) = foldl(push, reverse(l1), init=l2)
+# possibly slow but useful {{{
+Base.reverse(l::PFList) = foldl(pushfirst, l, init=empty(l))
+function append(l1::PFList, l2::PFList)
+    # this will stackoverflow if l1 is too big, but it's nice
+    #isempty(l1) ? l2 : cons(head(l1), append(tail(l1), l2))
+    foldl(pushfirst, reverse(l1), init=l2)
+end
 
-function Base.getindex(l::Listy, ind)
+function Base.getindex(l::PFList, ind)
     cur = l
     i = ind
     while i > 1 && !isempty(cur)
@@ -98,7 +80,7 @@ function Base.getindex(l::Listy, ind)
     return head(cur)
 end
 
-function PureFun.setindex(l::PFList, ind, newval)
+function Base.setindex(l::PFList, newval, ind)
     new = empty(l)
     cur = l
     i = ind
@@ -111,17 +93,66 @@ function PureFun.setindex(l::PFList, ind, newval)
     return reverse(cons(newval, new)) ⧺ tail(cur)
 end
 
+insert(l::PFList, i, v) = setindex(l, v, i)
 # }}}
 
-function insert end
+# }}}
 
-Base.union(s::PFSet, iter) = foldl(insert, iter, init = s)
+# PFQueue {{{
+function snoc end
+push(xs::PFQueue, x) = snoc(xs, x)
+
+Base.first(xs::PFQueue) = head(xs)
+Base.rest(xs::PFQueue) = tail(xs)
+Base.rest(l::PFQueue, itr_state) = tail(itr_state)
+
+function Base.length(xs::PFQueue)
+    l = 0
+    while !isempty(xs)
+        xs = tail(xs)
+        l += 1
+    end
+    l
+end
+
+Base.iterate(iter::PFQueue) = isempty(iter) ? nothing : (head(iter), iter)
+function Base.iterate(iter::PFQueue, state)
+    nxt = tail(state)
+    isempty(nxt) && return nothing
+    return head(nxt), nxt
+end
+# }}}
+
+#function insert end
+
+# PFHeap {{{
+#function find_min end
+function delete_min end
+function delete_max end
+function delete end
+
+Base.iterate(iter::PFHeap) = isempty(iter) ? nothing : (minimum(iter), iter)
+function Base.iterate(iter::PFHeap, state)
+    nxt = delete_min(state)
+    isempty(nxt) && return nothing
+    return minimum(nxt), nxt
+end
+
+Base.first(xs::PFHeap) = minimum(xs)
+Base.rest(xs::PFHeap) = delete_min(xs)
+Base.rest(xs::PFHeap, state) = delete_min(state)
+
+# }}}
+
+Base.first(xs::PFStream) = head(xs)
+
+Base.union(s::PFSet, iter) = foldl(push, iter, init = s)
 Base.union(s::PFSet, sets...) = reduce(union, sets, init=s)
 
 function Base.intersect(s::PFSet, iter)
     out = empty(s)
     for i in iter
-        if member(s, i) out = insert(out, i) end
+        if member(s, i) out = push(out, i) end
     end
     return out
 end
@@ -136,17 +167,13 @@ struct Ordered{T, O <: Base.Order.Ordering}
 end
 
 ordering(x::Ordered) = x.order
-ordering(x) = Base.Order.Forward
 ordering(x::Ordered{T, O}, y::Ordered{T, O}) where {T, O} = ordering(x)
-ordering(x::Ordered{T}, y::T) where T = ordering(x)
-ordering(x::T, y::Ordered{T}) where T = ordering(y)
-ordering(x::T, y::T) where T = ordering(x)
 
 lt(x, y) = Base.Order.lt(ordering(x, y), x, y)
 leq(x, y) = !Base.Order.lt(ordering(x, y), y, x)
 eq(x, y) = x == y
 
-function Base.show(io::IO, ::MIME"text/plain", s::Listy)
+function Base.show(io::IO, ::MIME"text/plain", s::PFList)
     cur = s
     n = 7
     while n > 0 && !isempty(cur)
@@ -159,5 +186,5 @@ function Base.show(io::IO, ::MIME"text/plain", s::Listy)
 end
 
 # compact (1-line) version of show
-Base.show(io::IO, s::Listy) = print(io, "$(typeof(s))", " length: $(length(s))")
+Base.show(io::IO, s::PFList) = print(io, "$(typeof(s))", " length: $(length(s))")
 

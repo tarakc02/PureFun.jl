@@ -23,7 +23,9 @@ Base.isempty(::NonEmpty) = false
 Base.empty(h::Empty) = h
 Base.empty(h::Heap{T}) where T = Heap{T}()
 
-const leq = PureFun.leq
+#const leq = PureFun.leq
+const leq = <=
+
 elem(h) = h.x
 heaps(h) = h.hs
 #PureFun.find_min(h::NonEmpty) = elem(h)
@@ -41,7 +43,7 @@ function Base.merge(h1::NonEmpty, h2::NonEmpty)
     leq(x, y) ? NonEmpty(x, cons(h2, hs1)) : NonEmpty(y, cons(h1, hs2))
 end
 
-PureFun.insert(h::Heap{T}, x::T) where T = merge(NonEmpty(x, Linked.List{NonEmpty{T}}()), h)
+push(h::Heap{T}, x::T) where T = merge(NonEmpty(x, Linked.List{NonEmpty{T}}()), h)
 
 #merge_pairs(::Linked.Empty{T}) where T = Heap{T}()
 merge_pairs(::Linked.Empty{NonEmpty{T}}) where T = Heap{T}()
@@ -52,7 +54,7 @@ function merge_pairs(l)
     while !isempty(hs)
         isempty(tail(hs)) && return merge(head(hs), foldl(merge, stack))
         h1, h2, hs = head(hs), head(tail(hs)), tail(tail(hs))
-        stack = push(stack, merge(h1, h2))
+        stack = pushfirst(stack, merge(h1, h2))
     end
     foldl(merge, stack)
 end
@@ -61,6 +63,6 @@ PureFun.delete_min(h::NonEmpty) = merge_pairs(heaps(h))
 PureFun.tail(h::Heap) = delete_min(h)
 
 Heap(iter::Heap) = iter
-Heap(iter) = reduce(insert, iter, init = Heap{eltype(iter)}())
+Heap(iter) = reduce(push, iter, init = Heap{eltype(iter)}())
 
 end

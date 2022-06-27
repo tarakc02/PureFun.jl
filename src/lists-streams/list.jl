@@ -59,7 +59,7 @@ true
 List{T}() where T = Empty{T}()
 List(iter::List) = iter
 function List(iter)
-    foldl(push, reverse(iter); init=Empty(eltype(iter)))
+    foldl(pushfirst, reverse(iter); init=Empty(eltype(iter)))
 end
 
 end

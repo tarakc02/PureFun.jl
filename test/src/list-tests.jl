@@ -6,11 +6,14 @@ using Test
 function test_constructors(List)
     @testset "Constructors" begin
         l = List{Int64}()
-        m = push(l, 4)
+        m = pushfirst(l, 4)
+        m2 =  cons(4, l)
         @test l isa List
         @test m isa List
+        @test m2 isa List
         @test isempty(l)
         @test !isempty(m)
+        @test !isempty(m2)
         @test List(1:10) isa List
         @test !isempty(List(1:10))
     end
@@ -19,11 +22,11 @@ end
 function test_accessors(List)
     @testset "Element Accessors" begin
         l = List(1:10)
-        @test first(l) == 1
+        @test head(l) == 1
         @test first(tail(l)) == 2
         @test first(tail(tail(l))) == 3
         @test l[5] == 5
-        l2 = Base.setindex(l, 3, 99)
+        l2 = Base.setindex(l, 99, 3)
         @test l[3] == 3
         @test l2[3] == 99
     end

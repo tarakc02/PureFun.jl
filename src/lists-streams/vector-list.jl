@@ -45,7 +45,7 @@ function Base.getindex(l::List, ind)
     l.vec[adj_ind]
 end
 
-function PureFun.setindex(l::List, ind, newval)
+function Base.setindex(l::List, newval, ind)
     newvec = copy(l.vec[l.head:end])
     newvec[ind] = newval
     List(newvec, 1)

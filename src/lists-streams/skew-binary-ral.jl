@@ -158,7 +158,7 @@ function update(trees, i::Integer, y)
     end
 end
 
-PureFun.setindex(xs::List, i, y) = List(update(xs.rl, i-1, y))
+Base.setindex(xs::List, y, i) = List(update(xs.rl, i-1, y))
 
 update_tree(w, i, y, t::Leaf) = i == 0 ? Leaf(y) : throw(BoundsError(t, i))
 
