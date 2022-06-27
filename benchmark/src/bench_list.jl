@@ -28,6 +28,6 @@ function addbm!(suite, List)
     suite[List]["consrepeated_1k"] = @benchmarkable cons_repeatedly($List, xs) setup=(xs=rand(Int, 1000))
     suite[List]["iter5k"] = @benchmarkable sum(xs) setup=(xs=$List(rand(Int, 5000)))
     suite[List]["getindex"] = @benchmarkable xs[4398] setup=(xs=$List(rand(Int, 5000)))
-    suite[List]["setindex"] = @benchmarkable Base.setindex(xs, 4398, 0) setup=(xs=$List(rand(Int, 5000)))
+    suite[List]["setindex"] = @benchmarkable Base.setindex(xs, 0, 4398) setup=(xs=$List(rand(Int, 5000)))
 end
 end
