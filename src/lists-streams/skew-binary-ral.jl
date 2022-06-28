@@ -219,4 +219,51 @@ end
 
 # }}}
 
+function get_type(f, xs::List)
+    typeof( f(head(xs)) )
+end
+
+function Base.map(f, xs::List)
+    rl = xs.rl
+    T = get_type(f, xs)
+    List(_map(f, rl, T))
+end
+
+# maybe in some cases we want to do the tail map in parallel (e.g. with another
+# @spawn)
+function _map(f, rl, T)
+    isempty(rl) ?
+    Linked.List{Tree{T}}() :
+    cons(maptree(f, head(rl)),
+         _map(f, tail(rl), T))
+
+end
+
+function maptree(f, tree::Tree)
+    w = weight(tree)
+    #Tree(w, pmapnode(f, tree.t, w))
+    Tree(w, mapnode(f, tree.t))
+end
+
+# whether/when to multi-thread depends on how expensive f(::eltype(node)) is
+function pmapnode(f, node::Node, w)
+    w < 1000 && return mapnode(f, node)
+    t1 = Threads.@spawn pmapnode(f, node.t1, (w-1)/2)
+    t2 = pmapnode(f, node.t2, (w-1)/2)
+    Node( f(elem(node)), fetch(t1), fetch(t2) )
+end
+
+function mapnode(f, node::Node)
+    Node( f(elem(node)),
+          mapnode(f, node.t1),
+          mapnode(f, node.t2) )
+end
+
+function mapnode(f, leaf::Leaf)
+    Leaf(f(elem(leaf)))
+end
+
+pmapnode(f, leaf::Leaf, w) = mapnode(f, leaf)
+
+
 end
