@@ -21,7 +21,7 @@ lists   = [PureFun.Linked.List,
 
 streams = [PureFun.Lazy.Stream]
 
-heaps   = [PureFun.Pairing.Heap]
+heaps   = [PureFun.Pairing.Heap, PureFun.SkewHeap.Heap]
 
 for q in queues
     println(); println(q)

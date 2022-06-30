@@ -23,6 +23,7 @@ include("lists-streams/catenable-list.jl")
 
 ## Heaps
 include("heaps/pairing-heap.jl")
+include("heaps/skew-binomial-heap.jl")
 
 # redblack (set, dict)
 include("redblack/RedBlack.jl")
