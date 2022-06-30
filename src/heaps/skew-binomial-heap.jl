@@ -77,7 +77,7 @@ _merge(ts1, ts2, o) = merge_trees(normalize(ts1, o), normalize(ts2, o), o)
 merge(h1, h2) = Heap(_merge(trees(h1), trees(h2), ordering(h1)),
                      ordering(h2))
 
-function ins_tree(t1, trees, o)
+function (ins_tree(t1::N, trees, o)::List{N}) where N
     isempty(trees) && return cons(t1, trees)
     t2 = head(trees)
     ts = tail(trees)
@@ -118,13 +118,13 @@ function PureFun.delete_min(h::Heap)
     Heap(insert_all(xs, _merge(reverse(ts1), ts2, o), o), o)
 end
 
-function insert_all(xs, ts, o)
+function (insert_all(xs, ts::L, o)::L) where L
     isempty(xs) ? ts : insert_all(tail(xs), _push(ts, head(xs), o), o)
 end
 
 Heap(iter::Heap) = iter
 function Heap(iter, ord=Base.Order.Forward)
-    reduce(push, iter, init = Heap{eltype(iter)}())
+    reduce(push, iter, init = Heap{eltype(iter)}(ord))
 end
 
 Base.IteratorSize(::Type{<:Heap}) = Base.SizeUnknown()
