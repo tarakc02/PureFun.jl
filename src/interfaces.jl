@@ -161,17 +161,17 @@ Base.intersect(s::PFSet, sets...) = reduce(sets, intersect, init=s)
 Base.eltype(::PFSet{T}) where T = T
 
 
-struct Ordered{T, O <: Base.Order.Ordering}
-    elem::T
-    order::O
-end
-
-ordering(x::Ordered) = x.order
-ordering(x::Ordered{T, O}, y::Ordered{T, O}) where {T, O} = ordering(x)
-
-lt(x, y) = Base.Order.lt(ordering(x, y), x, y)
-leq(x, y) = !Base.Order.lt(ordering(x, y), y, x)
-eq(x, y) = x == y
+#struct Ordered{T, O <: Base.Order.Ordering}
+#    elem::T
+#    order::O
+#end
+#
+#ordering(x::Ordered) = x.order
+#ordering(x::Ordered{T, O}, y::Ordered{T, O}) where {T, O} = ordering(x)
+#
+#lt(x, y) = Base.Order.lt(ordering(x, y), x, y)
+#leq(x, y) = !Base.Order.lt(ordering(x, y), y, x)
+#eq(x, y) = x == y
 
 function Base.show(io::IO, ::MIME"text/plain", s::PFList)
     cur = s

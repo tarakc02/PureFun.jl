@@ -9,10 +9,6 @@ struct NonEmpty{T} <: PureFun.PFHeap{T}
     x::T
     hs::Linked.List{NonEmpty{T}}
 end
-#struct NonEmpty{T, H} <: PureFun.PFHeap{T} where {H <: Linked.List{NonEmpty{T}}}
-#    x::T
-#    hs::H
-#end
 
 Heap{T} = Union{Empty{T}, NonEmpty{T}} where {T}
 
@@ -28,12 +24,12 @@ const leq = <=
 
 elem(h) = h.x
 heaps(h) = h.hs
-#PureFun.find_min(h::NonEmpty) = elem(h)
 Base.minimum(h::NonEmpty) = elem(h)
 
 Base.length(h::Empty) = 0
-#Base.length(h::NonEmpty{ T, Linked.Empty{ NonEmpty{T} } }) where T = 1
-Base.length(h::NonEmpty) = isempty(heaps(h)) ? 1 : 1 + sum(length(h0) for h0 in heaps(h))
+function Base.length(h::NonEmpty)
+    isempty(heaps(h)) ? 1 : 1 + sum(length(h0) for h0 in heaps(h))
+end
 
 Base.merge(h::Heap, ::Empty) = h
 Base.merge(::Empty, h::NonEmpty) = h
@@ -43,7 +39,7 @@ function Base.merge(h1::NonEmpty, h2::NonEmpty)
     leq(x, y) ? NonEmpty(x, cons(h2, hs1)) : NonEmpty(y, cons(h1, hs2))
 end
 
-push(h::Heap{T}, x::T) where T = merge(NonEmpty(x, Linked.List{NonEmpty{T}}()), h)
+PureFun.push(h::Heap{T}, x::T) where T = merge(NonEmpty(x, Linked.List{NonEmpty{T}}()), h)
 
 #merge_pairs(::Linked.Empty{T}) where T = Heap{T}()
 merge_pairs(::Linked.Empty{NonEmpty{T}}) where T = Heap{T}()
@@ -60,7 +56,7 @@ function merge_pairs(l)
 end
 
 PureFun.delete_min(h::NonEmpty) = merge_pairs(heaps(h))
-PureFun.tail(h::Heap) = delete_min(h)
+#PureFun.tail(h::Heap) = delete_min(h)
 
 Heap(iter::Heap) = iter
 Heap(iter) = reduce(push, iter, init = Heap{eltype(iter)}())

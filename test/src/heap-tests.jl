@@ -20,10 +20,10 @@ end
 function test_accessors(Heap)
     @testset "Element Accessors" begin
         l = Heap(shuffle(1:10))
-        @test first(l) == 1
-        @test first(tail(l)) == 2
-        @test first(tail(tail(l))) == 3
-        m = tail(tail(tail(tail(l))))
+        @test minimum(l) == 1
+        @test minimum(delete_min(l)) == 2
+        @test minimum(delete_min(delete_min(l))) == 3
+        m = delete_min(delete_min(delete_min(delete_min(l))))
     end
 end
 
