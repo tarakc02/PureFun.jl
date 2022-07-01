@@ -7,7 +7,7 @@ export cons, pushfirst, snoc, push,
        delete_min, delete_max,
        delete
 
-import StaticArrays.pushfirst, StaticArrays.push, StaticArrays.insert
+import StaticArrays.pushfirst, StaticArrays.push
 import Base.setindex
 
 abstract type PFList{T} end
@@ -45,6 +45,18 @@ function Base.iterate(iter::PFList, state)
     return head(nxt), nxt
 end
 
+function Base.iterate(r::Iterators.Reverse{<:PFList{T}}) where T
+    itr = r.itr
+    rev = foldl(pushfirst, itr, init = Linked.List{T}())
+    return head(rev), rev
+end
+
+function Base.iterate(r::Iterators.Reverse{<:PFList{T}}, state) where T
+    st = tail(state)
+    isempty(st) && return nothing
+    return head(st), st
+end
+
 Base.IndexStyle(::Type{<:PFList}) = IndexLinear()
 Base.IteratorSize(::Type{<:PFList}) = Base.SizeUnknown()
 Base.size(iter::PFList) = (length(iter),)
@@ -63,11 +75,7 @@ end
 
 # possibly slow but useful {{{
 Base.reverse(l::PFList) = foldl(pushfirst, l, init=empty(l))
-function append(l1::PFList, l2::PFList)
-    # this will stackoverflow if l1 is too big, but it's nice
-    #isempty(l1) ? l2 : cons(head(l1), append(tail(l1), l2))
-    foldl(pushfirst, reverse(l1), init=l2)
-end
+append(l1::PFList, l2::PFList) = foldr(cons, l1, init=l2)
 
 function Base.getindex(l::PFList, ind)
     cur = l
@@ -92,8 +100,6 @@ function Base.setindex(l::PFList, newval, ind)
     i > 1 && throw(BoundsError(l, ind))
     return reverse(cons(newval, new)) ⧺ tail(cur)
 end
-
-insert(l::PFList, i, v) = setindex(l, v, i)
 # }}}
 
 # }}}
@@ -123,10 +129,7 @@ function Base.iterate(iter::PFQueue, state)
 end
 # }}}
 
-#function insert end
-
 # PFHeap {{{
-#function find_min end
 function delete_min end
 function delete_max end
 function delete end
@@ -139,6 +142,7 @@ function Base.iterate(iter::PFHeap, state)
 end
 
 Base.first(xs::PFHeap) = minimum(xs)
+Base.eltype(::Type{<:PFHeap{T}}) where T = T
 Base.rest(xs::PFHeap) = delete_min(xs)
 Base.rest(xs::PFHeap, state) = delete_min(state)
 
@@ -146,6 +150,7 @@ Base.rest(xs::PFHeap, state) = delete_min(state)
 
 Base.first(xs::PFStream) = head(xs)
 
+Base.eltype(::Type{<:PFSet{T}}) where T = T
 Base.union(s::PFSet, iter) = foldl(push, iter, init = s)
 Base.union(s::PFSet, sets...) = reduce(union, sets, init=s)
 
@@ -157,8 +162,6 @@ function Base.intersect(s::PFSet, iter)
     return out
 end
 Base.intersect(s::PFSet, sets...) = reduce(sets, intersect, init=s)
-
-Base.eltype(::PFSet{T}) where T = T
 
 
 #struct Ordered{T, O <: Base.Order.Ordering}
@@ -187,4 +190,16 @@ end
 
 # compact (1-line) version of show
 Base.show(io::IO, s::PFList) = print(io, "$(typeof(s))", " length: $(length(s))")
+
+function Base.show(io::IO, ::MIME"text/plain", s::PFHeap)
+    cur = s
+    n = 7
+    while n > 0 && !isempty(cur)
+        print(io, minimum(cur))
+        cur = delete_min(cur)
+        !isempty(cur) && n > 1 && print(io, "\n")
+        n -= 1
+    end
+    n <= 0 && print(io, "\n...")
+end
 
