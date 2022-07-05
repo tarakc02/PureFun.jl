@@ -173,52 +173,6 @@ function update_tree(w, i, y, t::Node)
 end
 # }}}
 
-# iteration {{{
-
-#struct RalIterator{T}
-#    rl::Linked.List{ Tree{T} }
-#    curtree::Union{ Node{T},Leaf{T} }
-#    back::Linked.List{ Node{T} }
-#end
-#
-#function Base.iterate(xs::List{T}) where{T}
-#    it = RalIterator(
-#        xs.rl,
-#        tree(head(xs.rl)),
-#        Linked.List{ Node{T} }()
-#    )
-#    head(xs), it
-#end
-#
-#function Base.iterate(xs::List, it::RalIterator)
-#    trees = it.rl
-#    cur = it.curtree
-#    back = it.back
-#    # continue down the current branch if not at end
-#    if !isleaf(cur)
-#        new_it = RalIterator(trees, cur.t1, cons(cur, back))
-#        return elem(cur.t1), new_it
-#    end
-#    # backtrack up the tree until there's an unvisited right turn
-#    while !isempty(back) && cur === head(back).t2
-#        cur = head(back)
-#        back = tail(back)
-#    end
-#    # if the current tree is exhausted, move to the next one
-#    if isempty(back)
-#        trees = tail(trees)
-#        isempty(trees) && return nothing
-#        cur = tree(head(trees))
-#        new_it = RalIterator(trees, cur, empty(back))
-#        return elem(cur), new_it
-#    end
-#    cur = head(back).t2
-#    new_it = RalIterator( trees, cur, back )
-#    return elem(cur), new_it
-#end
-
-# }}}
-
 function get_type(f, xs::List)
     typeof( f(head(xs)) )
 end
