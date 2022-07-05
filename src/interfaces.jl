@@ -15,7 +15,7 @@ abstract type PFSet{T} <: AbstractSet{T} end
 abstract type PFStream{T} end
 abstract type PFDict{K, V} <: AbstractDict{K, V} end
 abstract type PFQueue{T} end
-abstract type PFHeap{T} end
+abstract type PFHeap{T,O<:Base.Order.Ordering} end
 
 # pflists {{{
 """

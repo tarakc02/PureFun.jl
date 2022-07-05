@@ -13,7 +13,7 @@ struct Node{T}
     c::List{Node{T}}
 end
 
-struct Heap{T,O <: Base.Order.Ordering} <: PureFun.PFHeap{T}
+struct Heap{T,O} <: PureFun.PFHeap{T,O}
     trees::List{Node{T}}
     ord::O
 end
