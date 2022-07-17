@@ -77,17 +77,6 @@ end
 Base.reverse(l::PFList) = foldl(pushfirst, l, init=empty(l))
 append(l1::PFList, l2::PFList) = foldr(cons, l1, init=l2)
 
-function Base.getindex(l::PFList, ind)
-    cur = l
-    i = ind
-    while i > 1 && !isempty(cur)
-        i -= 1
-        cur = tail(cur)
-    end
-    i > 1 && throw(BoundsError(l, ind))
-    return head(cur)
-end
-
 function Base.setindex(l::PFList, newval, ind)
     new = empty(l)
     cur = l
@@ -176,7 +165,10 @@ Base.intersect(s::PFSet, sets...) = reduce(sets, intersect, init=s)
 #leq(x, y) = !Base.Order.lt(ordering(x, y), y, x)
 #eq(x, y) = x == y
 
-function Base.show(io::IO, ::MIME"text/plain", s::PFList)
+# implements `head` and `tail`
+const PFListy{T} = Union{PFList{T}, PFQueue{T}, PFStream{T}} where T
+
+function Base.show(io::IO, ::MIME"text/plain", s::PFListy)
     cur = s
     n = 7
     while n > 0 && !isempty(cur)
@@ -189,7 +181,7 @@ function Base.show(io::IO, ::MIME"text/plain", s::PFList)
 end
 
 # compact (1-line) version of show
-Base.show(io::IO, s::PFList) = print(io, "$(typeof(s))", " length: $(length(s))")
+Base.show(io::IO, s::PFListy) = print(io, "$(typeof(s))", " length: $(length(s))")
 
 function Base.show(io::IO, ::MIME"text/plain", s::PFHeap)
     cur = s
@@ -202,4 +194,16 @@ function Base.show(io::IO, ::MIME"text/plain", s::PFHeap)
     end
     n <= 0 && print(io, "\n...")
 end
+
+function Base.getindex(l::PFListy, ind)
+    cur = l
+    i = ind
+    while i > 1 && !isempty(cur)
+        i -= 1
+        cur = tail(cur)
+    end
+    i > 1 && throw(BoundsError(l, ind))
+    return head(cur)
+end
+
 
