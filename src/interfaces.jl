@@ -33,46 +33,6 @@ Base.tail(xs::PFList) = tail(xs)
 function append end
 const ⧺ = append
 
-# iteration/abstractarray stuff {{{
-Base.first(xs::PFList) = head(xs)
-Base.rest(l::PFList) = tail(l)
-Base.rest(l::PFList, itr_state) = tail(itr_state)
-
-Base.iterate(iter::PFList) = isempty(iter) ? nothing : (head(iter), iter)
-function Base.iterate(iter::PFList, state)
-    nxt = tail(state)
-    isempty(nxt) && return nothing
-    return head(nxt), nxt
-end
-
-function Base.iterate(r::Iterators.Reverse{<:PFList{T}}) where T
-    itr = r.itr
-    rev = foldl(pushfirst, itr, init = Linked.List{T}())
-    return head(rev), rev
-end
-
-function Base.iterate(r::Iterators.Reverse{<:PFList{T}}, state) where T
-    st = tail(state)
-    isempty(st) && return nothing
-    return head(st), st
-end
-
-Base.IndexStyle(::Type{<:PFList}) = IndexLinear()
-Base.IteratorSize(::Type{<:PFList}) = Base.SizeUnknown()
-Base.size(iter::PFList) = (length(iter),)
-Base.eltype(::Type{<:PFList{T}}) where T = T
-Base.firstindex(l::PFList) = 1
-
-function Base.length(iter::PFList)
-    len = 0
-    while !isempty(iter)
-        len += 1
-        iter = tail(iter)
-    end
-    return len
-end
-# }}}
-
 # possibly slow but useful {{{
 Base.reverse(l::PFList) = foldl(pushfirst, l, init=empty(l))
 append(l1::PFList, l2::PFList) = foldr(cons, l1, init=l2)
@@ -206,4 +166,44 @@ function Base.getindex(l::PFListy, ind)
     return head(cur)
 end
 
+
+# iteration/abstractarray stuff {{{
+function Base.iterate(r::Iterators.Reverse{<:PFList{T}}) where T
+    itr = r.itr
+    rev = foldl(pushfirst, itr, init = Linked.List{T}())
+    return head(rev), rev
+end
+
+function Base.iterate(r::Iterators.Reverse{<:PFList{T}}, state) where T
+    st = tail(state)
+    isempty(st) && return nothing
+    return head(st), st
+end
+
+Base.first(xs::PFListy) = head(xs)
+Base.rest(l::PFListy) = tail(l)
+Base.rest(l::PFListy, itr_state) = tail(itr_state)
+
+Base.iterate(iter::PFListy) = isempty(iter) ? nothing : (head(iter), iter)
+function Base.iterate(iter::PFListy, state)
+    nxt = tail(state)
+    isempty(nxt) && return nothing
+    return head(nxt), nxt
+end
+
+Base.IndexStyle(::Type{<:PFListy}) = IndexLinear()
+Base.IteratorSize(::Type{<:PFListy}) = Base.SizeUnknown()
+Base.size(iter::PFList) = (length(iter),)
+Base.eltype(::Type{<:PFListy{T}}) where T = T
+Base.firstindex(l::PFListy) = 1
+
+function Base.length(iter::PFList)
+    len = 0
+    while !isempty(iter)
+        len += 1
+        iter = tail(iter)
+    end
+    return len
+end
+# }}}
 
