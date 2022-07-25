@@ -32,7 +32,7 @@ function ismatching(b1, b2)
     b1 == '(' && b2 == ')' ||
     b1 == '{' && b2 == '}' ||
     b1 == '[' && b2 == ']'
-end
+end;
 
 #=
 
@@ -47,7 +47,7 @@ does we continue to match the previous opening bracket. We can overload
 function isvalid(input) 
     chars = List(input)
     isvalid(chars, List{Char}())
-end
+end;
 
 
 #=
@@ -71,7 +71,7 @@ function isvalid(chars, opens)
     else
         throw(DomainError(c, "character outside of valid alphabet"))
     end
-end
+end;
 
 # let's see how it works:
 
