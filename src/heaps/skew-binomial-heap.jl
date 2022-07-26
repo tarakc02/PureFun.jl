@@ -21,6 +21,8 @@ end
 function Heap{T}(o::Base.Order.Ordering=Base.Order.Forward) where T
     Heap(List{Node{T}}(), o)
 end
+
+Heap{T,O}(o) where {T,O} = Heap{T}(o)
 # }}}
 
 # accessors etc {{{
@@ -28,24 +30,25 @@ rank(n::Node) = n.r
 root(n::Node) = n.x
 
 Base.isempty(h::Heap) = isempty(trees(h))
+Base.empty(h::Heap{T}) where T = Heap{T}(ordering(h))
 trees(h::Heap) = h.trees
 ordering(h::Heap) = h.ord
 # }}}
 
 # link/skewlink {{{
-function link(t1, t2, o::Base.Order.Ordering)
+function link(t1::Node{T}, t2::Node{T}, o::Base.Order.Ordering) where T
     leq(o, root(t1), root(t2)) ?
-    Node(1+rank(t1), root(t1), t1.xs, cons(t2, t1.c)) :
-    Node(1+rank(t1), root(t2), t2.xs, cons(t1, t2.c))
+    Node{T}(1+rank(t1), root(t1), t1.xs, cons(t2, t1.c)) :
+    Node{T}(1+rank(t1), root(t2), t2.xs, cons(t1, t2.c))
 end
 
-function skewlink(x, t1, t2, o::Base.Order.Ordering)
+function skewlink(x, t1::Node{T}, t2::Node{T}, o::Base.Order.Ordering) where T
     n = link(t1, t2, o)
     r = rank(n)
     y = root(n)
     ys = n.xs
     c = n.c
-    leq(o, x, y) ? Node(r, x, cons(y, ys), c) : Node(r, y, cons(x, ys), c)
+    leq(o, x, y) ? Node{T}(r, x, cons(y, ys), c) : Node{T}(r, y, cons(x, ys), c)
 end
 # }}}
 
@@ -56,11 +59,11 @@ function PureFun.push(h::Heap, x)
     Heap(_push(ts, x, ord), ord)
 end
 
-function _push(ts::Linked.Empty, x::T, o) where T
+function _push(ts::Linked.Empty{Node{T}}, x, o) where T
     cons(Node(0, x, List{T}(), List{Node{T}}()), ts)
 end
 
-function _push(ts, x::T, o) where T
+function _push(ts::Linked.List{Node{T}}, x, o) where T
     if isempty(tail(ts)) || rank(ts[1]) != rank(ts[2])
         return cons(Node(0, x, List{T}(), List{Node{T}}()), ts)
     end
@@ -74,8 +77,8 @@ normalize(ts, o) = isempty(ts) ? ts : ins_tree(head(ts), tail(ts), o)
 
 _merge(ts1, ts2, o) = merge_trees(normalize(ts1, o), normalize(ts2, o), o)
 
-merge(h1, h2) = Heap(_merge(trees(h1), trees(h2), ordering(h1)),
-                     ordering(h2))
+Base.merge(h1, h2) = Heap(_merge(trees(h1), trees(h2), ordering(h1)),
+                          ordering(h2))
 
 function (ins_tree(t1::N, trees, o)::List{N}) where N
     isempty(trees) && return cons(t1, trees)
