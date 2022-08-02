@@ -1,6 +1,6 @@
 module FastMerging
 
-using PureFun
+using ..PureFun
 const PrimHeap = PureFun.SkewHeap.Heap
 
 leq(o, x, y) = !Base.Order.lt(o, y, x)

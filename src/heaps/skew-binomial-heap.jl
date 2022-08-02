@@ -36,6 +36,9 @@ ordering(h::Heap) = h.ord
 # }}}
 
 # link/skewlink {{{
+
+# note: I'm adding the Node's type parameter to the signature in order to
+# preserve, e.g. if T is a union type
 function link(t1::Node{T}, t2::Node{T}, o::Base.Order.Ordering) where T
     leq(o, root(t1), root(t2)) ?
     Node{T}(1+rank(t1), root(t1), t1.xs, cons(t2, t1.c)) :

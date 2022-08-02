@@ -34,6 +34,16 @@ function test_inorder_iteration(Heap)
     end
 end
 
+function test_merge(Heap)
+    @testset "merge" begin
+        h1 = Heap(shuffle(1:5))
+        h2 = Heap(shuffle(4:10))
+        check = collect(merge(h1, h2))
+        @test all(check .== [1,2,3,4,4,5,5,6,7,8,9,10])
+    end
+end
+
+
 function stress_test(Heap)
     @testset "stress test insert and iterate" begin
         l = Heap(shuffle(1:100_000));
@@ -43,7 +53,7 @@ end
 
 function test(Heap)
     test_constructors(Heap), test_accessors(Heap),
-    test_inorder_iteration(Heap), stress_test(Heap)
+    test_inorder_iteration(Heap), test_merge(Heap), stress_test(Heap)
 end
 
 end
