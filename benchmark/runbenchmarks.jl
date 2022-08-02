@@ -28,7 +28,7 @@ lists   = [PureFun.Linked.List,
 
 streams = [PureFun.Lazy.Stream]
 
-heaps   = [PureFun.Pairing.Heap, PureFun.SkewHeap.Heap]
+heaps   = [PureFun.Pairing.Heap, PureFun.SkewHeap.Heap, PureFun.FastMerging.Heap]
 
 suite = BenchmarkGroup()
 
@@ -61,7 +61,9 @@ println(m)
 #      m[PureFun.Linked.List]
 #     )
 #
-#judge(m[PureFun.Pairing.Heap], m[PureFun.RedBlack.RB])
+#judge(m[PureFun.SkewHeap.Heap], m[PureFun.Pairing.Heap])
+#judge(m[PureFun.FastMerging.Heap], m[PureFun.Pairing.Heap])
+#judge(m[PureFun.FastMerging.Heap], m[PureFun.SkewHeap.Heap])
 #
 #judge(m[PureFun.Bootstrapped.Queue],
 #      m[PureFun.Batched.Queue])
