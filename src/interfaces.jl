@@ -10,12 +10,48 @@ export cons, pushfirst, snoc, push,
 import StaticArrays.pushfirst, StaticArrays.push
 import Base.setindex
 
+"""
+    PFList{T}
+
+Supertype for purely functional lists with elements of type `T`.
+
+A `PFList` implements `cons` (equivalent to `pushfirst`), `head`, `tail`,
+`getindex`, `setindex`, `append` and `reverse`.
+
+See also [`PureFun.Linked.List`](@ref), [`PureFun.RandomAccess.List`](@ref),
+and [`PureFun.Catenable.List`](@ref)
+"""
 abstract type PFList{T} end
-abstract type PFSet{T} <: AbstractSet{T} end
-abstract type PFStream{T} end
-abstract type PFDict{K, V} <: AbstractDict{K, V} end
+
+"""
+    PFQueue{T}
+
+Supertype for purely functional FIFO queues with elements of type `T`.
+
+A `PFQueue` implements `snoc` (equivalent to `push`), `head`, and `tail`
+
+See also [`PureFun.Linked.List`](@ref), [`PureFun.RandomAccess.List`](@ref),
+and [`PureFun.Catenable.List`](@ref)
+"""
 abstract type PFQueue{T} end
+
+"""
+    PFHeap{T, O<:Base.Order.Ordering}
+
+Supertype for purely functional heaps (aka priority queues) with elements of
+type `T` and ordering `O`. These datastructures give fast access to the minimum
+element, where comparisons are based on the supplied ordering.
+
+A `PFHeap` implements `push`, `minimum`, `delete_min`, and `merge`.
+
+See also [`PureFun.Pairing.Heap`](@ref), [`PureFun.SkewHeap.Heap`](@ref), and
+[`PureFun.FastMerging.Heap`](@ref)
+"""
 abstract type PFHeap{T,O<:Base.Order.Ordering} end
+
+abstract type PFDict{K, V} <: AbstractDict{K, V} end
+abstract type PFStream{T} end
+abstract type PFSet{T} <: AbstractSet{T} end
 
 # pflists {{{
 """

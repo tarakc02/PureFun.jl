@@ -1,5 +1,6 @@
 # PFList
 
 ```@autodocs
-Modules = [PureFun.Linked, PureFun.Catenable, PureFun.RandomAccess]
+Modules = [PureFun]
+Order   = [:type, :function, :module]
 ```

@@ -60,6 +60,12 @@ Implemented by:
 - `PureFun.Catenable.List`: fast catenation (appending) of lists, which takes
   O(n) time for regular linked lists
 
+|List Type|`cons`|`head`|`tail`|`append`|`getindex`/`setindex`|`reverse`|
+--- | --- | --- | --- | --- | --- | --- |
+|`Linked.List`|O(1)|O(1)|O(1)|O(n)|O(n)|O(n)|
+|`RandomAccess.List`|O(1)|O(1)|O(1)|O(n)|O(log(n))|O(n)|
+|`Catenable.List`|O(1)|O(1)|O(1)|O(1)|O(n)|O(n)|
+
 All implentations support these operations in constant time:
 
 - `cons` a new item to the front (alias: `push`)

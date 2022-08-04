@@ -30,7 +30,7 @@ push!(LOAD_PATH,"../src/")
 makedocs(sitename="PureFun.jl",
          pages = [
             "index.md",
-            "Lists" => "lists.md",
+            "Reference" => "lists.md",
             "Examples" => [
                 "Estimating π" => "generated/streams.md",
                 "Balanced Parentheses" => "generated/balanced-parentheses.md",

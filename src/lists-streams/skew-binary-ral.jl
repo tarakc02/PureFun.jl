@@ -74,7 +74,6 @@ julia> rl[937]
 937
 ```
 """
-#List{α}() where α = E{α}()
 List{α}() where α = List(Linked.List{ Tree{α} }())
 List(iter)  = foldr( cons, iter; init=List{eltype(iter)}() )
 
