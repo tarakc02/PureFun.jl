@@ -114,7 +114,7 @@ function Base.empty(s::RBSet{O,T}) where {O,T}
 end
 
 PureFun.push(s::RBSet, x) = RBSet(insert(s.t, x))
-Base.in(s::RBSet, x) = traverse(s.t, x, return_true, return_false)
+Base.in(x, s::RBSet) = traverse(s.t, x, return_true, return_false)
 
 Base.iterate(s::RBSet) = iterate(s.t)
 Base.iterate(s::RBSet, state) = iterate(s.t, state)
