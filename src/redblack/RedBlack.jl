@@ -84,9 +84,47 @@ Base.iterate(d::RBDict) = iterate(d.t)
 Base.iterate(d::RBDict, state) = iterate(d.t, state)
 Base.length(d::RBDict) = length(d.t)
 
+Iterators.reverse(d::RBDict) = Iterators.reverse(d.t)
+
 function Base.show(i::IO, m::MIME"text/plain", s::RBDict)
     show(i,m,s.t)
 end
+# }}}
 
+# PFSet interface {{{
+struct RBSet{O,T} <: PureFun.PFSet{T} where O
+    t::NonRed{T,O}
+end
+
+function RBSet{T}(ord=Base.Order.Forward) where {T}
+    t = E{T}(ord)
+    RBSet{typeof(ord),T}(t)
+end
+
+function RBSet(iter, o::Ordering=Forward)
+    t = RB(iter, o)
+    RBSet(t)
+end
+
+Base.isempty(s::RBSet) = isempty(s.t)
+
+function Base.empty(s::RBSet{O,T}) where {O,T}
+    t = empty(s.t)
+    RBSet{O,T}(t)
+end
+
+PureFun.push(s::RBSet, x) = RBSet(insert(s.t, x))
+Base.in(s::RBSet, x) = traverse(s.t, x, return_true, return_false)
+
+Base.iterate(s::RBSet) = iterate(s.t)
+Base.iterate(s::RBSet, state) = iterate(s.t, state)
+Base.length(s::RBSet) = length(s.t)
+Iterators.reverse(d::RBSet) = Iterators.reverse(s.t)
+
+function Base.show(i::IO, m::MIME"text/plain", s::RBSet)
+    show(i,m,s.t)
+end
+
+# }}}
 
 end
