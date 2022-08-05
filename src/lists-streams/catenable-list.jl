@@ -3,7 +3,7 @@ module Catenable
 using ..PureFun
 using ..PureFun.Lazy: @lz, Susp
 
-const Queue = PureFun.Batched.Queue
+const Queue = PureFun.Bootstrapped.Queue
 
 struct SuspList{T}
     s::Susp
@@ -26,7 +26,7 @@ end
 Base.isempty(::Empty) = true
 Base.isempty(::NonEmpty) = false
 Base.empty(e::Empty) = e
-Base.empty(xs::NonEmpty{T}) where T = Empty{T}()
+Base.empty(::NonEmpty{T}) where T = Empty{T}()
 
 PureFun.head(l::NonEmpty) = l.head
 PureFun.append(xs::NonEmpty, ::Empty) = xs
@@ -39,6 +39,7 @@ singleton(x) = NonEmpty(x, Queue{ SuspList{typeof(x)} }())
 
 PureFun.cons(x, xs::List) = singleton(x) ⧺ xs
 PureFun.snoc(xs::List, x) = xs ⧺ singleton(x)
+PureFun.push(xs::List, x) = snoc(xs, x)
 
 PureFun.tail(xs::List) = isempty(xs.tail) ? empty(xs) : link_all(xs.tail)
 
@@ -53,10 +54,12 @@ end
     Catenable.List(iter)
 
 A `Catenable.List` supports the usual list operations, but unlike the
-`Linked.List` you can append two catenable lists in constant time.
-
-# Parameters
-`T::Type` element type (inferred if creating from `iter`)
+`Linked.List` you can append two catenable lists in constant time. These lists
+are presented in section 10.2.1 of the book, as an example of data-structural
+bootstrapping. In addition to list functions, catenable list also support
+`snoc`. Catenable lists work by maintaining the `head` element plus a queue of
+catenable lists. Each element of this queue is suspended. `head` takes constant
+time, while `cons`, `tail`, `snoc`, and `⧺` require amortized constant time.
 
 # Examples
 ```@jldoctest
