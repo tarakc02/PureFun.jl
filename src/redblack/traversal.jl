@@ -110,3 +110,15 @@ function Base.iterate(t::RB, state)
     return elem(head(next)), next
 end
 
+function Base.iterate(r::Iterators.Reverse{<:RB})
+    t = r.itr
+    max = maxtrail(t)
+    elem(head(max)), max
+end
+
+function Base.iterate(r::Iterators.Reverse{<:RB}, state)
+    prv = prv_inorder(state)
+    isempty(prv) && return nothing
+    return elem(head(prv)), prv
+end
+
