@@ -38,6 +38,13 @@ link(xs, ys) = NonEmpty(head(xs), snoc(xs.tail, ys))
 singleton(x) = NonEmpty(x, Queue{ SuspList{typeof(x)} }())
 
 PureFun.cons(x, xs::List) = singleton(x) ⧺ xs
+
+"""
+    snoc(xs::Catenable.List, x)
+
+Return the `Catenable.List` that results from adding an element to the rear of
+`xs`. "`snoc` is [`cons`](@ref) from the right."
+"""
 PureFun.snoc(xs::List, x) = xs ⧺ singleton(x)
 PureFun.push(xs::List, x) = snoc(xs, x)
 
@@ -56,7 +63,7 @@ end
 A `Catenable.List` supports the usual list operations, but unlike the
 `Linked.List` you can append two catenable lists in constant time. These lists
 are presented in section 10.2.1 of the book, as an example of data-structural
-bootstrapping. In addition to list functions, catenable list also support
+bootstrapping. In addition to list functions, catenable lists also support
 `snoc`. Catenable lists work by maintaining the `head` element plus a queue of
 catenable lists. Each element of this queue is suspended. `head` takes constant
 time, while `cons`, `tail`, `snoc`, and `⧺` require amortized constant time.
