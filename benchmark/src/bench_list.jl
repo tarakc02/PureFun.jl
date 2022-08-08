@@ -20,14 +20,11 @@ end
 
 function addbm!(suite, List)
     suite[List] = BenchmarkGroup()
-    #suite[List]["cons0"] = @benchmarkable cons(x, xs) setup=(xs=$List{Int}(); x=rand(Int))
-    #suite[List]["cons10"] = @benchmarkable cons(x, xs) setup=(xs=$List(rand(Int, 10)); x=rand(Int))
-    #suite[List]["cons32"] = @benchmarkable cons(x, xs) setup=(xs=$List(rand(Int, 32)); x=rand(Int))
-    #suite[List]["fill5k"] = @benchmarkable $List(xs) setup=(xs=rand(Int, 5000))
-    suite[List]["dynamic_cons_tail"] = @benchmarkable dynamic_cons_tail($List, xs) setup=(xs=rand(Int, 1000))
-    suite[List]["consrepeated_1k"] = @benchmarkable cons_repeatedly($List, xs) setup=(xs=rand(Int, 1000))
-    suite[List]["iter5k"] = @benchmarkable sum(xs) setup=(xs=$List(rand(Int, 5000)))
-    suite[List]["getindex"] = @benchmarkable xs[4398] setup=(xs=$List(rand(Int, 5000)))
-    suite[List]["setindex"] = @benchmarkable Base.setindex(xs, 0, 4398) setup=(xs=$List(rand(Int, 5000)))
+    suite[List]["dynamic_cons_tail"] = @benchmarkable dynamic_cons_tail($List, xs) setup=(xs=rand(Int, 500))
+    suite[List]["consrepeated_250"] = @benchmarkable cons_repeatedly($List, xs) setup=(xs=rand(Int, 250))
+    suite[List]["iter1k"] = @benchmarkable sum(xs) setup=(xs=$List(rand(Int, 1000)))
+    suite[List]["getindex"] = @benchmarkable xs[i] setup=(xs=$List(rand(Int, 5000)); i = rand(2500:5000))
+    suite[List]["setindex"] = @benchmarkable setindex(xs, 0, i) setup=(xs=$List(rand(Int, 5000)); i = rand(2500:5000))
+    suite[List]["append250"] = @benchmarkable xs ⧺ ys setup=(xs=$List(rand(Int, 250)); ys=$List(rand(Int, 250)))
 end
 end
