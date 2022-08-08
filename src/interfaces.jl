@@ -30,8 +30,8 @@ Supertype for purely functional FIFO queues with elements of type `T`.
 
 A `PFQueue` implements `snoc` (equivalent to `push`), `head`, and `tail`
 
-See also [`PureFun.Linked.List`](@ref), [`PureFun.RandomAccess.List`](@ref),
-and [`PureFun.Catenable.List`](@ref)
+See also [`PureFun.Batched.Queue`](@ref), [`PureFun.Bootstrapped.Queue`](@ref),
+and [`PureFun.RealTime.Queue`](@ref)
 """
 abstract type PFQueue{T} end
 
@@ -61,15 +61,54 @@ abstract type PFSet{T} <: AbstractSet{T} end
 Return the `PFList` that results from adding `x` to the front of `xs`.
 """
 function cons end
+
+"""
+    cons(x, xs::PFList)
+    pushfirst(xs::PFList, x)
+
+Return the `PFList` that results from adding `x` to the front of `xs`.
+"""
 pushfirst(xs::PFList, x) = cons(x, xs)
 
+"""
+    head(xs)
+
+Return the first element of a `PFList` or `PFQueue`. See also [`tail`](@ref)
+"""
 function head end
+
+"""
+    tail(xs)
+
+Return the collection `xs` without its first element (without modifying `xs`).
+"""
 function tail end
 Base.tail(xs::PFList) = tail(xs)
+
+"""
+    append(xs, ys)
+    xs ⧺ ys
+
+Concatenate two `PFLists`.
+
+```@jldoctest
+julia> l1 = PureFun.Linked.List(1:3);
+
+julia> l2 = PureFun.Linked.List(4:6);
+
+julia> l1 ⧺ l2
+1
+2
+3
+4
+5
+6
+
+```
+"""
 function append end
 const ⧺ = append
 
-# possibly slow but useful {{{
 Base.reverse(l::PFList) = foldl(pushfirst, l, init=empty(l))
 append(l1::PFList, l2::PFList) = foldr(cons, l1, init=l2)
 
@@ -85,17 +124,36 @@ function Base.setindex(l::PFList, newval, ind)
     i > 1 && throw(BoundsError(l, ind))
     return reverse(cons(newval, new)) ⧺ tail(cur)
 end
-# }}}
 
 # }}}
 
 # PFQueue {{{
+"""
+    snoc(xs::PFQueue, x)
+    push(xs::PFQueue, x)
+
+Return the `PFQueue` that results from adding an element to the rear of `xs`.
+"`snoc` is [`cons`](@ref) from the right."
+"""
 function snoc end
+
+"""
+    push(xs::PFQueue, x)
+
+Equivalent to [`snoc`](@ref)
+"""
 push(xs::PFQueue, x) = snoc(xs, x)
+
+"""
+    push(xs::PFHeap, x)
+
+Return the `PFHeap` that results from adding add `x` to the collection.
+"""
+push(xs::PFHeap, x) = throw(MethodError(push, (xs, x)))
 
 Base.first(xs::PFQueue) = head(xs)
 Base.rest(xs::PFQueue) = tail(xs)
-Base.rest(l::PFQueue, itr_state) = tail(itr_state)
+Base.rest(::PFQueue, itr_state) = tail(itr_state)
 
 function Base.length(xs::PFQueue)
     l = 0
@@ -106,21 +164,21 @@ function Base.length(xs::PFQueue)
     l
 end
 
-Base.iterate(iter::PFQueue) = isempty(iter) ? nothing : (head(iter), iter)
-function Base.iterate(iter::PFQueue, state)
-    nxt = tail(state)
-    isempty(nxt) && return nothing
-    return head(nxt), nxt
-end
 # }}}
 
 # PFHeap {{{
+"""
+    delete_min(xs::PFHeap)
+
+return a new heap that is the result of deleting the minimum element from `xs`,
+according to the ordering of `xs`.
+"""
 function delete_min end
 function delete_max end
 function delete end
 
 Base.iterate(iter::PFHeap) = isempty(iter) ? nothing : (minimum(iter), iter)
-function Base.iterate(iter::PFHeap, state)
+function Base.iterate(::PFHeap, state)
     nxt = delete_min(state)
     isempty(nxt) && return nothing
     return minimum(nxt), nxt
@@ -129,7 +187,7 @@ end
 Base.first(xs::PFHeap) = minimum(xs)
 Base.eltype(::Type{<:PFHeap{T}}) where T = T
 Base.rest(xs::PFHeap) = delete_min(xs)
-Base.rest(xs::PFHeap, state) = delete_min(state)
+Base.rest(::PFHeap, state) = delete_min(state)
 
 # }}}
 
@@ -148,18 +206,6 @@ function Base.intersect(s::PFSet, iter)
 end
 Base.intersect(s::PFSet, sets...) = reduce(sets, intersect, init=s)
 
-
-#struct Ordered{T, O <: Base.Order.Ordering}
-#    elem::T
-#    order::O
-#end
-#
-#ordering(x::Ordered) = x.order
-#ordering(x::Ordered{T, O}, y::Ordered{T, O}) where {T, O} = ordering(x)
-#
-#lt(x, y) = Base.Order.lt(ordering(x, y), x, y)
-#leq(x, y) = !Base.Order.lt(ordering(x, y), y, x)
-#eq(x, y) = x == y
 
 # implements `head` and `tail`
 const PFListy{T} = Union{PFList{T}, PFQueue{T}, PFStream{T}} where T
@@ -210,7 +256,7 @@ function Base.iterate(r::Iterators.Reverse{<:PFList{T}}) where T
     return head(rev), rev
 end
 
-function Base.iterate(r::Iterators.Reverse{<:PFList{T}}, state) where T
+function Base.iterate(::Iterators.Reverse{<:PFList{T}}, state) where T
     st = tail(state)
     isempty(st) && return nothing
     return head(st), st
@@ -218,10 +264,10 @@ end
 
 Base.first(xs::PFListy) = head(xs)
 Base.rest(l::PFListy) = tail(l)
-Base.rest(l::PFListy, itr_state) = tail(itr_state)
+Base.rest(::PFListy, itr_state) = tail(itr_state)
 
 Base.iterate(iter::PFListy) = isempty(iter) ? nothing : (head(iter), iter)
-function Base.iterate(iter::PFListy, state)
+function Base.iterate(::PFListy, state)
     nxt = tail(state)
     isempty(nxt) && return nothing
     return head(nxt), nxt
