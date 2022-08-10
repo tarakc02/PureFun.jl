@@ -1,41 +1,36 @@
+# tries {{{
 module Tries
 
 using PureFun
-using PureFun: PFDict, setindex
 
+# set up {{{
 const List = PureFun.Linked.List
 
 Option{T} = Union{Some{T}, Nothing} where T
 
-struct Trie{K,V,M} <: PFDict{K,V}
+struct Trie{K,V,K0} <: PureFun.PFDict{K,V} where K0
     v::Option{V}
-    #m::PureFun.RedBlack.RBDict{eltype(K),Trie{K,V},Base.Order.Forward}
-    m::M
+    m::PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering,K0,Trie{K,V,K0}}
 end
+# }}}
 
-EdgeMapType(K,V) = PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering,eltype(K),Trie{K,V}}
+EdgeMapType(K,V) = PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering,eltype(K),Trie{K,V,eltype(K)}}
 
 # Trie keys should be iterators over some simple key type,
 # use `simpletype` to get the inner key type from the outer type
 # e.g. String -> Char, PFList{T} -> T
 simpletype(t::Trie{K,V}) where {K,V} = eltype(K)
 
-function Trie{K,V}() where {K,V} 
+function Trie{K,V}() where {K,V}
     k = eltype(K)
     edgemap = EdgeMapType(K,V)()
-    Trie{K,V,typeof(edgemap)}(nothing, edgemap)
-end
-
-function Trie{K,V}(v, m) where {K,V} 
-    k = eltype(K)
-    edgemap = EdgeMapType(K,V)()
-    Trie{K,V,EdgeMapType(K,V)}(v, m)
+    Trie{K,V,k}(nothing, edgemap)
 end
 
 edgemap(t::Trie{K,V}) where {K,V} = t.m
 
 Base.isempty(t::Trie) = isnothing(t.v) && isempty(edgemap(t))
-Base.empty(t::Trie{K,V}) where {K,V} = Trie{K,V}(nothing, empty(edgemap(t)))
+Base.empty(t::Trie) = Trie(nothing, empty(edgemap(t)))
 Base.IteratorSize(::Trie) = Base.SizeUnknown()
 
 function Base.get(t::Trie, keys, default)
@@ -47,28 +42,28 @@ function Base.get(t::Trie, keys, default)
     isnothing(t.v) ? default : something(t.v)
 end
 
-function PureFun.setindex(trie::Trie{K,V}, keys, x) where {K,V}
-    isempty(keys) && return Trie{K,V}(Some(x), trie.m)
+function PureFun.setindex(trie::Trie{K}, x, keys) where K
+    isempty(keys) && return Trie(Some(x), trie.m)
     k,ks... = keys
     t = get(trie.m, k, empty(trie))
-    tprime = PureFun.setindex(t, K(ks), x)
-    Trie{K,V}(trie.v, PureFun.setindex(trie.m, k, tprime));
+    tprime = setindex(t, x, K(ks))
+    Trie(trie.v, setindex(trie.m, tprime, k));
 end
 
-PureFun.insert(t::Trie, p::Pair) = PureFun.setindex(t, p[1], p[2])
+PureFun.push(t::Trie, p::Pair) = setindex(t, p[2], p[1])
 
 function Trie(iter)
     peek = first(iter)
     peek isa Pair || return MethodError(Trie, iter)
     K, V = typeof(peek[1]), typeof(peek[2])
-    reduce(insert, iter, init=Trie{K,V}())
+    reduce(push, iter, init=Trie{K,V}())
 end
 
 function Base.iterate(t::Trie)
     K = keytype(t)
     buffer = List{simpletype(t)}()
     edgestates = List{Any}()
-    edgestates = isnothing(t.v) ? edgestates : cons((edgemap(t), ()), edgestates) 
+    edgestates = isnothing(t.v) ? edgestates : cons((edgemap(t), ()), edgestates)
     while isnothing(t.v)
         edgeiter = iterate(edgemap(t))
         isnothing(edgeiter) && return nothing
@@ -117,13 +112,14 @@ function Base.iterate(t::Trie, state)
 end
 
 end
+# }}}
 
 using PureFun
 using .Tries: Trie
 
 using Random
-ks = [randstring("abcdefg", rand(5:10)) for _ in 1:1000]
-vs = [rand(Int) for _ in 1:1000]
+ks = [randstring("abcdefghijklmn", rand(6:11)) for _ in 1:10000]
+vs = [rand(Int) for _ in 1:10000]
 
 using BenchmarkTools
 
