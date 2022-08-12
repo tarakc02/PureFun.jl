@@ -68,8 +68,8 @@ Implemented by:
 
 All implentations support these operations in constant time:
 
-- `cons` a new item to the front (alias: `push`)
-- `head` retrieves the item at the front (alias: `first`)
+- `cons` a new item to the front (alias: `pushfirst`)
+- `head` retrieves the item at the front
 - `tail` returns the collection without the front element
 
 All `PFLists` also implement the following operations, which may be slow:
@@ -95,7 +95,7 @@ Implemented by:
 
 Operations:
 
-- `snoc` a new item to the back of the queue
+- `snoc` a new item to the back of the queue (alias: `push`)
 - `head` get the item at the front of the queue
 - `tail` returns the collection without the first item
 
@@ -103,21 +103,35 @@ Operations:
 
 Implemented by:
 
-- `PureFun.RedBlack.Set` (supports all operations in log2(n) time)
+- `PureFun.RedBlack.RBSet` (supports all operations in log2(n) time)
+- `PureFun.RedBlack.RBSet` also supports `delete`, `delete_min`, and
+  `delete_max`, and iteration order is determined by an
+  [`Ordering`](https://docs.julialang.org/en/v1/base/sort/#Alternate-orderings)
+  type parameter
 
 Supports:
 
-- `insert`
+- `push`
 - `in`, `∈`
 
 ## PFDict
 
 Implemented by:
 
-- `PureFun.RedBlack.Dict` (supports all operations in log2(n) time)
+- `PureFun.RedBlack.RBDict` (supports all operations in log2(n) time)
 
 Supports:
 
-- `setindex`, `getindex`, `push`, `insert`
+- `setindex`, `getindex`
+- `PureFun.RedBlack.RBDict` also supports `delete`, `delete_min`, and
+  `delete_max`, and iteration order is determined by an
+  [`Ordering`](https://docs.julialang.org/en/v1/base/sort/#Alternate-orderings)
+  type parameter
 
 ## PFHeap
+
+Implemented by:
+
+- `PureFun.Pairing.Heap`: 
+- `PureFun.SkewHeap.Heap`: 
+- `PureFun.FastMerging.Heap`:
