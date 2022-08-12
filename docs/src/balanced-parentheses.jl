@@ -60,14 +60,13 @@ currently open bracket
 =#
 function isvalid(chars, opens)
     isempty(chars) && return isempty(opens)
-    c = head(chars)
-    rest = tail(chars)
+    c, rest... = chars
     if isopening(c)
         isvalid(rest, cons(c, opens))
     elseif isclosing(c)
-        isempty(opens) ?
-            false :
-            ismatching(head(opens), c) && isvalid(rest, tail(opens))
+        !isempty(opens) &&
+            ismatching(head(opens), c) &&
+            isvalid(rest, tail(opens))
     else
         throw(DomainError(c, "character outside of valid alphabet"))
     end
