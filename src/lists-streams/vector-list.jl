@@ -51,6 +51,10 @@ function Base.setindex(l::List, newval, ind)
     List(newvec, 1)
 end
 
+function PureFun.append(l1::List, l2::List)
+    List(append!(copy(l1.vec), l2.vec))
+end
+
 end
 
 
