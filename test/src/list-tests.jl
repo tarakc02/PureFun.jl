@@ -62,12 +62,24 @@ function test_etc(List)
     end
 end
 
+function test_functionals(List)
+    @testset "map, (map-)reduce, filter" begin
+        xs = rand(Int, 100)
+        l = List(xs)
+        @test all(sin.(xs) .== map(sin, l))
+        @test all(filter(iseven, xs) .== filter(iseven, l))
+        @test mapreduce(x -> x^2, +, xs) == mapreduce(x -> x^2, +, l)
+        @test sum(xs) == sum(l)
+    end
+end
+
 function test(List)
     test_constructors(List),
     test_accessors(List),
     test_iterator(List),
     stress_test(List),
-    test_etc(List)
+    test_etc(List),
+    test_functionals(List)
 end
 
 end
