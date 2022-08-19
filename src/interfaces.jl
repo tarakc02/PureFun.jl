@@ -289,3 +289,4 @@ function Base.length(iter::PFList)
 end
 # }}}
 
+Base.filter(f, l::PFList) = foldr(cons, Iterators.filter(f, l), init=empty(l))
