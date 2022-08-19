@@ -18,7 +18,6 @@ include("queues/bootstrappedqueue.jl")
 include("lists-streams/ll2.jl")
 #include("lists-streams/vector-unrolled-list.jl")
 
-include("lists-streams/packed.jl")
 include("lists-streams/catenable-list.jl")
 
 ## Heaps
