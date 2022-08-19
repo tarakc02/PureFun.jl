@@ -185,11 +185,13 @@ end
 # maybe in some cases we want to do the tail map in parallel (e.g. with another
 # @spawn)
 function _map(f, rl, T)
-    isempty(rl) ?
-    Linked.List{Tree{T}}() :
-    cons(maptree(f, head(rl)),
-         _map(f, tail(rl), T))
-
+    func(chunk) = maptree(f, chunk)
+    mapfoldr(func, cons, rl, init=Linked.List{Tree{T}}())
+#    isempty(rl) ?
+#    Linked.List{Tree{T}}() :
+#    cons(maptree(f, head(rl)),
+#         _map(f, tail(rl), T))
+#
 end
 
 function maptree(f, tree::Tree)
@@ -218,5 +220,19 @@ end
 
 pmapnode(f, leaf::Leaf, w) = mapnode(f, leaf)
 
+struct Init end
+
+function Base.mapreduce(f, op, xs::List; init=Init())
+    isempty(xs) && init isa Init && return Base.reduce_empty(op, eltype(xs))
+    func(tree) = _mapreduce(f, op, tree.t)
+    out = mapreduce(func, op, xs.rl)
+    init isa Init ? out : op(init, out)
+end
+
+_mapreduce(f, op, t::Leaf) = Base.reduce_first(op, f(elem(t)))
+
+function _mapreduce(f, op, t::Node)
+    op( op(f(elem(t)), _mapreduce(f, op, t.t1)), _mapreduce(f, op, t.t2) )
+end
 
 end
