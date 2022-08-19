@@ -30,7 +30,8 @@ isleaf(tree::Tree) = tree.t isa Leaf
 isleaf(leaf::Leaf) = true
 isleaf(node::Node) = false
 Base.isempty(list::List) = isempty(list.rl)
-Base.empty(list::List{α}) where α = List(empty(list.rl))
+Base.empty(list::List) = List(empty(list.rl))
+Base.empty(list::List, eltype) = List(Linked.List{Tree{eltype}})
 
 elem(tree::Tree) = tree.t.x
 elem(node::Node) = node.x
@@ -42,7 +43,7 @@ elem(xs::List) = elem(tree(xs))
 weight(xs::List) = weight(head(xs.rl))
 tree(xs::List) = tree(head(xs.rl))
 
-sing(x) = Tree(1, Leaf(x))
+sing(x, T) = Tree(1, Leaf{T}(x))
 # }}}
 
 # PFList API {{{
@@ -78,14 +79,14 @@ List{α}() where α = List(Linked.List{ Tree{α} }())
 List(iter)  = foldr( cons, iter; init=List{eltype(iter)}() )
 
 function PureFun.cons(x, xs::List)
-    isempty(xs) && return List(cons(sing(x), xs.rl))
+    isempty(xs) && return List(cons(sing(x, eltype(xs)), xs.rl))
     ts2 = tail(xs.rl)
-    isempty(ts2) && return List(cons(sing(x), xs.rl))
+    isempty(ts2) && return List(cons(sing(x, eltype(xs)), xs.rl))
     w1, w2 = weight(xs.rl[1]), weight(xs.rl[2])
     if w1 == w2
         List(cons( Tree( 1+w1+w2, Node(x, tree(xs.rl[1]), tree(xs.rl[2])) ), tail(ts2) ))
     else
-        List(cons(sing(x), xs.rl))
+        List(cons(sing(x, eltype(xs)), xs.rl))
     end
 end
 
@@ -173,7 +174,8 @@ end
 # }}}
 
 function get_type(f, xs::List)
-    typeof( f(head(xs)) )
+    Base.@default_eltype(Iterators.map(f, xs))
+    #typeof( f(head(xs)) )
 end
 
 function Base.map(f, xs::List)
@@ -187,11 +189,6 @@ end
 function _map(f, rl, T)
     func(chunk) = maptree(f, chunk)
     mapfoldr(func, cons, rl, init=Linked.List{Tree{T}}())
-#    isempty(rl) ?
-#    Linked.List{Tree{T}}() :
-#    cons(maptree(f, head(rl)),
-#         _map(f, tail(rl), T))
-#
 end
 
 function maptree(f, tree::Tree)
@@ -224,6 +221,7 @@ struct Init end
 
 function Base.mapreduce(f, op, xs::List; init=Init())
     isempty(xs) && init isa Init && return Base.reduce_empty(op, eltype(xs))
+    isempty(xs) && return init
     func(tree) = _mapreduce(f, op, tree.t)
     out = mapreduce(func, op, xs.rl)
     init isa Init ? out : op(init, out)

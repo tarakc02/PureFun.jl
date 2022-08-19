@@ -110,7 +110,7 @@ function append end
 const ⧺ = append
 
 Base.reverse(l::PFList) = foldl(pushfirst, l, init=empty(l))
-append(l1::PFList, l2::PFList) = foldr(cons, l1, init=l2)
+append(l1::PFList{T}, l2::PFList{T}) where T = foldr(cons, l1, init=l2)
 
 function Base.setindex(l::PFList, newval, ind)
     new = empty(l)
@@ -252,6 +252,7 @@ end
 # iteration/abstractarray stuff {{{
 function Base.iterate(r::Iterators.Reverse{<:PFList{T}}) where T
     itr = r.itr
+    isempty(itr) && return nothing
     rev = foldl(pushfirst, itr, init = Linked.List{T}())
     return head(rev), rev
 end
@@ -289,4 +290,10 @@ function Base.length(iter::PFList)
 end
 # }}}
 
+function infer_eltype(f, l)
+    T = Base.@default_eltype(Iterators.map(f, l))
+    T === Union{} && return Any
+    return T
+end
 Base.filter(f, l::PFList) = foldr(cons, Iterators.filter(f, l), init=empty(l))
+Base.map(f, l::PFList) = mapfoldr(f, cons, l, init=empty(l, infer_eltype(f, l)))

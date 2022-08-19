@@ -13,8 +13,9 @@ List{T} = Union{Empty{T}, NonEmpty{T}} where {T}
 
 Empty(T) = Empty{T}()
 Base.empty(::List{T}) where {T} = Empty{T}()
+Base.empty(::List, eltype) = Empty{eltype}()
 
-PureFun.cons(x::T, xs::List{T}) where T = NonEmpty(x, xs)
+PureFun.cons(x::T, xs::List) where T = NonEmpty(x, xs)
 PureFun.head(l::NonEmpty) = l.head
 PureFun.tail(l::NonEmpty) = l.tail
 

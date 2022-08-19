@@ -25,19 +25,19 @@ end
 
 Base.isempty(::Empty) = true
 Base.isempty(::NonEmpty) = false
-Base.empty(e::Empty) = e
-Base.empty(::NonEmpty{T}) where T = Empty{T}()
+Base.empty(::List{T}) where T = Empty{T}()
+Base.empty(::List, eltype) = Empty{eltype}()
 
 PureFun.head(l::NonEmpty) = l.head
-PureFun.append(xs::NonEmpty, ::Empty) = xs
-PureFun.append(::Empty, ys::NonEmpty) = ys
+PureFun.append(xs::NonEmpty{T}, ::Empty{T}) where T = xs
+PureFun.append(::Empty{T}, ys::NonEmpty{T}) where T = ys
 PureFun.append(xs::NonEmpty, ys::NonEmpty) = link(xs, suspend(ys))
 
 link(xs, ys) = NonEmpty(head(xs), snoc(xs.tail, ys))
 
-singleton(x) = NonEmpty(x, Queue{ SuspList{typeof(x)} }())
+singleton(x, T) = NonEmpty(convert(T, x), Queue{ SuspList{T} }())
 
-PureFun.cons(x, xs::List) = singleton(x) ⧺ xs
+PureFun.cons(x, xs::List) = singleton(x, eltype(xs)) ⧺ xs
 
 """
     snoc(xs::Catenable.List, x)
@@ -45,7 +45,7 @@ PureFun.cons(x, xs::List) = singleton(x) ⧺ xs
 Return the `Catenable.List` that results from adding an element to the rear of
 `xs`. "`snoc` is [`cons`](@ref) from the right."
 """
-PureFun.snoc(xs::List, x) = xs ⧺ singleton(x)
+PureFun.snoc(xs::List, x) = xs ⧺ singleton(x, eltype(xs))
 PureFun.push(xs::List, x) = snoc(xs, x)
 
 PureFun.tail(xs::List) = isempty(xs.tail) ? empty(xs) : link_all(xs.tail)

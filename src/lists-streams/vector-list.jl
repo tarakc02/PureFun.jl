@@ -9,6 +9,7 @@ end
 
 List{T}() where T = List(Vector{T}(), 1)
 Base.empty(list::List) = List(empty(list.vec), 1)
+Base.empty(list::List, eltype) = List(Vector{eltype}(), 1)
 Base.isempty(l::List) = l.head > length(l.vec)
 
 Base.length(l::List) = isempty(l) ? 0 : length(l.vec) - l.head + 1

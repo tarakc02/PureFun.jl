@@ -8,13 +8,13 @@ function test_constructors(List)
         l = List{Int64}()
         m = pushfirst(l, 4)
         m2 =  cons(4, l)
-        @test l isa List
-        @test m isa List
-        @test m2 isa List
+        #@test l isa List
+        #@test m isa List
+        #@test m2 isa List
         @test isempty(l)
         @test !isempty(m)
         @test !isempty(m2)
-        @test List(1:10) isa List
+        #@test List(1:10) isa List
         @test !isempty(List(1:10))
     end
 end
@@ -66,9 +66,15 @@ function test_functionals(List)
     @testset "map, (map-)reduce, filter" begin
         xs = rand(Int, 100)
         l = List(xs)
+        mt = empty(l)
         @test all(sin.(xs) .== map(sin, l))
+        @test map(identity, l) isa PureFun.PFList
+        @test map(sin, mt) isa PureFun.PFList
         @test all(filter(iseven, xs) .== filter(iseven, l))
+        @test filter(iseven, l) isa PureFun.PFList
+        @test filter(iseven, mt) isa PureFun.PFList
         @test mapreduce(x -> x^2, +, xs) == mapreduce(x -> x^2, +, l)
+        @test mapreduce(x -> x^2, +, mt, init=0) == 0
         @test sum(xs) == sum(l)
     end
 end

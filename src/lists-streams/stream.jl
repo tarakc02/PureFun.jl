@@ -39,6 +39,7 @@ macro cons(T, headexpr, tailexpr)
 end
 
 Base.empty(::Stream{T}) where {T} = Empty{T}()
+Base.empty(::Stream, eltype) = Empty{eltype}()
 (PureFun.head(s::NonEmpty{T})::T) where {T} = force(s.head)::T
 (PureFun.tail(s::NonEmpty{T})::Stream{T}) where {T} = force(s.tail)::Stream{T}
 
