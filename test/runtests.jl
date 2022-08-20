@@ -16,7 +16,11 @@ queues  = [PureFun.Batched.Queue,
            PureFun.Bootstrapped.Queue]
 
 lists   = [PureFun.Linked.List,
-           PureFun.Unrolled.List{8},
+           PureFun.Chunky.List{8},
+           PureFun.Chunky.List{PureFun.RandomAccess.List,8},
+           PureFun.Chunky.List{PureFun.Catenable.List,8},
+           #PureFun.Unrolled.List{8},
+           #PureFun.Unrolled.pack(PureFun.Linked.List, 8),
            PureFun.RandomAccess.List,
            PureFun.Catenable.List,
            PureFun.VectorCopy.List]

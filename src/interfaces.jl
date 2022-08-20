@@ -290,10 +290,10 @@ function Base.length(iter::PFList)
 end
 # }}}
 
-function infer_eltype(f, l)
+function infer_return_type(f, l)
     T = Base.@default_eltype(Iterators.map(f, l))
     T === Union{} && return Any
     return T
 end
 Base.filter(f, l::PFList) = foldr(cons, Iterators.filter(f, l), init=empty(l))
-Base.map(f, l::PFList) = mapfoldr(f, cons, l, init=empty(l, infer_eltype(f, l)))
+Base.map(f, l::PFList) = mapfoldr(f, cons, l, init=empty(l, infer_return_type(f, l)))

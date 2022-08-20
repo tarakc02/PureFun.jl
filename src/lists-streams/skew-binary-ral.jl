@@ -31,7 +31,7 @@ isleaf(leaf::Leaf) = true
 isleaf(node::Node) = false
 Base.isempty(list::List) = isempty(list.rl)
 Base.empty(list::List) = List(empty(list.rl))
-Base.empty(list::List, eltype) = List(Linked.List{Tree{eltype}})
+Base.empty(list::List, eltype) = List(empty(list.rl, Tree{eltype}))
 
 elem(tree::Tree) = tree.t.x
 elem(node::Node) = node.x
@@ -101,17 +101,7 @@ function _tail(h::Tree, ts)
     List(cons( Tree(w2, node.t1), cons(Tree(w2, node.t2), ts) ))
 end
 
-function Base.length(ts::List)
-    isempty(ts) && return 0
-    len = 0
-    rl = ts.rl
-    while !isempty(rl)
-        s = weight(head(rl))
-        len += s
-        rl = tail(rl)
-    end
-    return len
-end
+Base.length(ts::List) = mapreduce(weight, +, ts.rl, init = 0)
 
 # }}}
 
@@ -184,8 +174,6 @@ function Base.map(f, xs::List)
     List(_map(f, rl, T))
 end
 
-# maybe in some cases we want to do the tail map in parallel (e.g. with another
-# @spawn)
 function _map(f, rl, T)
     func(chunk) = maptree(f, chunk)
     mapfoldr(func, cons, rl, init=Linked.List{Tree{T}}())
