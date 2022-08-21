@@ -29,4 +29,7 @@ include("heaps/bootstrapped-heap.jl")
 # redblack (set, dict)
 include("redblack/RedBlack.jl")
 
+# dict
+include("association-list.jl")
+
 end

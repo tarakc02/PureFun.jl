@@ -29,7 +29,7 @@ streams = [PureFun.Lazy.Stream]
 
 heaps   = [PureFun.Pairing.Heap, PureFun.SkewHeap.Heap, PureFun.FastMerging.Heap]
 
-dicts = [PureFun.RedBlack.RBDict]
+dicts = [PureFun.RedBlack.RBDict, PureFun.AssocList.Map]
 
 sets = [PureFun.RedBlack.RBSet]
 
