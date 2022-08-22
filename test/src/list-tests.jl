@@ -28,7 +28,7 @@ function test_accessors(List)
         @test l[5] == 5
         l2 = Base.setindex(l, 99, 3)
         @test l2[3] == 99
-        @test (l[i] for i in 1:10) .== 1:10
+        @test all((l[i] for i in 1:10) .== 1:10)
     end
 end
 
