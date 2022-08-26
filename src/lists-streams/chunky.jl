@@ -22,8 +22,10 @@ Chunk{N,T}() where {N,T} = Chunk{N,T}(SVector{N,T}(Vector{T}(undef, N)), N+1)
 chunksize(::Chunk{N}) where N = N::Int
 chunksize(::Type{<:Chunk{N}}) where N = N::Int
 
-Base.@propagate_inbounds Base.iterate(c::Chunk) = c.v[c.head], c.head+1
-Base.@propagate_inbounds Base.iterate(c::Chunk{N}, state) where N = state > N::Int ? nothing : (c.v[state], state+1)
+Base.iterate(c::Chunk) = @inbounds c.v[c.head], c.head+1
+function Base.iterate(c::Chunk{N}, state) where N
+    state > N::Int ? nothing : (@inbounds c.v[state], state+1)
+end
 
 function check_chunk_bounds(xs::Chunk, i::Integer)
     i > length(xs) && throw(BoundsError(xs, i))
@@ -38,43 +40,50 @@ function Base.setindex(xs::Chunk, val, i::Integer)
 end
 # }}}
 
-# since L is part of the type parameter, need to do some extra bookkeeping
-# during `cons`-type operations to keep the type stable (e.g. if empty/nonempty
-# have distinct types for L)
-struct List{L,N,T} <: PureFun.PFList{T} where { N,L<:PureFun.PFList{Chunk{N,T}} }
+# list type and helpers {{{
+struct List{L,T} <: PureFun.PFList{T} where { N,L<:PureFun.PFList{Chunk{N,T}} }
     chunks::L
 end
 
-chunksize(::List{L,N,T}) where {L,N,T} = N::Int
-chunksize(::Type{<:List{L,N,T}}) where {L,N,T} = N::Int
+chunksize(::List{L,T}) where { T,N,L<:PureFun.PFList{Chunk{N,T}} } = N::Int
+chunksize(::Type{<:List{L,T}}) where { T,N,L<:PureFun.PFList{Chunk{N,T}} } = N::Int
 chunksize(::PureFun.PFList{Chunk{N,T}}) where {N,T} = N::Int
 chunksize(::Type{ <:PureFun.PFList{Chunk{N,T}} }) where {N,T} = N::Int
 
 get_et(iter) = eltype(iter)
+# }}}
 
-function List{N}(iter, L::UnionAll=PureFun.Linked.List) where N
-    IntN = Int(N)
-    et = get_et(iter)
-    foldr(cons, iter, init=List{L,IntN,et}())
+# basic constructors {{{
+function chunky(N::Integer, L::UnionAll=PureFun.Linked.List)
+    List{ L{Chunk{N,T}}, T} where T
 end
 
-List{L,N}(iter) where {L,N} = List{N}(iter, L)
+List{L,T}() where {L,T} = List(L())
 
-function List{N,T}(L::UnionAll=PureFun.Linked.List) where {N,T}
-    List{L,N,T}()
-    #List{L{Chunk{N,T}},N,T}(L{Chunk{N,T}}())
-end
-
-List{L,N,T}() where {L,N,T} = List{L{Chunk{N,T}},N,T}(L{Chunk{N,T}}())
-
-function _typedlist(chunks::C) where { N,T,C<:PureFun.PFList{Chunk{N,T}} }
-    List(chunks)
-    #List{ L{Chunk{N,T}}, N, T }(chunks, L)
-end
+_typedlist(chunks) = List(chunks)
 function List(chunks::L) where { N,T,L<:PureFun.PFList{Chunk{N,T}} }
-    List{L,N,T}(chunks)
+    List{L,T}(chunks)
+end
+# }}}
+
+# construct from an iterable. not sure how to write this generically {{{
+function (List{PureFun.RandomAccess.List{Chunk{N,T}},T} where T)(iter) where N
+    et = get_et(iter)
+    foldr(cons, iter, init=List{PureFun.RandomAccess.List{Chunk{N,et}},et}())
 end
 
+function (List{PureFun.Linked.List{Chunk{N,T}},T} where T)(iter) where N
+    et = get_et(iter)
+    foldr(cons, iter, init=List{PureFun.Linked.List{Chunk{N,et}},et}())
+end
+
+function (List{PureFun.Catenable.List{Chunk{N,T}},T} where T)(iter) where N
+    et = get_et(iter)
+    foldr(cons, iter, init=List{PureFun.Catenable.List{Chunk{N,et}},et}())
+end
+# }}}
+
+# PFList methods {{{
 Base.isempty(l::List) = isempty(l.chunks)
 Base.empty(l::List) = _typedlist(empty(l.chunks))
 function Base.empty(l::List, eltype) 
@@ -108,7 +117,9 @@ function PureFun.tail(xs::List)
 end
 
 PureFun.head(xs::List) = head(head(xs.chunks))
+# }}}
 
+# iteration {{{
 function Base.iterate(l::List)
     chunks = l.chunks
     isempty(chunks) ? nothing : (head(l), (chunks, 1, length(head(chunks))))
@@ -131,7 +142,9 @@ function Base.iterate(list::List, state)
 end
 
 struct Init end
+# }}}
 
+# map + mapreduce specializations {{{
 function Base.mapreduce(f, op, xs::List; init=Init())
     isempty(xs) && init isa Init && return Base.reduce_empty(op, eltype(xs))
     isempty(xs) && return init
@@ -142,15 +155,6 @@ function Base.mapreduce(f, op, xs::List; init=Init())
     init isa Init ? out : op(init, out)
 end
 
-#Base.@propagate_inbounds function Base.mapreduce(f, op, xs::List)
-#    func(chunk) = isfull(chunk) ?
-#        mapreduce(f, op, chunk.v) :
-#        mapreduce(f, op, @view chunk.v[chunk.head:end])
-#    mapreduce(func, op, xs.chunks)
-#end
-
-#infer_ftype(f, xs) = typeof(f(head(xs)))
-
 function Base.map(f, xs::List)
     T = PureFun.infer_return_type(f, xs)
     N = chunksize(xs)
@@ -158,11 +162,12 @@ function Base.map(f, xs::List)
     _typedlist(_map(func, xs.chunks, T))
 end
 
-#_map(func, chunks) = map(func, chunks)
 function _map(func, chunks::PureFun.PFList{Chunk{N,T}}, OutType) where {N,T}
     mapfoldr(func, cons, chunks, init=empty(chunks, Chunk{N,OutType}))
 end
+# }}}
 
+# indexing and length {{{
 function Base.getindex(l::List, ind)
     chunks = l.chunks
     isempty(chunks) && throw(BoundsError(l, ind))
@@ -191,6 +196,10 @@ function _setind(l, val, ind)::typeof(l)
 end
 
 Base.length(l::List) = mapreduce(length, +, l.chunks; init = 0)
+
+# }}}
+
+# specializations: RandomAccess.List {{{
 
 # to preserve the efficiency of getindex/setindex, methods for
 # List{<:RandomAccessList} assume that all chunks are full, except possibly the
@@ -227,6 +236,12 @@ function Base.length(l::List{<:PureFun.RandomAccess.List})
         length(head(l.chunks)) + chunksize(l) * (length(l.chunks) - 1)
 end
 
+# }}}
+
+# specializations for `append` {{{
+
+# neither List{<:Linked.List} or List{<:Catenable.List} require chunks to be
+# full, so we can append the chunklists
 function PureFun.append(l1::L, l2::L) where {L <: List{<:PureFun.Linked.List}}
     _typedlist(l1.chunks ⧺ l2.chunks)
 end
@@ -234,5 +249,7 @@ end
 function PureFun.append(l1::L, l2::L) where {L <: List{<:PureFun.Catenable.List}}
     _typedlist(l1.chunks ⧺ l2.chunks)
 end
+#
+# }}}
 
 end
