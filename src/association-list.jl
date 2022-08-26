@@ -8,7 +8,11 @@ end
 
 Base.isempty(al::Map) = isempty(al.pairs)
 
-Map{K,V}(L=PureFun.Linked.List) where {K,V} = Map{L{Pair{K,V}}, K, V}(L{Pair{K,V}}())
+function Map(l::PureFun.PFList{Pair{K,V}}) where {K,V}
+    L = typeof(l)
+    Map{L,K,V}(l)
+end
+Map{K,V}(L=PureFun.Linked.List) where {K,V} = Map(L{Pair{K,V}}())
 
 function Map(iter, L=PureFun.Linked.List)
     peek = first(iter)
@@ -24,16 +28,17 @@ Base.iterate(d::Map) = iterate(d.pairs)
 Base.iterate(d::Map, state) = iterate(d.pairs, state)
 
 function Base.setindex(l::Map, newval, key)
-    isempty(l) && return Map(cons(Pair(key,newval), l.pairs))
-    new = empty(l.pairs)
-    cur = l.pairs
-    while !isempty(cur) && head(cur).first != key
-        new = cons(head(cur), new)
-        cur = tail(cur)
-    end
-    new = cons(Pair(key,newval), new)
-    init = isempty(cur) ? cur : tail(cur)
-    Map(foldl(pushfirst, new, init=init))
+    Map(cons(Pair(key,newval), l.pairs))
+#    isempty(l) && return Map(cons(Pair(key,newval), l.pairs))
+#    new = empty(l.pairs)
+#    cur = l.pairs
+#    while !isempty(cur) && head(cur).first != key
+#        new = cons(head(cur), new)
+#        cur = tail(cur)
+#    end
+#    new = cons(Pair(key,newval), new)
+#    init = isempty(cur) ? cur : tail(cur)
+#    Map(foldl(pushfirst, new, init=init))
 end
 
 function PureFun.get(d::Map, k, default)
