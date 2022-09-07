@@ -36,8 +36,14 @@ function Base.iterate(iter::List, state)
     state > length(iter.vec) && return nothing
     return iter.vec[state], state+1
 end
+struct Init end
+function Base.mapreduce(f, op, l::List; init=Init())
+     init isa Init ?
+         mapreduce(f, op, l.vec) :
+         mapreduce(f, op, l.vec, init=init)
+end
 
-Base.reverse(l::List) = isempty(l) ? l : List(reverse(l.vec[l.head:end]))
+Base.reverse(l::List) = isempty(l) ? l : List(reverse(l.vec[l.head:end]), 1)
 append(l1::List, l2::List) = List(vcat(l1, l2), 1)
 
 function Base.getindex(l::List, ind)
