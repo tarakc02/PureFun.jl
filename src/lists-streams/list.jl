@@ -63,5 +63,8 @@ function List(iter)
     foldl(pushfirst, reverse(iter); init=Empty(eltype(iter)))
 end
 
+PureFun.container_type(::Type{<:List{T}}) where T = List{T}
+#PureFun.container_type(::List{T}) where T = List{T}
+
 end
 

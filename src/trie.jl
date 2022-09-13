@@ -2,52 +2,59 @@
 module Tries
 
 using PureFun
-
-# set up {{{
-const List = PureFun.Linked.List
+using PureFun.AssocList, PureFun.Chunky, PureFun.Linked
 
 Option{T} = Union{Some{T}, Nothing} where T
 
-struct Trie{K,V,K0} <: PureFun.PFDict{K,V} where K0
+#Map{K,V} = PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering,K,V}
+Map{K,V} = AssocList.Map{ PureFun.Linked.List{Pair{K,V}}, K, V} where {K,V}
+
+#Map{K,V} = AssocList.Map{ Chunky.List{ Linked.List{ Chunky.Chunk{8, Pair{K,V}} },
+#                                       Pair{K,V} }, K, V } where {K,V}
+
+#=
+
+keytype for the edgemaps is eltype(KEY) for the main dict key, which we'll
+settle in separate wrappers that implement dict/set intefaces
+
+=#
+struct Trie{K,V} <: PureFun.PFDict{K,V}
     v::Option{V}
-    m::PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering,K0,Trie{K,V,K0}}
+    edges::Map{K, Trie{K,V}}
 end
-# }}}
 
-EdgeMapType(K,V) = PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering,eltype(K),Trie{K,V,eltype(K)}}
-
-# Trie keys should be iterators over some simple key type,
-# use `simpletype` to get the inner key type from the outer type
-# e.g. String -> Char, PFList{T} -> T
-simpletype(t::Trie{K,V}) where {K,V} = eltype(K)
+empty_edgemap(K, V) = AssocList.Map{K,Trie{K,V}}(PureFun.Linked.List)
+vtype(::Trie{V}) where V = V
 
 function Trie{K,V}() where {K,V}
-    k = eltype(K)
-    edgemap = EdgeMapType(K,V)()
-    Trie{K,V,k}(nothing, edgemap)
+    e = empty_edgemap(K,V)
+    Trie{K,V}(nothing, e)
 end
 
-edgemap(t::Trie{K,V}) where {K,V} = t.m
+edges(t::Trie) = t.edges
+Base.isempty(t::Trie) = isnothing(t.v) && isempty(edges(t))
+function Base.empty(t::Trie{K,V}) where {K,V}
+    em = empty(edges(t))
+    Trie{K,V}(nothing, em)
+end
 
-Base.isempty(t::Trie) = isnothing(t.v) && isempty(edgemap(t))
-Base.empty(t::Trie) = Trie(nothing, empty(edgemap(t)))
 Base.IteratorSize(::Trie) = Base.SizeUnknown()
 
 function Base.get(t::Trie, keys, default)
     isempty(keys) && return default
     for k in keys
         isempty(t) && return default
-        t = get(edgemap(t), k, empty(t))::typeof(t)
+        t = get(edges(t), k, empty(t))
     end
     isnothing(t.v) ? default : something(t.v)
 end
 
-function PureFun.setindex(trie::Trie{K}, x, keys) where K
-    isempty(keys) && return Trie(Some(x), trie.m)
+function PureFun.setindex(trie::Trie{K,V}, x, keys) where {K,V}
+    isempty(keys) && return Trie(Some(x), edges(trie))
     k,ks... = keys
-    t = get(trie.m, k, empty(trie))
-    tprime = setindex(t, x, K(ks))
-    Trie(trie.v, setindex(trie.m, tprime, k));
+    t = get(edges(trie), k, empty(trie))
+    tprime = setindex(t, x, ks)
+    Trie{K,V}(trie.v, setindex(edges(trie), tprime, k))
 end
 
 PureFun.push(t::Trie, p::Pair) = setindex(t, p[2], p[1])
@@ -55,59 +62,58 @@ PureFun.push(t::Trie, p::Pair) = setindex(t, p[2], p[1])
 function Trie(iter)
     peek = first(iter)
     peek isa Pair || return MethodError(Trie, iter)
-    K, V = typeof(peek[1]), typeof(peek[2])
+    K, V = eltype(peek[1]), typeof(peek[2])
     reduce(push, iter, init=Trie{K,V}())
 end
 
-function Base.iterate(t::Trie)
-    K = keytype(t)
-    buffer = List{simpletype(t)}()
-    edgestates = List{Any}()
-    edgestates = isnothing(t.v) ? edgestates : cons((edgemap(t), ()), edgestates)
+function Base.iterate(t::Trie{K,V}) where {K,V}
+    buffer = Linked.List{K}()
+    edgestates = Linked.List{Any}()
+    edgestates = isnothing(t.v) ? edgestates : cons((edges(t), ()), edgestates)
     while isnothing(t.v)
-        edgeiter = iterate(edgemap(t))
+        edgeiter = iterate(edges(t))
         isnothing(edgeiter) && return nothing
         e, st = edgeiter
-        edgestates = cons((edgemap(t), st), edgestates)
+        edgestates = cons((edges(t), st), edgestates)
         buffer = cons(e[1], buffer)
         t = e[2]
     end
-    kv = K(reverse!(collect(buffer))) => something(t.v)
+    kv = reverse!(collect(buffer)) => something(t.v)
     kv, (edgestates, buffer)
 end
 
-function Base.iterate(t::Trie, state)
-    K = keytype(t)
+function Base.iterate(t::Trie{K,V}, state) where {K,V}
+    #K = keytype(t)
     edgestates, buffer = state
     isempty(edgestates) && return nothing
 
-    edges, edgestate = head(edgestates)
-    edgeiter = edgestate === () ? iterate(edges) : iterate(edges, edgestate)
+    es, edgestate = head(edgestates)
+    edgeiter = edgestate === () ? iterate(es) : iterate(es, edgestate)
 
     # if the current edgemap is exhausted, go up a level and advance an edge
     while isnothing(edgeiter)
         edgestates = tail(edgestates)
         isempty(edgestates) && return nothing
         buffer = tail(buffer)
-        edges, edgestate = head(edgestates)
-        edgeiter = edgestate === () ? iterate(edges) : iterate(edges, edgestate)
+        es, edgestate = head(edgestates)
+        edgeiter = edgestate === () ? iterate(es) : iterate(es, edgestate)
     end
 
     edge, edgestate = edgeiter
     trie = edge[2]
-    edgestates = cons((edges, edgestate), tail(edgestates))
+    edgestates = cons((es, edgestate), tail(edgestates))
     buffer = cons(edge[1], isempty(buffer) ? buffer : tail(buffer))
 
     # now descend to the first valid key
     while isnothing(trie.v)
-        edgeiter = iterate(trie.m)
+        edgeiter = iterate(edges(trie))
         isnothing(edgeiter) && return nothing
         edge, edgestate = edgeiter
-        edgestates = cons((trie.m, edgestate), edgestates)
+        edgestates = cons((edges(trie), edgestate), edgestates)
         buffer = cons(edge[1], buffer)
         trie = edge[2]
     end
-    kv = K(reverse!(collect(buffer))) => something(trie.v)
+    kv = reverse!(collect(buffer)) => something(trie.v)
     kv, (edgestates, buffer)
 end
 
@@ -118,15 +124,27 @@ using PureFun
 using .Tries: Trie
 
 using Random
-ks = [randstring("abcdefghijklmn", rand(6:11)) for _ in 1:10000]
-vs = [rand(Int) for _ in 1:10000]
+ks = [randstring("abcdefghijklmn", rand(15:25)) for _ in 1:500]
+vs = [rand(Int) for _ in 1:500]
 
 using BenchmarkTools
 
+PureFun.Tries.@Trie MyTrie PureFun.AList.mapof(PureFun.Linked.List)
 
-t = Trie(k => v for (k,v) in zip(ks, vs));
+t = MyTrie(k => v for (k,v) in zip(ks, vs))
 rb = PureFun.RedBlack.RBDict(k => v for (k,v) in zip(ks, vs))
 d = Dict(k => v for (k,v) in zip(ks, vs))
+
+@benchmark $t[k] setup=k=rand(ks)
+@benchmark $rb[k] setup=k=rand(ks)
+@benchmark $d[k] setup=k=rand(ks)
+@benchmark get($t, k, 0) setup=k=randstring("abcdefghijklmn", rand(7:10))
+@benchmark get($rb, k, 0) setup=k=randstring("abcdefghijklmn", rand(7:10))
+@benchmark get($d, k, 0) setup=k=randstring("abcdefghijklmn", rand(7:10))
+#@btime $d[k] setup=k=rand(ks)
+
+@benchmark setindex($t, 0, k) setup=k=rand(ks)
+@benchmark setindex($rb, 0, k) setup=k=rand(ks)
 
 @benchmark t = Trie(k => v for (k,v) in zip($ks, $vs))
 @benchmark d = Dict(k => v for (k,v) in zip($ks, $vs))
@@ -149,7 +167,6 @@ for kv in rb println(kv) end
 kv, st = iterate(t2);
 kv, st = iterate(t2, st);
 kv, st = iterate(t, st);
-
 
 
 #t = Tries.Trie{String, Int}()

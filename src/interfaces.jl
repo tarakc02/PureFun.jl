@@ -21,6 +21,17 @@ function infer_return_type(f, l)
     return T
 end
 
+#=
+
+each container should implement this e.g.: container_type(::Linked.List{T}) =
+Linked.List{T} useful because we're using small unions, need to keep the
+broader type info sometimes. this should return a DataType that is also an
+empty constructor for that type
+
+=#
+container_type(pf) = container_type(typeof(pf))
+container_type(T::Type) = T
+
 # optional method for ordered collections
 function delete_max end
 
@@ -96,3 +107,4 @@ Base.size(iter::PFIter) = (length(iter),)
 Base.eltype(::Type{<:PFIter{T}}) where T = T
 Base.firstindex(l::PFIter) = 1
 
+# }}}

@@ -62,7 +62,7 @@ List{L,T}() where {L,T} = List(L())
 
 _typedlist(chunks) = List(chunks)
 function List(chunks::L) where { N,T,L<:PureFun.PFList{Chunk{N,T}} }
-    List{L,T}(chunks)
+    List{PureFun.container_type(chunks),T}(chunks)
 end
 # }}}
 
@@ -91,7 +91,8 @@ function Base.empty(l::List, eltype)
 end
 
 function initval(x, xs::List)
-    chnk = cons(x, Chunk{chunksize(xs),eltype(xs)}())
+    N = chunksize(xs)
+    chnk = Chunk{N,eltype(xs)}(@SVector(fill(x, N)), N)
     _typedlist(cons(chnk, xs.chunks))
 end
 
@@ -251,5 +252,7 @@ function PureFun.append(l1::L, l2::L) where {L <: List{<:PureFun.Catenable.List}
 end
 #
 # }}}
+
+PureFun.container_type(::Type{<:List{L,T}}) where {L,T} = List{L,T}
 
 end

@@ -89,5 +89,7 @@ function List(iter)
     foldl(snoc, iter, init=init)
 end
 
+PureFun.container_type(::Type{<:List{T}}) where T = List{T}
+
 end
 

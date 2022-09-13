@@ -1,4 +1,4 @@
-module AssocList
+module AList
 
 using ..PureFun
 
@@ -7,19 +7,33 @@ struct Map{L,K,V} <: PureFun.PFDict{K,V} where { L<:PureFun.PFList{Pair{K,V}} }
 end
 
 Base.isempty(al::Map) = isempty(al.pairs)
+Base.empty(al::Map) = Map(empty(al.pairs))
 
 function Map(l::PureFun.PFList{Pair{K,V}}) where {K,V}
-    L = typeof(l)
+    L = PureFun.container_type(l)
     Map{L,K,V}(l)
 end
+Map{L,K,V}() where {L,K,V} = Map{L,K,V}(L())
 Map{K,V}(L=PureFun.Linked.List) where {K,V} = Map(L{Pair{K,V}}())
 
-function Map(iter, L=PureFun.Linked.List)
-    peek = first(iter)
+function mapof(ListType)
+    Map{ListType{Pair{K,V}}, K, V} where {K,V}
+end
+
+# once again, i'd like these to be generic but...
+
+function (Map{PureFun.Linked.List{Pair{K,V}}, K, V} where {K,V})(iter)
+    it = sort(collect(iter), rev = true)
+    peek = first(it)
     peek isa Pair || return MethodError(Map, iter)
     K, V = typeof(peek[1]), typeof(peek[2])
-    ps = foldl(pushfirst, iter, init = L{ Pair{K,V} }())
-    Map{typeof(ps),K,V}(ps)
+    ps = foldl(pushfirst, it, init = PureFun.Linked.List{Pair{K,V}}())
+    Map(ps)
+end
+
+function (Map{PureFun.VectorCopy.List{Pair{K,V}}, K, V} where {K,V})(iter)
+    l = PureFun.VectorCopy.List(sort(collect(iter)))
+    Map(l)
 end
 
 Base.length(al::Map) = length(al.pairs)
@@ -27,26 +41,22 @@ Base.length(al::Map) = length(al.pairs)
 Base.iterate(d::Map) = iterate(d.pairs)
 Base.iterate(d::Map, state) = iterate(d.pairs, state)
 
-function Base.setindex(l::Map, newval, key)
-    Map(cons(Pair(key,newval), l.pairs))
-#    isempty(l) && return Map(cons(Pair(key,newval), l.pairs))
-#    new = empty(l.pairs)
-#    cur = l.pairs
-#    while !isempty(cur) && head(cur).first != key
-#        new = cons(head(cur), new)
-#        cur = tail(cur)
-#    end
-#    new = cons(Pair(key,newval), new)
-#    init = isempty(cur) ? cur : tail(cur)
-#    Map(foldl(pushfirst, new, init=init))
+Base.setindex(l::Map, v, k) = Map(_setkey(l.pairs, Pair(k,v), k))
+
+function _setkey(l, newpair, key)
+    isempty(l)    && return cons(newpair, l)
+    curkey = head(l).first
+    key <  curkey && return cons(newpair, l)
+    key == curkey && return cons(newpair, tail(l))
+    cons(head(l), _setkey(tail(l), newpair, key))
 end
 
 function PureFun.get(d::Map, k, default)
     pairs = d.pairs
-    while !isempty(pairs)
-        cur = head(pairs)
-        cur[1] == k && return cur[2]
-        pairs = tail(pairs)
+    isempty(pairs) && return default
+    for kv in pairs
+        kv.first == k && return kv.second
+        k < kv.first  && return default
     end
     default
 end

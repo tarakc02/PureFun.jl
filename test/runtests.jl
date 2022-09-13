@@ -27,7 +27,15 @@ streams = [PureFun.Lazy.Stream]
 
 heaps   = [PureFun.Pairing.Heap, PureFun.SkewHeap.Heap, PureFun.FastMerging.Heap]
 
-dicts = [PureFun.RedBlack.RBDict, PureFun.AssocList.Map]
+PureFun.Tries.@Trie LTrie PureFun.AList.mapof(PureFun.Linked.List)
+PureFun.Tries.@Trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
+
+#PureFun.AList.@Map LMap PureFun.Linked.List
+
+dicts = [PureFun.RedBlack.RBDict,
+         PureFun.AList.mapof(PureFun.Linked.List),
+         PureFun.AList.mapof(PureFun.VectorCopy.List),
+         LTrie, RBTrie]
 
 sets = [PureFun.RedBlack.RBSet]
 

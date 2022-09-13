@@ -31,5 +31,6 @@ include("redblack/RedBlack.jl")
 
 # dict
 include("association-list.jl")
+include("trie/ctrie-param-edgemap.jl")
 
 end
