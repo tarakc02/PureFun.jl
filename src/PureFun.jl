@@ -12,6 +12,7 @@ include("lists-streams/vector-list.jl")
 include("queues/batchedqueue.jl") # PureFun.Batch
 include("queues/realtimequeue.jl")
 include("queues/bootstrappedqueue.jl")
+include("queues/hood-melville.jl")
 
 ## these are also list implementations, but rely on lower-level implementations
 ## of lists or queues which need to be defined first

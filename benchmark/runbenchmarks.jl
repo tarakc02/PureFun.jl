@@ -16,7 +16,8 @@ include("src/bench_heap.jl")
 
 queues  = [PureFun.Batched.Queue,
            PureFun.RealTime.Queue,
-           PureFun.Bootstrapped.Queue]
+           PureFun.Bootstrapped.Queue,
+           PureFun.HoodMelville.Queue]
 
 lists   = [PureFun.Linked.List,
            PureFun.Chunky.List{8},

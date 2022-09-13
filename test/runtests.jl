@@ -13,7 +13,8 @@ include("src/set-tests.jl")
 
 queues  = [PureFun.Batched.Queue,
            PureFun.RealTime.Queue,
-           PureFun.Bootstrapped.Queue]
+           PureFun.Bootstrapped.Queue,
+           PureFun.HoodMelville.Queue]
 
 lists   = [PureFun.Linked.List,
            PureFun.Chunky.chunky(8),
