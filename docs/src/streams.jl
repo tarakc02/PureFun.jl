@@ -17,95 +17,48 @@ using PureFun.Lazy: Stream, @cons
 
 ## Basics
 
-`@cons` creates a Stream. Since the tail is suspended, it is a convenient way
-to write out recursion. Arguments to `@cons` are not immediately evaluated, so
-we explicitly specify the Stream's element type in the first argument:
+"Lazy evaluation" describes a strategy for evaluating expressions, and has two main features:
+
+- The evaluation of the expression is delayed (*suspended*) until its result is
+needed
+
+- The result is cached (*memoized*) the first time the expression is evaluated,
+so that subsequent evaluations become cheap lookups
+
+Streams are lazily evaluated lists, and are described in section 4.2 of the
+book:
+
+> Streams (also konwn as lazy lists) are similar to ordinary lists, except that
+every cell is systematically suspended
 
 =#
 
-integers_from(start) = @cons(Int64, start, integers_from(start + 1))
-integers = integers_from(1)
+integers = Stream(Iterators.countfrom(1))
 
 #=
 
-Streams have a list-like interface:
+## Comparison to iterators
 
-=#
-st = map(x -> 2x, accumulate(+, filter(isodd, integers), 0))
-st
+Like Streams, Julia's
+[iterators](https://docs.julialang.org/en/v1/base/iterators/) are also lazily
+evaluated. The main difference is that Streams are memoized, meaning that
+values that have been calculated are cached and can be revisited without having
+to recalculate them.
 
-# 
-
-st[2000]
-
-#=
-
-## Example: Approximating $\pi$
-
-This example is adapted from [Chapter 3 of Structure and Interpretation of
-Computer
-Programs](https://mitpress.mit.edu/sites/default/files/sicp/full-text/sicp/book/node72.html)
-
-The summation:
-
-```math
-\frac{\pi}{4} = 1 - \frac{1}{3} + \frac{1}{5} - \frac{1}{7}
-```
-gives us a way to approximate $\pi$:
-
-=#
-function pi_summands(n, one)
-    @cons(Float64, one/n, pi_summands(n+2, -one))
-end
-
-function approx_pi(n)
-    summands = pi_summands(n, 1)
-    sums = accumulate(+, summands, 0.0)
-    map(x -> 4x, sums)
-end
-
-π̂ = approx_pi(1)
-
-# The series converges slowly though. In order to see how close the estimates
-# are:
-
-map(x -> abs(π - x), π̂)
-
-#=
-
-## A better approximation
-
-An *accelerator* is a function that takes a series, and returns a series that
-converges to the same sum, but more quickly. The Euler transform is an
-accelerator that works well on series with alternating positive/negative terms,
-like we have here. It is defined as:
-
-```math
-S_{n+1} - \frac{(S_{n+1}-S_{n})^{2}}{S_{n-1} - 2S_{n} + S_{n+1}}
-```
-
-So:
+Like all of the data structures in PureFun.jl, Streams are iterators
+themselves, and calling a function from `Base.Iterators` on a Stream works as
+expected. Calling `Stream` on an iterator, on the other hand, is kind of like a
+lazy `collect`, it materializes computed values as they are iterated out. We
+can use the two together to efficiently chain together operations:
 
 =#
 
-euler_transform(s₀, s₁, s₂) = s₂ - (s₂ - s₁)^2/(s₀ - 2s₁ + s₂)
+using Base.Iterators: zip, drop, take
+const accumulate, filter, map = Iterators.accumulate, Iterators.filter, Iterators.map
 
-function euler_transform(s::Stream)
-    @cons(Float64,
-          euler_transform(s[1], s[2], s[3]),
-          euler_transform(tail(s)))
-end
+foo = map(x -> 2x, accumulate(+, filter(isodd, integers))) |> Stream
+bar = zip(foo, drop(foo, 1)) |> Stream
 
-π̂₂ = euler_transform(approx_pi(1))
+collect(take(bar, 7))
 
-# This converges much more quickly to the true value of $\pi$
-
-map(x -> abs(π - x), π̂₂)
-
-# and we can reuse the accelerator to keep improving our approximation:
-
-euler_transform(π̂₂)
-
-#
-
-euler_transform(euler_transform(π̂₂))
+bar[2000]
