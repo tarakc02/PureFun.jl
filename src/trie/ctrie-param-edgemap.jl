@@ -30,6 +30,7 @@ macro Trie(Name,DictType)
          i::Int
          subtries::$(esc(DictType)){K0, $Name{K,K0,V}}
          $Name{K,V}() where {K,V} = new{K,eltype(K),V}(nothing, 1, $(esc(DictType)){eltype(K), $Name{K, eltype(K), V}}())
+         $Name{K,K0,V}() where {K,K0,V} = new{K,K0,V}(nothing, 1, $(esc(DictType)){eltype(K), $Name{K, K0, V}}())
          $Name{K,K0,V}(p, ix, e) where {K,K0,V} = new{K,K0,V}(p, ix, e)
          function $Name(iter)
              peek = first(iter)
@@ -133,7 +134,6 @@ function _setind(trie, i, key, value, ch)
         nu = singleton(trie, key, value)
         return typeof(trie)(_kv(trie), j, setindex(subtries(trie), nu, key[j]))
     end
-
 end
 
 # }}}
@@ -157,6 +157,8 @@ function Base.iterate(trie::Trie, state)
         (something(_kv(t)), newstate) :
         iterate(t, newstate)
 end
+
+Base.IteratorSize(t::Trie) = Base.SizeUnknown()
 
 # }}}
 
