@@ -22,7 +22,7 @@ Heap{T}(o::Base.Order.Ordering=Base.Order.Forward) where T = Empty{T,typeof(o)}(
 Base.isempty(::Empty) = true
 Base.isempty(::NonEmpty) = false
 Base.empty(h::Empty) = h
-Base.empty(h::Heap{T}) where T = Heap{T}()
+Base.empty(h::Heap) = Heap{eltype(h)}(ordering(h))
 
 elem(h) = h.x
 heaps(h) = h.hs
