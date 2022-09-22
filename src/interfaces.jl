@@ -3,11 +3,11 @@
 export cons, pushfirst, snoc, push,
        append, ⧺,
        head, tail,
-       setindex,
+       setindex, insert,
        delete_min, delete_max,
        delete
 
-import StaticArrays.pushfirst, StaticArrays.push
+import StaticArrays.pushfirst, StaticArrays.push, StaticArrays.insert
 import Base.setindex
 
 include("pflist-interface.jl")

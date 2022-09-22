@@ -44,22 +44,28 @@ function Base.mapreduce(f, op, l::List; init=Init())
 end
 
 Base.reverse(l::List) = isempty(l) ? l : List(reverse(l.vec[l.head:end]), 1)
-append(l1::List, l2::List) = List(vcat(l1, l2), 1)
+function PureFun.append(l1::List, l2::List)
+    List( vcat(l1.vec[l1.head:end],
+               l2.vec[l2.head:end]),
+         1)
+end
 
 function Base.getindex(l::List, ind)
     adj_ind = ind + l.head - 1
-    adj_ind > length(l.vec) && throw(BoundsError(l, ind))
+    @boundscheck adj_ind > length(l.vec) && throw(BoundsError(l, ind))
     l.vec[adj_ind]
 end
 
 function Base.setindex(l::List, newval, ind)
-    newvec = copy(l.vec[l.head:end])
+    newvec = l.vec[l.head:end]
     newvec[ind] = newval
     List(newvec, 1)
 end
 
-function PureFun.append(l1::List, l2::List)
-    List(append!(copy(l1.vec), l2.vec))
+function PureFun.insert(l::List, ix, v)
+    newvec = l.vec[l.head:end]
+    insert!(newvec, ix, v)
+    List(newvec, 1)
 end
 
 end

@@ -19,6 +19,14 @@ struct NonEmpty{T} <: PureFun.PFStream{T}
     tail::Susp
 end
 
+"""
+    Stream{T} <: PureFun.PFStream{T}
+
+Stream with elements of type `T`. Every cell in a stream is systematically
+suspended, and only evaluated when the value in that cell is required.
+Furthermore, the value is cached the first time a cell is evaluated, so that
+subsequent accesses are cheap.
+"""
 Stream{T} = Union{ NonEmpty{T}, Empty{T} }
 
 """
@@ -48,7 +56,7 @@ Base.isempty(s::NonEmpty) = false
 Base.isempty(s::Empty) = true
 
 function Stream(iter)
-    T = eltype(iter)
+    T = Base.@default_eltype(iter)
     el = iterate(iter)
     isnothing(el) && return Empty{T}()
     init, state = el
@@ -64,11 +72,9 @@ end
 
 Stream{T}() where T = Empty{T}()
 
-randstream() = randstream(Float16)
-function randstream(T)
-    @cons(T, rand(T), randstream(T))
+function PureFun.append(s1::Stream{T}, s2::Stream{T}) where T
+    isempty(s1) ? s2 : @cons(eltype(s1), head(s1), tail(s1) ⧺ s2)
 end
-
 
 #=
 #

@@ -82,5 +82,17 @@ function Base.setindex(l::PFList, newval, ind)
     return reverse(cons(newval, new)) ⧺ tail(cur)
 end
 
+function PureFun.insert(l::PFList, ix, v)
+    accum = Linked.List{eltype(l)}()
+    i = ix
+    while i > 1 && !isempty(l)
+        accum = pushfirst(accum, head(l))
+        i -= 1
+        l = tail(l)
+    end
+    i > 1 && throw(BoundsError(l, ix))
+    foldl(pushfirst, accum, l)
+end
+
 Base.filter(f, l::PFList) = foldr(cons, Iterators.filter(f, l), init=empty(l))
 Base.map(f, l::PFList) = mapfoldr(f, cons, l, init=empty(l, infer_return_type(f, l)))
