@@ -3,13 +3,39 @@ module Batched
 using ..PureFun
 using ..PureFun.Linked
 
+"""
+    PureFun.Batched.Queue{T}()
+    PureFun.Batched.Queue(iter)
+
+Batched Queues are the simplest of the purely functional queue implementations,
+and therefore the fastest for most operations. However, this queue has
+worst-case linear complexity. In non-persistent settings, the worst-case cost
+is guaranteed to be rare, so overall the queue has amortized constant time
+complexity. In settings where a given queue can have multiple logical futures
+(e.g. when multiple threads are accessing the same queue), this queue's overall
+performance can degrade to O(n).
+
+# Examples
+```@jldoctest
+julia> abc = PureFun.Batched.Queue('a':'c')
+PureFun.Batched.Queue{Char}
+a
+b
+c
+
+
+julia> snoc(abc, 'd')
+PureFun.Batched.Queue{Char}
+a
+b
+c
+d
+```
+"""
 struct Queue{T} <: PureFun.PFQueue{T}
     front::Linked.List{T}
     rear::Linked.List{T}
 end
-
-#Empty{T} = Queue{T, Linked.Empty{T}, Linked.Empty{T}} where {T}
-#NonEmpty{T} = Queue{T, Linked.NonEmpty{T}, R} where {R <: Linked.List{T}}
 
 front(q::Queue) = q.front
 rear(q::Queue) = q.rear
