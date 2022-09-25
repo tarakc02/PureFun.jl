@@ -2,6 +2,7 @@ module RandomAccess
 
 using ..PureFun
 using ..PureFun.Linked
+using AbstractTrees
 
 # type definitions {{{
 struct Leaf{α}
@@ -14,36 +15,40 @@ struct Node{α}
     t2::Union{ Node{α},Leaf{α} }
 end
 
-struct Tree{α}
+Tree{α} = Union{ Node{α},Leaf{α} }
+
+struct Digit{α}
     w::Int
-    t::Union{ Node{α},Leaf{α} }
+    t::Tree{α}
 end
 
 struct List{α} <: PureFun.PFList{α}
-    rl::Linked.List{ Tree{α} }
+    rl::Linked.List{ Digit{α} }
 end
 
 # }}}
 
 # accessors and utilities {{{
-isleaf(tree::Tree) = tree.t isa Leaf
+digits(xs::List) = xs.rl
+
+weight(digit::Digit) = digit.w
+tree(d::Digit) = d.t
+
+isleaf(digit::Digit) = tree(digit) isa Leaf
 isleaf(leaf::Leaf) = true
 isleaf(node::Node) = false
-Base.isempty(list::List) = isempty(list.rl)
-Base.empty(list::List) = List(empty(list.rl))
-Base.empty(list::List, eltype) = List(empty(list.rl, Tree{eltype}))
 
-elem(tree::Tree) = tree.t.x
+Base.isempty(list::List) = isempty(digits(list))
+Base.empty(list::List) = List(empty(digits(list)))
+Base.empty(list::List, eltype) = List(empty(digits(list), Digit{eltype}))
+
+elem(digit::Digit) = elem(tree(digit))
 elem(node::Node) = node.x
 elem(leaf::Leaf) = leaf.x
-weight(tree::Tree) = tree.w
-tree(t::Tree) = t.t
 
-elem(xs::List) = elem(tree(xs))
-weight(xs::List) = weight(head(xs.rl))
-tree(xs::List) = tree(head(xs.rl))
+sing(x, T) = Digit(1, Leaf{T}(x))
 
-sing(x, T) = Tree(1, Leaf{T}(x))
+Base.length(d::Digit) = weight(d)
 # }}}
 
 # PFList API {{{
@@ -75,40 +80,47 @@ julia> rl[937]
 937
 ```
 """
-List{α}() where α = List(Linked.List{ Tree{α} }())
+List{α}() where α = List(Linked.List{ Digit{α} }())
+List(iter::List)  = iter
 List(iter)  = foldr( cons, iter; init=List{eltype(iter)}() )
 
 function PureFun.cons(x, xs::List)
-    isempty(xs) && return List(cons(sing(x, eltype(xs)), xs.rl))
-    ts2 = tail(xs.rl)
-    isempty(ts2) && return List(cons(sing(x, eltype(xs)), xs.rl))
-    w1, w2 = weight(xs.rl[1]), weight(xs.rl[2])
+    isempty(xs) && return List(cons(sing(x, eltype(xs)), digits(xs)))
+    d = digits(xs)
+    _cons(x, d, tail(d), eltype(xs))
+end
+
+function _cons(x, d, ds, T)
+    isempty(ds) && return List(cons(sing(x, T), d))
+    w1, w2 = weight(head(d)), weight(head(ds))
     if w1 == w2
-        List(cons( Tree( 1+w1+w2, Node(x, tree(xs.rl[1]), tree(xs.rl[2])) ), tail(ts2) ))
+        List(cons(Digit(1+w1+w2,
+                        Node(x, tree(head(d)), tree(head(ds))) ),
+                  tail(ds) ))
     else
-        List(cons(sing(x, eltype(xs)), xs.rl))
+        List(cons(sing(x, T), d))
     end
 end
 
-PureFun.head(ts::List) = elem(head(ts.rl))
-PureFun.tail(ts::List) = _tail(head(ts.rl), tail(ts.rl))
+PureFun.head(ts::List) = elem(head(digits(ts)))
+PureFun.tail(ts::List) = _tail(head(digits(ts)), tail(digits(ts)))
 
-function _tail(h::Tree, ts)
+function _tail(h::Digit, ts)
     isleaf(h) && return List(ts)
     w, node = weight(h), tree(h)
     node isa Leaf && return List(ts)
     w2 = div(w,2)
-    List(cons( Tree(w2, node.t1), cons(Tree(w2, node.t2), ts) ))
+    List(cons( Digit(w2, node.t1), cons(Digit(w2, node.t2), ts) ))
 end
 
-Base.length(ts::List) = mapreduce(weight, +, ts.rl, init = 0)
+Base.length(ts::List) = mapreduce(weight, +, digits(ts), init = 0)
 
 # }}}
 
 # lookup {{{
 function lookup(xs::List, i::Integer)
-    w = weight(xs)
-    rl = xs.rl
+    rl = digits(xs)
+    w = weight(head(rl))
     while i >= w && !isempty(rl)
         rl = tail(rl)
         i -= w
@@ -117,7 +129,7 @@ function lookup(xs::List, i::Integer)
     lookup_tree(w,i,head(rl))
 end
 
-function lookup_tree(w,i,t::Tree)
+function lookup_tree(w,i,t::Digit)
     t = tree(t)
     while i > 0
         isleaf(t) && throw(BoundsError(t, i))
@@ -135,6 +147,7 @@ end
 
 
 Base.getindex(xs::List, i::Integer) = lookup(xs, i-1)
+Base.getindex(d::Digit, i::Integer) = lookup_tree(weight(d), i-1, d)
 # }}}
 
 # update {{{
@@ -142,13 +155,17 @@ function update(trees, i::Integer, y)
     w = weight(head(trees))
     t = tree(head(trees))
     if i<w
-        cons(Tree(w, update_tree(w, i, y, t)), tail(trees) )
+        cons(Digit(w, update_tree(w, i, y, t)), tail(trees) )
     else
         cons(head(trees), update(tail(trees), i-w, y))
     end
 end
 
-Base.setindex(xs::List, y, i) = List(update(xs.rl, i-1, y))
+Base.setindex(xs::List, y, i) = List(update(digits(xs), i-1, y))
+function Base.setindex(d::Digit, y, i)
+    @boundscheck i < weight(d) || throw(BoundsError(d, i))
+    Digit(weight(d), update_tree(weight(d), i, y, d))
+end
 
 update_tree(w, i, y, t::Leaf) = i == 0 ? Leaf(y) : throw(BoundsError(t, i))
 
@@ -163,26 +180,30 @@ function update_tree(w, i, y, t::Node)
 end
 # }}}
 
+# specializations for map + mapreduce {{{
 function get_type(f, xs::List)
-    Base.@default_eltype(Iterators.map(f, xs))
-    #typeof( f(head(xs)) )
+    #Base.@default_eltype(Iterators.map(f, xs))
+    isempty(xs) ?
+        PureFun.infer_return_type(f, xs) :
+        typeof(f(first(xs)))
 end
 
 function Base.map(f, xs::List)
-    rl = xs.rl
+    rl = digits(xs)
     T = get_type(f, xs)
     List(_map(f, rl, T))
 end
 
 function _map(f, rl, T)
     func(chunk) = maptree(f, chunk)
-    mapfoldr(func, cons, rl, init=Linked.List{Tree{T}}())
+    #map(func, rl)
+    mapfoldr( func, cons, rl, init=Linked.List{Digit{T}}() )
 end
 
-function maptree(f, tree::Tree)
+function maptree(f, tree::Digit)
     w = weight(tree)
-    #Tree(w, pmapnode(f, tree.t, w))
-    Tree(w, mapnode(f, tree.t))
+    #Digit(w, pmapnode(f, tree.t, w))
+    Digit(w, mapnode(f, tree.t))
 end
 
 # whether/when to multi-thread depends on how expensive f(::eltype(node)) is
@@ -211,7 +232,7 @@ function Base.mapreduce(f, op, xs::List; init=Init())
     isempty(xs) && init isa Init && return Base.reduce_empty(op, eltype(xs))
     isempty(xs) && return init
     func(tree) = _mapreduce(f, op, tree.t)
-    out = mapreduce(func, op, xs.rl)
+    out = mapreduce(func, op, digits(xs))
     init isa Init ? out : op(init, out)
 end
 
@@ -220,5 +241,23 @@ _mapreduce(f, op, t::Leaf) = Base.reduce_first(op, f(elem(t)))
 function _mapreduce(f, op, t::Node)
     op( op(f(elem(t)), _mapreduce(f, op, t.t1)), _mapreduce(f, op, t.t2) )
 end
+
+# }}}
+
+AbstractTrees.children(t::Digit) = children(tree(t))
+AbstractTrees.children(t::Node) = (t.t1, t.t2)
+AbstractTrees.children(t::Leaf) = ()
+
+AbstractTrees.childrentype(::Type{<:Digit{T}}) where T = Tuple{ Tree{T},Tree{T} }
+AbstractTrees.childrentype(::Type{<:Node{T}}) where T = Tuple{ Tree{T},Tree{T} }
+AbstractTrees.childrentype(::Type{<:Leaf}) = Tuple{}
+
+AbstractTrees.nodevalue(t::Union{Tree,Digit}) = elem(t)
+AbstractTrees.nodevaluetype(t::Union{Tree{T},Digit{T}}) where T = T
+
+AbstractTrees.NodeType(::Type{<:Tree{T}}) where {T} = HasNodeType()
+AbstractTrees.NodeType(::Type{<:Digit{T}}) where {T} = HasNodeType()
+AbstractTrees.nodetype(::Type{<:Tree{T}}) where {T} = Tree{T}
+AbstractTrees.nodetype(::Type{<:Digit{T}}) where {T} = Tree{T}
 
 end

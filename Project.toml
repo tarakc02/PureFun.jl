@@ -4,5 +4,6 @@ authors = ["Tarak Shah <tarak@hrdag.org>"]
 version = "0.0.1"
 
 [deps]
+AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
