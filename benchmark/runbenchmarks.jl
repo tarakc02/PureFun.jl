@@ -20,8 +20,8 @@ queues  = [PureFun.Batched.Queue,
            PureFun.HoodMelville.Queue]
 
 lists   = [PureFun.Linked.List,
-           PureFun.Chunky.List{8},
-           PureFun.Chunky.List{PureFun.RandomAcess.List, 8}
+           PureFun.Chunky.chunky(8),
+           PureFun.Chunky.chunky(8, PureFun.RandomAccess.List),
            PureFun.RandomAccess.List,
            PureFun.VectorCopy.List,
            PureFun.Catenable.List
