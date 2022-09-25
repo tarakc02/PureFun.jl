@@ -84,8 +84,8 @@ julia> a ⧺ b
 """
 List{T}() where T = Empty{T}()
 function List(iter)
-    peek = first(iter)
-    init = Empty{typeof(peek)}()
+    T = Base.@default_eltype(iter)
+    init = Empty{T}()
     foldl(snoc, iter, init=init)
 end
 

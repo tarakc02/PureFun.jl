@@ -10,7 +10,7 @@ struct Chunk{N,T} <: PureFun.PFList{T}
 end
 
 PureFun.cons(x, xs::Chunk) = Chunk(setindex(xs.v, x, xs.head-1), xs.head-1)
-PureFun.head(xs::Chunk) = @inbounds xs.v[xs.head]
+PureFun.head(xs::Chunk) = isempty(xs) ? throw(BoundsError(xs, 1)) : @inbounds xs.v[xs.head]
 PureFun.tail(xs::Chunk) = Chunk(xs.v, xs.head+1)
 Base.isempty(xs::Chunk) = xs.head > chunksize(xs)
 Base.empty(xs::Chunk) = Chunk(xs.v, chunksize(xs) + 1)
@@ -22,7 +22,7 @@ Chunk{N,T}() where {N,T} = Chunk{N,T}(SVector{N,T}(Vector{T}(undef, N)), N+1)
 chunksize(::Chunk{N}) where N = N::Int
 chunksize(::Type{<:Chunk{N}}) where N = N::Int
 
-Base.iterate(c::Chunk) = @inbounds c.v[c.head], c.head+1
+Base.iterate(c::Chunk) = isempty(c) ? nothing : @inbounds c.v[c.head], c.head+1
 function Base.iterate(c::Chunk{N}, state) where N
     state > N::Int ? nothing : (@inbounds c.v[state], state+1)
 end
@@ -30,13 +30,9 @@ end
 function check_chunk_bounds(xs::Chunk, i::Integer)
     i > length(xs) && throw(BoundsError(xs, i))
 end
-Base.@propagate_inbounds function Base.getindex(xs::Chunk, i::Integer)
-    #@boundscheck check_chunk_bounds(xs, i)
-    @inbounds xs.v[xs.head+i-1]
-end
+Base.getindex(xs::Chunk, i::Integer) = xs.v[xs.head+i-1]
 function Base.setindex(xs::Chunk, val, i::Integer)
-    #@boundscheck check_chunk_bounds(xs, i)
-    @inbounds Chunk(setindex(xs.v, val, xs.head+i-1), xs.head)
+    Chunk(setindex(xs.v, val, xs.head+i-1), xs.head)
 end
 # }}}
 
@@ -109,8 +105,11 @@ function PureFun.cons(x, xs::List)
 end
 
 function PureFun.tail(xs::List)
-    isempty(xs) && throw("Empty List")
-    chunks = xs.chunks
+    _tail(xs.chunks)
+end
+
+function _tail(chunks)
+    isempty(chunks) && throw("Empty List")
     hd = head(chunks)
     nearempty(hd) ?
         _typedlist(tail(chunks)) :
@@ -130,16 +129,16 @@ function nxt_head(chunks)
     nxt = tail(chunks)
     isempty(nxt) ?
         nothing :
-        (head(head(nxt)), (nxt, 1, length(head(nxt))))
+        (@inbounds head(head(nxt)), (nxt, 1, length(head(nxt))))
 end
 
-function Base.iterate(list::List, state)
+Base.@propagate_inbounds function Base.iterate(list::List, state)
     chunks = state[1]
     index = state[2]+1
     len = state[3]
     index > len ?
         nxt_head(chunks) :
-        (head(chunks)[index], (chunks, index, len))
+        (@inbounds head(chunks)[index], (chunks, index, len))
 end
 
 struct Init end
@@ -161,6 +160,7 @@ function Base.map(f, xs::List)
     N = chunksize(xs)
     func(chunk) = Chunk{N,T}(map(f, chunk.v), chunk.head)
     _typedlist(_map(func, xs.chunks, T))
+    #_typedlist(map(func, xs.chunks))
 end
 
 function _map(func, chunks::PureFun.PFList{Chunk{N,T}}, OutType) where {N,T}
