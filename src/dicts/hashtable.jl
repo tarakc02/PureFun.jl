@@ -1,7 +1,6 @@
-# hash tables {{{
 module HashTable
 
-using PureFun
+using ..PureFun
 
 # Bits: a single-integer bitset that stores small integers {{{
 
@@ -202,10 +201,10 @@ Base.lastindex(x::HashedKey) = length(x)
 
 # the hash map {{{
 
-PureFun.Tries.@Trie HashTrie8 bitmap(8)
-PureFun.Tries.@Trie HashTrie16 bitmap(16)
-PureFun.Tries.@Trie HashTrie32 bitmap(32)
-PureFun.Tries.@Trie HashTrie64 bitmap(64)
+PureFun.Tries.@Trie HashTrie8   bitmap(8)
+PureFun.Tries.@Trie HashTrie16  bitmap(16)
+PureFun.Tries.@Trie HashTrie32  bitmap(32)
+PureFun.Tries.@Trie HashTrie64  bitmap(64)
 PureFun.Tries.@Trie HashTrie128 bitmap(128)
 
 HashTrie = Union{HashTrie8, HashTrie16, HashTrie32, HashTrie64, HashTrie128}
@@ -225,6 +224,19 @@ HashMap16{K,V}  = HashMap{ HashTrie16{ HashedKey{K,4}, Int, Bucket{K,V} }, K,V }
 HashMap32{K,V}  = HashMap{ HashTrie32{ HashedKey{K,5}, Int, Bucket{K,V} }, K,V } where {K,V}
 HashMap64{K,V}  = HashMap{ HashTrie64{ HashedKey{K,6}, Int, Bucket{K,V} }, K,V } where {K,V}
 HashMap128{K,V} = HashMap{ HashTrie64{ HashedKey{K,7}, Int, Bucket{K,V} }, K,V } where {K,V}
+
+function _fromiter(iter, HM)
+    peek = first(iter)
+    peek isa Pair || throw(MethodError(HM, iter))
+    K, V = typeof(peek[1]), typeof(peek[2])
+    reduce(push, iter, init=HM{K,V}())
+end
+
+HashMap8(iter)   = _fromiter(iter, HashMap8)
+HashMap16(iter)  = _fromiter(iter, HashMap16)
+HashMap32(iter)  = _fromiter(iter, HashMap32)
+HashMap64(iter)  = _fromiter(iter, HashMap64)
+HashMap128(iter) = _fromiter(iter, HashMap128)
 
 function Base.iterate(m::HashMap)
     it = iterate(m.trie)
@@ -268,8 +280,10 @@ end
 
 function Base.setindex(m::HashMap, val, key)
     k = hasher(m)(key)
-    bucket = get(m.trie, k, Bucket{keytype(m), valtype(m)}())
-    typeof(m)(setindex(m.trie, setindex(bucket, val, key), k))
+    nu = update_at(m.trie, k, Bucket{keytype(m), valtype(m)}()) do bucket
+        setindex(bucket, val, key)
+    end
+    typeof(m)(nu)
 end
 
 PureFun.push(m::HashMap, kv) = setindex(m, kv.second, kv.first)
@@ -279,4 +293,3 @@ Base.IteratorSize(m::HashMap) = Base.SizeUnknown()
 # }}}
 
 end
-# }}}

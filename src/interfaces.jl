@@ -5,7 +5,7 @@ export cons, pushfirst, snoc, push,
        head, tail,
        setindex, insert,
        delete_min, delete_max,
-       delete
+       delete, update_at
 
 import StaticArrays.pushfirst, StaticArrays.push, StaticArrays.insert
 import Base.setindex
@@ -14,6 +14,7 @@ include("pflist-interface.jl")
 include("pfqueue-interface.jl")
 include("pfset-interface.jl")
 include("pfheap-interface.jl")
+include("pfdict-interface.jl")
 
 function infer_return_type(f, l)
     T = Base.@default_eltype(Iterators.map(f, l))
@@ -35,7 +36,6 @@ container_type(T::Type) = T
 # optional method for ordered collections
 function delete_max end
 
-abstract type PFDict{K, V} <: AbstractDict{K, V} end
 abstract type PFStream{T} end
 
 # some shared implementations {{{

@@ -31,12 +31,11 @@ heaps   = [PureFun.Pairing.Heap, PureFun.SkewHeap.Heap, PureFun.FastMerging.Heap
 PureFun.Tries.@Trie LTrie PureFun.AList.mapof(PureFun.Linked.List)
 PureFun.Tries.@Trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
 
-#PureFun.AList.@Map LMap PureFun.Linked.List
-
 dicts = [PureFun.RedBlack.RBDict,
          PureFun.AList.mapof(PureFun.Linked.List),
          PureFun.AList.mapof(PureFun.VectorCopy.List),
-         LTrie, RBTrie]
+         LTrie, RBTrie,
+         PureFun.HashTable.HashMap16]
 
 sets = [PureFun.RedBlack.RBSet]
 
