@@ -96,3 +96,18 @@ end
 
 Base.filter(f, l::PFList) = foldr(cons, Iterators.filter(f, l), init=empty(l))
 Base.map(f, l::PFList) = mapfoldr(f, cons, l, init=empty(l, infer_return_type(f, l)))
+Base.lastindex(l::PFList) = length(l)
+
+struct AccumInit end
+
+function Base.accumulate(f, l::PFList; init=AccumInit())
+    y = init isa AccumInit ? head(l) : f(head(l), init)
+    cons(y, _accum(f, tail(l), y))
+end
+
+function _accum(f, l::PFList, accum)
+    isempty(l) && return(empty(l, typeof(accum)))
+    y = f(accum, head(l))
+    cons(y, _accum(f, tail(l), y))
+end
+

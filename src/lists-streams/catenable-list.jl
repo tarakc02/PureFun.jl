@@ -3,7 +3,8 @@ module Catenable
 using ..PureFun
 using ..PureFun.Lazy: @lz, Susp
 
-const Queue = PureFun.Bootstrapped.Queue
+#const Queue = PureFun.Bootstrapped.Queue
+const Queue = PureFun.Batched.Queue
 
 struct SuspList{T}
     s::Susp

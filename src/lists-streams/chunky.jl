@@ -120,6 +120,29 @@ PureFun.head(xs::List) = head(head(xs.chunks))
 # }}}
 
 # iteration {{{
+
+#Base.@propagate_inbounds function Base.iterate(l::List)
+#    chunks = l.chunks
+#    chunk_it = iterate(chunks)
+#    chunk_it === nothing && return nothing
+#    @inbounds chunk, chunk_st = chunk_it[1], chunk_it[2]
+#    @inbounds chunk[1], (chunk, 1, chunk_st, length(chunk))
+#end
+#
+#Base.@propagate_inbounds function Base.iterate(l::List, state)
+#    @inbounds chunk, index, chunk_st, len = state[1], state[2]+1, state[3], state[4]
+#    index > len ?
+#        nxt_head(l.chunks, chunk_st) :
+#        (@inbounds chunk[index], (chunk, index, chunk_st, len))
+#end
+#
+#Base.@propagate_inbounds function nxt_head(chunks, chunk_st)
+#    nxt = iterate(chunks, chunk_st)
+#    nxt === nothing && return nothing
+#    @inbounds chunk, chunk_st = nxt[1], nxt[2]
+#    @inbounds chunk[1], (chunk, 1, chunk_st, length(chunk))
+#end
+
 function Base.iterate(l::List)
     chunks = l.chunks
     isempty(chunks) ? nothing : (head(l), (chunks, 1, length(head(chunks))))
@@ -140,11 +163,11 @@ Base.@propagate_inbounds function Base.iterate(list::List, state)
         nxt_head(chunks) :
         (@inbounds head(chunks)[index], (chunks, index, len))
 end
-
-struct Init end
 # }}}
 
 # map + mapreduce specializations {{{
+struct Init end
+
 function Base.mapreduce(f, op, xs::List; init=Init())
     isempty(xs) && init isa Init && return Base.reduce_empty(op, eltype(xs))
     isempty(xs) && return init
