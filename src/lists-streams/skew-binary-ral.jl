@@ -4,6 +4,8 @@ using ..PureFun
 using ..PureFun.Linked
 using AbstractTrees
 
+include("skewbin-partition-iter.jl")
+
 # type definitions {{{
 struct Leaf{α}
     x::α
@@ -24,6 +26,7 @@ end
 
 struct List{α} <: PureFun.PFList{α}
     rl::Linked.List{ Digit{α} }
+    List{α}(xs) where α = new{α}(xs)
 end
 
 # }}}
@@ -49,6 +52,8 @@ elem(leaf::Leaf) = leaf.x
 sing(x, T) = Digit(1, Leaf{T}(x))
 
 Base.length(d::Digit) = weight(d)
+Base.lastindex(d::Digit) = length(d)
+Base.firstindex(d::Digit) = 1
 # }}}
 
 # PFList API {{{
@@ -80,9 +85,11 @@ julia> rl[937]
 937
 ```
 """
-List{α}() where α = List(Linked.List{ Digit{α} }())
+List{α}() where α = List{α}(Linked.List{ Digit{α} }())
 List(iter::List)  = iter
-List(iter)  = foldr( cons, iter; init=List{eltype(iter)}() )
+List(rl::Linked.List{Digit{α}}) where α = List{α}(rl)
+#List(iter)  = foldr( cons, iter; init=List{eltype(iter)}() )
+List(iter) = makelist(iter)
 
 function PureFun.cons(x, xs::List)
     isempty(xs) && return List(cons(sing(x, eltype(xs)), digits(xs)))
@@ -196,7 +203,7 @@ end
 
 function _map(f, rl, T)
     func(chunk) = maptree(f, chunk)
-    #map(func, rl)
+    #map(func, rl)::Linked.List{Digit{T}}
     mapfoldr( func, cons, rl, init=Linked.List{Digit{T}}() )
 end
 
@@ -244,6 +251,32 @@ end
 
 # }}}
 
+# iteration {{{
+function Base.iterate(xs::List)
+    isempty(xs) && return nothing
+    ds = digits(xs)::Linked.NonEmpty{Digit{eltype(xs)}}
+    d = head(ds)
+    tr = tree(d)
+    trs = cons(tr, Linked.List{Tree{eltype(xs)}}())
+    iterate(xs, (trs, ds))
+end
+
+function Base.iterate(xs::List, state)
+    trs, ds = state[1], state[2]
+    if isempty(trs)
+        ds = tail(ds)
+        isempty(ds) && return nothing
+        d = head(ds)
+        tr = tree(d)
+        trs = cons(tr, trs)
+    end
+    tr = head(trs)
+    rest = tr isa Leaf ? tail(trs) : cons(tr.t1, cons(tr.t2, tail(trs)))
+    elem(tr), (rest, ds)
+end
+# }}}
+
+# AbstractTrees interface for digits {{{
 AbstractTrees.children(t::Digit) = children(tree(t))
 AbstractTrees.children(t::Node) = (t.t1, t.t2)
 AbstractTrees.children(t::Leaf) = ()
@@ -259,5 +292,15 @@ AbstractTrees.NodeType(::Type{<:Tree{T}}) where {T} = HasNodeType()
 AbstractTrees.NodeType(::Type{<:Digit{T}}) where {T} = HasNodeType()
 AbstractTrees.nodetype(::Type{<:Tree{T}}) where {T} = Tree{T}
 AbstractTrees.nodetype(::Type{<:Digit{T}}) where {T} = Tree{T}
+
+function Base.show(io::IO, ::MIME"text/plain", d::Digit)
+    AbstractTrees.print_tree(io, d)
+end
+function Base.show(io::IO, d::Digit{T}) where T
+    print(io, "Digit{$T}($(weight(d)))")
+    print(io, " ", d[1])
+    if length(d) > 1 print(" ... ", d[end]) end
+end
+# }}}
 
 end
