@@ -6,16 +6,23 @@ using Test
 function test_constructors(List)
     @testset "Constructors" begin
         l = List{Int64}()
+        @test l isa List
+
         m = pushfirst(l, 4)
+        @test m isa List
+
         m2 =  cons(4, l)
-        #@test l isa List
-        #@test m isa List
-        #@test m2 isa List
+        @test m2 isa List
+
         @test isempty(l)
         @test !isempty(m)
         @test !isempty(m2)
-        #@test List(1:10) isa List
+        
+        @test all(m .== (4,))
+        @test all(m2 .== (4,))
+
         @test !isempty(List(1:10))
+        @test all(List(1:10) .== 1:10)
     end
 end
 
@@ -34,8 +41,8 @@ end
 
 function test_iterator(List)
     @testset "Iterates in expected order" begin
-        l = List(1:1000)
-        @test all(collect(l) .== 1:1000)
+        l = List(1:100)
+        @test all(l .== 1:100)
     end
 end
 
