@@ -1,36 +1,40 @@
-struct SkewPartitionIterator{I}
+struct SkewBinary{I}
     it::I
 end
-skew_partition(xs) = SkewPartitionIterator(xs)
+skew_binary(x) = SkewBinary(x)
 
-get_next_digit(len) = Int(floor(log2(len+1)))
-function get_next_range(len)
-    ex = get_next_digit(len)
+Iterators.reverse(x::SkewBinary) = foldl(pushfirst, x, init=PureFun.Linked.List{eltype(x.it)}())
+PureFun.reverse(x::SkewBinary) = foldl(pushfirst, x, init=PureFun.Linked.List{eltype(x.it)}())
+
+get_next_exponent(x) = Int(floor(log2(x+1)))
+
+"""
+    get_next_skewdigit(x)
+
+Returns the first (most significant) digit in the
+[skew-binary](https://en.wikipedia.org/wiki/Skew_binary_number_system)
+representation of x
+"""
+function get_next_skewdigit(x)
+    ex = get_next_exponent(x)
     cand = 2^ex - 1
-    cand > len ? (2^(ex-1) - 1) : cand
+    cand > x ? (2^(ex-1) - 1) : cand
 end
 
-function Base.iterate(sp::SkewPartitionIterator)
-    n = length(sp.it)
-    ix1 = get_next_range(n)
-    (1, ix1), (1+ix1, n-ix1)
+function Base.iterate(sp::SkewBinary)
+    n = sp.it
+    ix1 = get_next_skewdigit(n)
+    ix1, n-ix1
 end
 
-function Base.iterate(sp::SkewPartitionIterator, state)
-    ix0 = state[1]
-    n = state[2]
+function Base.iterate(sp::SkewBinary, state)
+    n = state
     n <= 0 && return nothing
-    off = get_next_range(n)
-    ix1 = ix0+off-1
-    (ix0, ix1), (1+ix1, n-off)
+    ix1 = get_next_skewdigit(n)
+    ix1, n-ix1
 end
 
-function skew_binomial_lengths(xs)
-    mapfoldl(xy -> xy[2]-xy[1]+1,
-             pushfirst,
-             skew_partition(xs),
-             init=Linked.List{Int}())
-end
+skew_binomial_lengths(xs) = reverse(skew_binary(length(xs)))
 
 function buildtree(els, from, to)
     n = to-from+1
