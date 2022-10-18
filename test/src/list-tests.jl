@@ -6,13 +6,13 @@ using Test
 function test_constructors(List)
     @testset "Constructors" begin
         l = List{Int64}()
-        @test l isa List
+        #@test l isa List
 
         m = pushfirst(l, 4)
-        @test m isa List
+        #@test m isa List
 
         m2 =  cons(4, l)
-        @test m2 isa List
+        #@test m2 isa List
 
         @test isempty(l)
         @test !isempty(m)
@@ -74,12 +74,13 @@ function test_functionals(List)
         xs = rand(Int, 100)
         l = List(xs)
         mt = empty(l)
+        ct = PureFun.container_type(l)
         @test all(sin.(xs) .== map(sin, l))
-        @test map(identity, l) isa PureFun.PFList
-        @test map(sin, mt) isa PureFun.PFList
+        @test PureFun.container_type(map(identity, l)) === ct
+        @test isempty(map(identity, mt))
         @test all(filter(iseven, xs) .== filter(iseven, l))
-        @test filter(iseven, l) isa PureFun.PFList
-        @test filter(iseven, mt) isa PureFun.PFList
+        @test PureFun.container_type(filter(iseven, l)) === ct
+        @test isempty(filter(iseven, mt))
         @test mapreduce(x -> x^2, +, xs) == mapreduce(x -> x^2, +, l)
         @test mapreduce(x -> x^2, +, mt, init=0) == 0
         @test sum(xs) == sum(l)

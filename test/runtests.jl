@@ -11,7 +11,15 @@ include("src/heap-tests.jl")
 include("src/dict-tests.jl")
 include("src/set-tests.jl")
 
-queues  = [PureFun.Batched.Queue,
+ChunkyList = PureFun.Chunky.chunky(7)
+ChunkyRandomAccessList = PureFun.Chunky.chunky(7, PureFun.RandomAccess.List)
+ChunkyCatenableList = PureFun.Chunky.chunky(7, PureFun.Catenable.List)
+
+PureFun.Batched.@deque LDeque PureFun.Linked.List
+PureFun.Batched.@deque RDeque PureFun.RandomAccess.List
+PureFun.Batched.@deque CDeque ChunkyList
+
+queues  = [LDeque, RDeque, CDeque,
            PureFun.RealTime.Queue,
            PureFun.Bootstrapped.Queue,
            PureFun.HoodMelville.Queue]
@@ -22,7 +30,8 @@ lists   = [PureFun.Linked.List,
            PureFun.Chunky.chunky(8, PureFun.Catenable.List),
            PureFun.RandomAccess.List,
            PureFun.Catenable.List,
-           PureFun.VectorCopy.List]
+           PureFun.VectorCopy.List,
+           LDeque, RDeque, CDeque]
 
 streams = [PureFun.Lazy.Stream]
 

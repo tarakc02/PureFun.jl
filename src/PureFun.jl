@@ -9,7 +9,8 @@ include("lists-streams/stream.jl") # PureFun.Lazy.Stream
 include("lists-streams/vector-list.jl")
 
 ## queues
-include("queues/batchedqueue.jl") # PureFun.Batch
+#include("queues/batchedqueue.jl")
+include("queues/batchedqueue2.jl")
 include("queues/realtimequeue.jl")
 include("queues/bootstrappedqueue.jl")
 include("queues/hood-melville.jl")
