@@ -10,16 +10,26 @@ using Pkg, BenchmarkTools
 Pkg.devdir("..")
 using PureFun
 
+ChunkyList = PureFun.Chunky.chunky(7)
+ChunkyRandomAccessList = PureFun.Chunky.chunky(7, PureFun.RandomAccess.List)
+ChunkyCatenableList = PureFun.Chunky.chunky(7, PureFun.Catenable.List)
+
+PureFun.Batched.@deque LDeque PureFun.Linked.List
+PureFun.Batched.@deque RDeque PureFun.RandomAccess.List
+PureFun.Batched.@deque CDeque ChunkyList
+PureFun.Batched.@deque CRDeque ChunkyRandomAccessList
+
 include("src/bench_queue.jl")
 include("src/bench_list.jl")
 include("src/bench_heap.jl")
 
-queues  = [PureFun.Batched.Queue,
+queues  = [LDeque, RDeque, CDeque,
            PureFun.RealTime.Queue,
            PureFun.Bootstrapped.Queue,
            PureFun.HoodMelville.Queue]
 
 lists   = [PureFun.Linked.List,
+           LDeque, RDeque, CDeque, CRDeque,
            PureFun.Chunky.chunky(8),
            PureFun.Chunky.chunky(8, PureFun.RandomAccess.List),
            PureFun.RandomAccess.List,
