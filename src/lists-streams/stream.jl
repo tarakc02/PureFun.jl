@@ -59,8 +59,8 @@ function Stream(iter)
     T = Base.@default_eltype(iter)
     el = iterate(iter)
     isnothing(el) && return Empty{T}()
-    init, state = el
-    return @cons(T, init, Stream(T, iter, state))
+    #init, state = el
+    return @cons(T, el[1], Stream(T, iter, el[2]))
 end
 
 function Stream(T, iter, state)

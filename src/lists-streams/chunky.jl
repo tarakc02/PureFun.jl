@@ -82,8 +82,8 @@ end
 # PFList methods {{{
 Base.isempty(l::List) = isempty(l.chunks)
 Base.empty(l::List) = _typedlist(empty(l.chunks))
-function Base.empty(l::List, eltype) 
-    _typedlist(empty(l.chunks, Chunk{chunksize(l), eltype}))
+function Base.empty(l::List, ::Type{U}) where U
+    _typedlist(empty(l.chunks, Chunk{chunksize(l), U}))
 end
 
 function initval(x, xs::List)
@@ -277,5 +277,6 @@ end
 # }}}
 
 PureFun.container_type(::Type{<:List{L,T}}) where {L,T} = List{L,T}
+Base.IteratorSize(::Type{<:List}) = Base.HasLength()
 
 end

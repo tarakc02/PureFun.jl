@@ -4,8 +4,6 @@ using ..PureFun
 using ..PureFun.Linked
 using AbstractTrees
 
-include("skewbin-partition-iter.jl")
-
 # type definitions {{{
 struct Leaf{α}
     x::α
@@ -23,6 +21,9 @@ struct Digit{α}
     w::Int
     t::Tree{α}
 end
+
+Base.eltype(::Type{<:Tree{α}}) where α = α
+Base.eltype(::Type{<:Digit{α}}) where α = α
 
 struct List{α} <: PureFun.PFList{α}
     rl::Linked.List{ Digit{α} }
@@ -42,8 +43,9 @@ isleaf(leaf::Leaf) = true
 isleaf(node::Node) = false
 
 Base.isempty(list::List) = isempty(digits(list))
+Base.isempty(d::Digit) = false
 Base.empty(list::List) = List(empty(digits(list)))
-Base.empty(list::List, eltype) = List(empty(digits(list), Digit{eltype}))
+Base.empty(list::List, ::Type{U}) where U = List(empty(digits(list), Digit{U}))
 
 elem(digit::Digit) = elem(tree(digit))
 elem(node::Node) = node.x
@@ -52,6 +54,7 @@ elem(leaf::Leaf) = leaf.x
 sing(x, T) = Digit(1, Leaf{T}(x))
 
 Base.length(d::Digit) = weight(d)
+Base.IteratorSize(::Type{<:Digit}) = Base.HasLength()
 Base.lastindex(d::Digit) = length(d)
 Base.firstindex(d::Digit) = 1
 # }}}
@@ -121,6 +124,7 @@ function _tail(h::Digit, ts)
 end
 
 Base.length(ts::List) = mapreduce(weight, +, digits(ts), init = 0)
+Base.IteratorSize(::Type{<:List}) = Base.HasLength()
 
 # }}}
 
@@ -274,6 +278,21 @@ function Base.iterate(xs::List, state)
     rest = tr isa Leaf ? tail(trs) : cons(tr.t1, cons(tr.t2, tail(trs)))
     elem(tr), (rest, ds)
 end
+
+function Base.iterate(xs::Digit)
+    tr = tree(xs)
+    trs = cons(tr, Linked.List{Tree{eltype(xs)}}())
+    iterate(xs, trs)
+end
+
+function Base.iterate(::Digit, nodes)
+    isempty(nodes) && return nothing
+    cur = first(nodes)
+    rest = popfirst(nodes)
+    rest = isleaf(cur) ? rest : cons( cur.t1, cons(cur.t2, rest) )
+    elem(cur), rest
+end
+
 # }}}
 
 # AbstractTrees interface for digits {{{
@@ -302,5 +321,8 @@ function Base.show(io::IO, d::Digit{T}) where T
     if length(d) > 1 print(" ... ", d[end]) end
 end
 # }}}
+
+include("skewbin-partition-iter.jl")
+include("skew-binary-ral-algs.jl")
 
 end

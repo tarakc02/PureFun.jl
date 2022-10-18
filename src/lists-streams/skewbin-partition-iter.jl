@@ -4,7 +4,7 @@ end
 skew_binary(x) = SkewBinary(x)
 
 Iterators.reverse(x::SkewBinary) = foldl(pushfirst, x, init=PureFun.Linked.List{eltype(x.it)}())
-PureFun.reverse(x::SkewBinary) = foldl(pushfirst, x, init=PureFun.Linked.List{eltype(x.it)}())
+Base.reverse(x::SkewBinary) = foldl(pushfirst, x, init=PureFun.Linked.List{eltype(x.it)}())
 
 get_next_exponent(x) = Int(floor(log2(x+1)))
 

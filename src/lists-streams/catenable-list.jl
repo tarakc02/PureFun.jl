@@ -3,8 +3,7 @@ module Catenable
 using ..PureFun
 using ..PureFun.Lazy: @lz, Susp
 
-#const Queue = PureFun.Bootstrapped.Queue
-const Queue = PureFun.Batched.Queue
+const Queue = PureFun.Bootstrapped.Queue
 
 struct SuspList{T}
     s::Susp
@@ -27,7 +26,7 @@ end
 Base.isempty(::Empty) = true
 Base.isempty(::NonEmpty) = false
 Base.empty(::List{T}) where T = Empty{T}()
-Base.empty(::List, eltype) = Empty{eltype}()
+Base.empty(::List, ::Type{U}) where U = Empty{U}()
 
 PureFun.head(l::NonEmpty) = l.head
 PureFun.append(xs::NonEmpty{T}, ::Empty{T}) where T = xs
