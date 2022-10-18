@@ -9,6 +9,7 @@ A `PFList` implements `cons` (equivalent to `pushfirst`), `head`, `tail`,
 See also [`PureFun.Linked.List`](@ref), [`PureFun.RandomAccess.List`](@ref),
 and [`PureFun.Catenable.List`](@ref)
 """
+#abstract type PFList{T} <: AbstractVector{T} end
 abstract type PFList{T} end
 
 """
@@ -83,15 +84,17 @@ function Base.setindex(l::PFList, newval, ind)
 end
 
 function PureFun.insert(l::PFList, ix, v)
-    accum = Linked.List{eltype(l)}()
+    new = empty(l)
+    cur = l
     i = ix
-    while i > 1 && !isempty(l)
-        accum = pushfirst(accum, head(l))
+    while i > 1 && !isempty(cur)
         i -= 1
-        l = tail(l)
+        new = cons(head(cur), new)
+        cur = tail(cur)
     end
     i > 1 && throw(BoundsError(l, ix))
-    foldl(pushfirst, accum, l)
+    new = pushfirst(new, head(cur))
+    return reverse(cons(v, new)) ⧺ tail(cur)
 end
 
 Base.filter(f, l::PFList) = foldr(cons, Iterators.filter(f, l), init=empty(l))
@@ -111,3 +114,9 @@ function _accum(f, l::PFList, accum)
     cons(y, _accum(f, tail(l), y))
 end
 
+function drop(l::PFList, n)
+    while !isempty(l) && n > 0
+        l = tail(l)
+    end
+    return l
+end

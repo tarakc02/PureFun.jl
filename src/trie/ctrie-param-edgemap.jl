@@ -109,7 +109,7 @@ function initval(trie, key, value)
     typeof(trie)(_kv(trie), i, setindex(subtries(trie), newnode, key[i]))
 end
 
-function Base.setindex(trie, value, key)
+function Base.setindex(trie::Trie, value, key)
     isempty(trie) && return initval(trie, key, value)
     i, ch = _split(trie, key)
     _setind(trie, i, key, value, ch)

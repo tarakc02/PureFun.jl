@@ -25,7 +25,10 @@ function snoc end
 Equivalent to [`snoc`](@ref)
 """
 push(xs::PFQueue, x) = snoc(xs, x)
+pushfirst(xs::PFQueue, x) = cons(x, xs)
 
+Base.filter(f, q::PFQueue) = foldl(push, Iterators.filter(f, q), init=empty(q))
+Base.map(f, q::PFQueue) = mapfoldl(f, push, q, init=empty(q, infer_return_type(f, l)))
 #function Base.length(xs::PFQueue)
 #    l = 0
 #    while !isempty(xs)

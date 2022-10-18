@@ -5,9 +5,15 @@ export cons, pushfirst, snoc, push,
        head, tail,
        setindex, insert,
        delete_min, delete_max,
-       delete, update_at
+       delete, update_at,
+       drop, pop, popfirst
 
-import StaticArrays.pushfirst, StaticArrays.push, StaticArrays.insert
+import StaticArrays.pushfirst,
+       StaticArrays.push,
+       StaticArrays.insert,
+       StaticArrays.pop,
+       StaticArrays.popfirst
+
 import Base.setindex
 
 include("pflist-interface.jl")
@@ -17,6 +23,7 @@ include("pfheap-interface.jl")
 include("pfdict-interface.jl")
 
 function infer_return_type(f, l)
+    !isempty(l) && return typeof(f(first(l)))
     T = Base.@default_eltype(Iterators.map(f, l))
     T === Union{} && return Any
     return T
@@ -42,6 +49,7 @@ abstract type PFStream{T} end
 
 # implements `head` and `tail`
 const PFListy{T} = Union{PFList{T}, PFQueue{T}, PFStream{T}} where T
+popfirst(xs::PFListy) = tail(xs)
 
 # iterates over elements of type T in a specified order
 const PFIter{T} = Union{PFHeap{T}, PFListy{T}} where T
@@ -52,7 +60,11 @@ function Base.length(xs::Union{PFIter, PFDict, PFSet})
 end
 
 function Base.show(io::IO, ::MIME"text/plain", s::Union{PFIter, PFSet})
-    println("$(typeof(s))")
+    msg = Base.IteratorSize(s) isa Union{Base.HasLength, Base.HasShape} ?
+        "$(length(s))-element $(supertype(typeof(s)))" :
+        "$(supertype(typeof(s)))"
+    println(io, msg)
+    #println("$(typeof(s))")
     cur = s
     n = 7
     for x in s
@@ -65,8 +77,15 @@ function Base.show(io::IO, ::MIME"text/plain", s::Union{PFIter, PFSet})
 end
 
 # compact (1-line) version of show
-Base.show(io::IO, s::Union{PFIter, PFSet}) =
-    print(io, typeof(s), isempty(s) ? " (empty)" : " (non-empty)")
+function Base.show(io::IO, s::Union{PFIter, PFSet})
+    for (i, el) in enumerate(s)
+        if i > 5
+            print(io, "...")
+            return nothing
+        end
+        print(io, el, ", ")
+    end
+end
 
 function Base.getindex(l::PFIter, ind)
     (isempty(l) | ind < 1) && throw(BoundsError(l, ind))
