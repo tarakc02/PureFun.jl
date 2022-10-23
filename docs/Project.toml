@@ -1,4 +1,7 @@
 [deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+GLM = "38e38edf-8417-5370-95a0-9cbb8c7f171a"
 Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PureFun = "5c24d6e1-cb81-4e79-8836-67b5b43306d6"
