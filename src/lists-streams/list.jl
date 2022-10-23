@@ -59,11 +59,11 @@ true
 """
 List{T}() where T = Empty{T}()
 List(iter::List) = iter
-List(xs::AbstractRange) = foldr(cons, xs, init=List{eltype(xs)}())
-List(xs::AbstractString) = foldr(cons, xs, init=List{eltype(xs)}())
-List(xs::Vector) = foldr(cons, xs, init=List{eltype(xs)}())
+List(xs::AbstractRange) = foldr(cons, xs, init=List{Base.@default_eltype(xs)}())
+List(xs::AbstractString) = foldr(cons, xs, init=List{Base.@default_eltype(xs)}())
+List(xs::Vector) = foldr(cons, xs, init=List{Base.@default_eltype(xs)}())
 function List(iter)
-    o = foldl(pushfirst, iter; init=Empty(eltype(iter)))
+    o = foldl(pushfirst, iter; init=Empty(Base.@default_eltype(iter)))
     reverse(o)
 end
 

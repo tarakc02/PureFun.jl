@@ -65,7 +65,6 @@ julia> l1 ⧺ l2
 ```
 """
 function append end
-const ⧺ = append
 
 Base.reverse(l::PFList) = foldl(pushfirst, l, init=empty(l))
 append(l1::PFList{T}, l2::PFList{T}) where T = foldr(cons, l1, init=l2)

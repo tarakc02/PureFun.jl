@@ -1,6 +1,7 @@
 # note: all containers are expected to have implemented `Base.isempty`
 
-export cons, pushfirst, snoc, push,
+export cons, pushfirst, ⇀,
+       snoc, push,
        append, ⧺,
        head, tail,
        setindex, insert,
@@ -21,6 +22,12 @@ include("pfqueue-interface.jl")
 include("pfset-interface.jl")
 include("pfheap-interface.jl")
 include("pfdict-interface.jl")
+
+# useful infix-versions, i can do this because they're not taken note: right
+# arrows/harpoons are right-associative! useful for `cons`, similar to ML's
+# `::`
+const ⧺ = append
+const ⇀ = cons
 
 function infer_return_type(f, l)
     !isempty(l) && return typeof(f(first(l)))
