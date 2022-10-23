@@ -20,8 +20,11 @@ include("queues/hood-melville.jl")
 #include("lists-streams/ll2.jl")
 #include("lists-streams/vector-unrolled-list.jl")
 
+include("chunk-types/chunk-interface.jl")
+
 include("lists-streams/catenable-list.jl")
-include("lists-streams/chunky.jl")
+#include("lists-streams/chunky.jl")
+include("lists-streams/chunky2.jl")
 
 ## Heaps
 include("heaps/pairing-heap.jl")

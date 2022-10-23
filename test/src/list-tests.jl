@@ -84,6 +84,7 @@ function test_functionals(List)
         @test mapreduce(x -> x^2, +, xs) == mapreduce(x -> x^2, +, l)
         @test mapreduce(x -> x^2, +, mt, init=0) == 0
         @test sum(xs) == sum(l)
+        @test sum(l) != sum(popfirst(l))
     end
 end
 

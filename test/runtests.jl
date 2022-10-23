@@ -11,9 +11,12 @@ include("src/heap-tests.jl")
 include("src/dict-tests.jl")
 include("src/set-tests.jl")
 
-ChunkyList = PureFun.Chunky.chunky(7)
-ChunkyRandomAccessList = PureFun.Chunky.chunky(7, PureFun.RandomAccess.List)
-ChunkyCatenableList = PureFun.Chunky.chunky(7, PureFun.Catenable.List)
+PureFun.Chunky.@list ChunkyList PureFun.Linked.List PureFun.Contiguous.StaticChunk{7}
+PureFun.Chunky.@list ChunkyRandomAccessList PureFun.RandomAccess.List PureFun.Contiguous.VectorChunk{3}
+PureFun.Chunky.@list ChunkyCatenableList PureFun.Catenable.List PureFun.Contiguous.StaticChunk{17}
+#ChunkyList = PureFun.Chunky.chunky(7)
+#ChunkyRandomAccessList = PureFun.Chunky.chunky(7, PureFun.RandomAccess.List)
+#ChunkyCatenableList = PureFun.Chunky.chunky(7, PureFun.Catenable.List)
 
 PureFun.Batched.@deque LDeque PureFun.Linked.List
 PureFun.Batched.@deque RDeque PureFun.RandomAccess.List
@@ -25,9 +28,7 @@ queues  = [LDeque, RDeque, CDeque,
            PureFun.HoodMelville.Queue]
 
 lists   = [PureFun.Linked.List,
-           PureFun.Chunky.chunky(8),
-           PureFun.Chunky.chunky(8, PureFun.RandomAccess.List),
-           PureFun.Chunky.chunky(8, PureFun.Catenable.List),
+           ChunkyList, ChunkyRandomAccessList, ChunkyCatenableList,
            PureFun.RandomAccess.List,
            PureFun.Catenable.List,
            PureFun.VectorCopy.List,
