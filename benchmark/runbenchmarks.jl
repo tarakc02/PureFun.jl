@@ -10,9 +10,8 @@ using Pkg, BenchmarkTools
 Pkg.devdir("..")
 using PureFun
 
-ChunkyList = PureFun.Chunky.chunky(7)
-ChunkyRandomAccessList = PureFun.Chunky.chunky(7, PureFun.RandomAccess.List)
-ChunkyCatenableList = PureFun.Chunky.chunky(7, PureFun.Catenable.List)
+PureFun.Chunky.@list ChunkyList PureFun.Linked.List PureFun.Contiguous.VectorChunk{32}
+PureFun.Chunky.@list ChunkyRandomAccessList PureFun.RandomAccess.List PureFun.Contiguous.StaticChunk{8}
 
 PureFun.Batched.@deque LDeque PureFun.Linked.List
 PureFun.Batched.@deque RDeque PureFun.RandomAccess.List
@@ -30,8 +29,7 @@ queues  = [LDeque, RDeque, CDeque,
 
 lists   = [PureFun.Linked.List,
            LDeque, RDeque, CDeque, CRDeque,
-           PureFun.Chunky.chunky(8),
-           PureFun.Chunky.chunky(8, PureFun.RandomAccess.List),
+           ChunkyList, ChunkyRandomAccessList,
            PureFun.RandomAccess.List,
            PureFun.VectorCopy.List,
            PureFun.Catenable.List
