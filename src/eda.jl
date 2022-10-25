@@ -63,3 +63,24 @@ end
 @btime check_orig(xs) setup=xs=Linked.List(rand(Int, 16))
 @btime check_new(xs) setup=xs=Linked.List(rand(Int, 16))
 @btime check_naive(xs) setup=xs=Linked.List(rand(Int, 16))
+
+
+function rawsum(xs)
+    s = 0.0
+    for x in xs
+        s += x^2
+    end
+    s
+end
+
+bloop1(xs) = mapfoldl(x -> x^2, +, xs)
+bloop2(xs) = mapfoldl(x -> x^2, +, Iterators.flatten(xs.chunks))
+_tmp = Iterators.flatten(l.chunks)
+which(mapfoldl, Tuple{typeof(x -> x^2), typeof(+), typeof(_tmp)})
+
+@btime rawsum(xs) setup=xs=MyList(rand(Int,100));
+@btime rawsum(Iterators.flatten(xs.chunks)) setup=xs=MyList(rand(Int,100));
+@btime foldl(+, Iterators.flatten(xs.chunks)) setup=xs=MyList(rand(Int,100));
+@btime foldl(+, xs) setup=xs=MyList(rand(Int,100));
+@btime bloop1(xs) setup=xs=MyList(rand(Int,100));
+@btime bloop2(xs) setup=xs=MyList(rand(Int,100));

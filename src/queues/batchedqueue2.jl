@@ -71,7 +71,7 @@ function checkr(T, f, r, lenf, lenr)
 end
 
 """
-    _split_reverse(xs, len)
+    _split_reverse(xs)
 
 Takes some elements (how many is an implementation detail) off the end of `xs`
 and reverses them. Returns the reversed sequence (as the same list type as
@@ -79,7 +79,8 @@ and reverses them. Returns the reversed sequence (as the same list type as
 sequence
 
 """
-function _split_reverse(xs, len)
+function _split_reverse(xs)
+    len = length(xs)
     at = cld(len, 2)
     rest = xs
     restlen = 0
@@ -93,18 +94,35 @@ function _split_reverse(xs, len)
     return reverse(top), reverse(rest), restlen
 end
 
-function _split_reverse(xs::PureFun.RandomAccess.List, len)
+function _split_reverse(xs::PureFun.RandomAccess.List)
     f,r = PureFun.RandomAccess.halfish(xs)
     f, reverse(r), length(f)
 end
 
+function _split_reverse(xs::PureFun.Chunky.List)
+    isempty(xs) && return xs, xs, 0
+    cs = PureFun.Chunky.chunks(xs)
+    ck = popfirst(cs)
+    if isempty(ck) && length(first(cs)) > 1
+        c = first(cs)
+        return (typeof(xs)((c[1] ⇀ typeof(c)()) ⇀ empty(cs)),
+                typeof(xs)(reverse(popfirst(c))), 1)
+    end
+    _f, _r, bleh = _split_reverse(cs)
+    f = typeof(xs)(_f)
+    r = isempty(_r) ?
+        typeof(xs)(_r) :
+        typeof(xs)( reverse(_r[1]) ⇀ popfirst(map(PureFun.Contiguous.reverse_fast, _r)))
+    f, r, length(f)
+end
+
 function _split_rear(T, f, r, lenf, lenr)
-    nu_r, nu_f, nu_lenr = _split_reverse(r, lenr)
+    nu_r, nu_f, nu_lenr = _split_reverse(r)
     T(nu_f, nu_r, lenr-nu_lenr, nu_lenr)
 end
 
 function _split_front(T, f, r, lenf, lenr)
-    nu_f, nu_r, nu_lenf = _split_reverse(f, lenf)
+    nu_f, nu_r, nu_lenf = _split_reverse(f)
     T(nu_f, nu_r, nu_lenf, lenf-nu_lenf)
 end
 # }}}
@@ -166,8 +184,18 @@ function Base.setindex(q::Queue, value, i)
     end
 end
 
+# reverse l2 and put it on top of l1
+function _revtop(l1::PureFun.Linked.List, l2::PureFun.Linked.List)
+    foldl(pushfirst, l2, init=l1)
+end
+
+# for chunky lists, if chunks are bigger then this is going to be faster,
+# even though it looks worse
+_revtop(l1, l2) = reverse(l2) ⧺ l1
+
 function PureFun.append(q1::Queue{T}, q2::Queue{T}) where {T}
     r = rear(q2) ⧺ foldl(pushfirst, front(q2), init=rear(q1))
+    #r = rear(q2) ⧺ _revtop(rear(q1), front(q2))
     typeof(q1)(front(q1), r, q1.flen, q1.rlen+q2.flen+q2.rlen)
 end
 
@@ -191,17 +219,8 @@ end
 
 # }}}
 
-function prepare_front(xs)
-    collect(xs)
-    #xs isa PureFun.Linked.List ?
-    #    xs :
-    #    PureFun.Linked.List(xs)
-end
-
-function prepare_rear(xs)
-    reverse!(collect(xs))
-    #foldl(pushfirst, xs, init = PureFun.Linked.List{eltype(xs)}())
-end
+prepare_front(xs) = collect(xs)
+prepare_rear(xs) = reverse!(collect(xs))
 
 function Base.iterate(q::Queue)
     cq = vcat(prepare_front(front(q)),
@@ -209,39 +228,12 @@ function Base.iterate(q::Queue)
     nxt = iterate(cq)
     nxt === nothing && return nothing
     nxt[1], (cq, nxt[2])
-    #iterate(q, (prepare_front(front(q)), prepare_rear(rear(q))))
 end
 
 function Base.iterate(q::Queue, state)
     nxt = iterate(state[1], state[2])
     nxt === nothing && return nothing
     nxt[1], (state[1], nxt[2])
-    #f,r = state
-    #if isempty(f)
-    #    isempty(r) && return nothing
-    #    return first(r), (f, popfirst(r))
-    #end
-    #first(f), (popfirst(f), r)
 end
-
-#function Base.iterate(q::Queue)
-#    isempty(q) && return nothing
-#    f = front(q)
-#    r = rear(q)
-#    isempty(f) && return (first(r), (r, 1))
-#    first(f), (f, 0)
-#end
-#
-#function Base.iterate(q::Queue, state)
-#    l,dir = state
-#    pl = popfirst(l)
-#    if isempty(pl)
-#        dir > 0 && return nothing
-#        r = reverse(rear(q))
-#        isempty(r) && return nothing
-#        return first(r), (r, 1)
-#    end
-#    first(pl), (pl, dir)
-#end
 
 end

@@ -8,6 +8,9 @@ include("lists-streams/skew-binary-ral.jl") # PureFun.RandomAccess.List
 include("lists-streams/stream.jl") # PureFun.Lazy.Stream
 include("lists-streams/vector-list.jl")
 
+include("chunk-types/chunk-interface.jl")
+include("lists-streams/chunky2.jl")
+
 ## queues
 #include("queues/batchedqueue.jl")
 include("queues/batchedqueue2.jl")
@@ -20,11 +23,8 @@ include("queues/hood-melville.jl")
 #include("lists-streams/ll2.jl")
 #include("lists-streams/vector-unrolled-list.jl")
 
-include("chunk-types/chunk-interface.jl")
-
 include("lists-streams/catenable-list.jl")
 #include("lists-streams/chunky.jl")
-include("lists-streams/chunky2.jl")
 
 ## Heaps
 include("heaps/pairing-heap.jl")

@@ -6,6 +6,7 @@ using Test
 function test_constructors(List)
     @testset "Constructors" begin
         l = List{Int64}()
+        empty_iter = List(String[])
         #@test l isa List
 
         m = pushfirst(l, 4)
@@ -15,6 +16,7 @@ function test_constructors(List)
         #@test m2 isa List
 
         @test isempty(l)
+        @test isempty(empty_iter)
         @test !isempty(m)
         @test !isempty(m2)
         
@@ -61,9 +63,11 @@ function test_etc(List)
     @testset "reverse, append, length" begin
         l = List(1:10)
         m = l ⧺ l
+        e = empty(l)
         @test !isempty(l)
         @test length(l) == 10
         @test all(reverse(l) .== 10:-1:1)
+        @test reverse(e) === e
         @test length(m) == 20
         @test all(m .== [1:10..., 1:10...])
     end

@@ -2,7 +2,8 @@ module Chunky
 
 using ..PureFun
 using ..PureFun.Contiguous
-using ..PureFun.Contiguous: chunksize, isfull, nearempty
+using ..PureFun.Contiguous: chunksize, isfull, nearempty, initval
+using StaticArrays
 
 function _myname end
 function _listname end
@@ -20,7 +21,10 @@ macro list(Name, ListType, ChunkType)
           chunks::$(esc(ListType)){$(esc(ChunkType)){T}}
           $Name{T}() where T = new{T}( $(esc(ListType)){$(esc(ChunkType)){T}}() )
           $Name{T}(chunks::$(esc(ListType)){$(esc(ChunkType)){T}}) where T = new{T}(chunks)
-          $Name(iter) = partition_fill(iter, $Name{Base.@default_eltype(iter)}())
+          function $Name(iter)
+              isempty(iter) && return $Name{Base.@default_eltype(iter)}()
+              partition_fill(iter, $Name{Base.@default_eltype(iter)}())
+          end
           $Name{T}(iter) where T = partition_fill(iter, $Name{T}())
       end;
       PureFun.Chunky._myname(::$(esc(Name))) = $(esc(Name));
@@ -44,15 +48,13 @@ Base.empty(l::List, ::Type{U}) where U = _myname(l){U}()
 
 # PFList methods {{{
 
-function initval(x, xs::List)
-    N = chunksize(xs)
-    C = chunktype(xs)
-    chunk = x ⇀ C()
+function initialize(x, xs::List)
+    chunk = initval(x, eltype(chunks(xs)))
     typeof(xs)(chunk ⇀ chunks(xs))
 end
 
 function PureFun.cons(x, xs::List)
-    isempty(xs) && return initval(x, xs)
+    isempty(xs) && return initialize(x, xs)
     cs = chunks(xs)
     chunk = head(cs)
     if isfull(chunk)
@@ -94,26 +96,56 @@ end
 
 # iteration {{{
 
+
+#Base.@propagate_inbounds function Base.iterate(l::List, fullstate=(chunks(l),()))
+#    cs = fullstate[1]
+#    state = fullstate[2]
+#    if state !== ()
+#        y = iterate(Base.tail(state)...)
+#        y !== nothing && return (y[1], (cs, (state[1], state[2], y[2])))
+#    end
+#    x = (state === () ? iterate(cs) : iterate(cs, state[1]))
+#    x === nothing && return nothing
+#    y = iterate(x[1])
+#    while y === nothing
+#        x = iterate(cs, x[2])
+#        x === nothing && return nothing
+#        y = iterate(x[1])
+#    end
+#    return y[1], (cs, (x[2], x[1], y[2]))
+#end
+
+function Base._xfadjoint_unwrap(l::List)
+    itr′, wrap = Base._xfadjoint_unwrap(chunks(l))
+    return itr′, wrap ∘ Base.FlatteningRF
+end
+
+function _start_next_chunk(l, cs, st=())
+    cs_it = st === () ? iterate(cs) : iterate(cs, st)
+    cs_it === nothing && return nothing
+    @inbounds c = cs_it[1]
+    @inbounds c[1], (cs, cs_it[2], c, 2)
+end
+
+_chunkstype(l) = _listname(l){chunktype(l)}
+
 function Base.iterate(l::List)
-    cs = chunks(l)
-    isempty(cs) ? nothing : (head(l), (cs, 1, length(head(cs))))
+    _start_next_chunk(l, chunks(l))
 end
 
-function nxt_head(cs)
-    nxt = tail(cs)
-    isempty(nxt) ?
-        nothing :
-        (@inbounds head(head(nxt)), (nxt, 1, length(head(nxt))))
+function Base.iterate(l::List, state)
+    cs, c, ix = state[1], state[3], state[4]
+    if ix <= length(c)
+        @inbounds c[ix], (cs, state[2], c, ix+1)
+    else
+        @inbounds _start_next_chunk(l, cs, state[2])
+    end
 end
 
-Base.@propagate_inbounds function Base.iterate(list::List, state)
-    cs = state[1]
-    index = state[2]+1
-    len = state[3]
-    index > len ?
-        nxt_head(cs) :
-        (@inbounds head(cs)[index], (cs, index, len))
+function Base.filter(f, l::List)
+    isempty(l) ? l : typeof(l)(collect(Iterators.filter(f, l)))
 end
+
 # }}}
 
 # map + mapreduce specializations {{{
@@ -182,7 +214,7 @@ end
 
 # monolithic stuff (reverse, append) {{{
 
-Base.reverse(l::List) = typeof(l)(reverse!(collect(l)))
+Base.reverse(l::List) = isempty(l) ? l : typeof(l)(reverse!(collect(l)))
 
 function PureFun.append(l1::List, l2::List)
     typeof(l1)(vcat(collect(l1), collect(l2)))

@@ -10,9 +10,9 @@ abstract type Chunk{N,T} <: PureFun.PFList{T} where N end
 struct StaticChunk{N,T} <: Chunk{N,T}
     v::SVector{N,T}
     head::Int
-    function StaticChunk{N,T}() where {N,T}
-        new{N,T}(SVector{N,T}(Vector{T}(undef, N)), N+1)
-    end
+    #function StaticChunk{N,T}() where {N,T}
+    #    new{N,T}(SVector{N,T}(Vector{T}(undef, N)), N+1)
+    #end
     StaticChunk(v::SVector{N,T}, head) where {N,T} = new{N,T}(v, head)
     StaticChunk{N,T}(v::SVector{N,T}, head) where {N,T} = new{N,T}(v, head)
     function StaticChunk{N,T}(iter) where {N,T}
@@ -51,6 +51,16 @@ Base.isempty(xs::VectorChunk) = isempty(xs.v)
 Base.empty(xs::StaticChunk)   = StaticChunk(xs.v, chunksize(xs) + 1)
 Base.empty(xs::VectorChunk)   = VectorChunk{chunksize(xs)}(empty(xs.v))
 
+function initval(x, C::Type{<:StaticChunk})
+    N = chunksize(C)
+    StaticChunk(@SVector(fill(x, N)), N)
+end
+
+function initval(x, C::Type{<:VectorChunk})
+    N = chunksize(C)
+    VectorChunk{N}([x])
+end
+
 function PureFun.cons(x, xs::StaticChunk)
     StaticChunk(setindex(xs.v, x, xs.head-1), xs.head-1)
 end
@@ -64,7 +74,7 @@ function PureFun.head(xs::StaticChunk)
 end
 function PureFun.head(xs::VectorChunk)
     @boundscheck isempty(xs.v) && throw(BoundsError(xs, 1))
-    @inbounds xs.v[1]
+    @inbounds first(xs.v)
 end
 
 PureFun.tail(xs::StaticChunk) = StaticChunk(xs.v, xs.head+1)
@@ -76,7 +86,7 @@ chunksize(::Chunk{N}) where N = N::Int
 chunksize(::Type{<:Chunk{N}}) where N = N::Int
 
 nearempty(xs::StaticChunk) = xs.head == chunksize(xs)
-nearempty(xs::VectorChunk) = length(xs.v) == 1
+nearempty(xs::VectorChunk) = length(xs.v) <= 1
 isfull(xs::StaticChunk) = xs.head < 2
 isfull(xs::VectorChunk) = length(xs.v) >= chunksize(xs)
 # }}}
@@ -95,6 +105,32 @@ end
 function Base.setindex(xs::VectorChunk, val, i)
     VectorChunk{chunksize(xs)}(setindex(xs.v, val, i))
 end
+
+function Base.reverse(xs::VectorChunk)
+    isempty(xs) ? xs : VectorChunk{chunksize(xs)}(reverse(xs.v))
+end
+
+function _rev_from(v, h)
+    out = MVector(v)
+    l = length(v)
+    for i in h:l
+        out[i] = v[l-i+h]
+    end
+    typeof(v)(out)
+end
+
+function Base.reverse(xs::StaticChunk)
+    isempty(xs) && return xs
+    StaticChunk(_rev_from(xs.v, xs.head), xs.head)
+end
+
+# assumes that `isfull(xs)`
+function reverse_fast(xs::StaticChunk)
+    isempty(xs) && return xs
+    typeof(xs)(reverse(xs.v), xs.head)
+end
+reverse_fast(xs::VectorChunk) = reverse(xs)
+
 # }}}
 
 _mr_first(f, op, chunk::StaticChunk) = mapreduce(f, op, @view chunk.v[chunk.head:end])
