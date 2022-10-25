@@ -20,16 +20,16 @@ using PureFun.Lazy: Stream, @cons
 "Lazy evaluation" describes a strategy for evaluating expressions, and has two main features:
 
 - The evaluation of the expression is delayed (*suspended*) until its result is
-needed
+  needed
 
 - The result is cached (*memoized*) the first time the expression is evaluated,
-so that subsequent evaluations become cheap lookups
+  so that subsequent evaluations become cheap lookups
 
 Streams are lazily evaluated lists, and are described in section 4.2 of the
 book:
 
-> Streams (also konwn as lazy lists) are similar to ordinary lists, except that
-every cell is systematically suspended
+> Streams (also known as lazy lists) are similar to ordinary lists, except that
+> every cell is systematically suspended
 
 =#
 
