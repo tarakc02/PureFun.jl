@@ -35,7 +35,7 @@ include("heaps/bootstrapped-heap.jl")
 include("redblack/RedBlack.jl")
 
 # dict
-include("association-list.jl")
+include("dicts/association-list.jl")
 include("trie/ctrie-param-edgemap.jl")
 include("dicts/hashtable.jl")
 
