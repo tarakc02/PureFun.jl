@@ -50,7 +50,7 @@ Base.empty(l::List, ::Type{U}) where U = _myname(l){U}()
 
 function initialize(x, xs::List)
     chunk = initval(x, eltype(chunks(xs)))
-    typeof(xs)(chunk ⇀ chunks(xs))
+    typeof(xs)(chunk ⇀ empty(chunks(xs)))
 end
 
 function PureFun.cons(x, xs::List)

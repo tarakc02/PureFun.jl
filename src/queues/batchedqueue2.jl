@@ -105,7 +105,7 @@ function _split_reverse(xs::PureFun.Chunky.List)
     ck = popfirst(cs)
     if isempty(ck) && length(first(cs)) > 1
         c = first(cs)
-        return (typeof(xs)((c[1] ⇀ typeof(c)()) ⇀ empty(cs)),
+        return (typeof(xs)(PureFun.Chunky.initialize(c[1], empty(xs))),
                 typeof(xs)(reverse(popfirst(c))), 1)
     end
     _f, _r, bleh = _split_reverse(cs)
