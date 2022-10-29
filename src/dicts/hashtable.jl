@@ -217,7 +217,7 @@ struct HashMap{T,K,V} <: PureFun.PFDict{K,V} where {T <: HashTrie}
     HashMap{T,K,V}(trie) where {T,K,V} = new{T,K,V}(trie)
 end
 
-Bucket{K,V} = PureFun.AList.Map{PureFun.Linked.List{Pair{K,V}}, K, V} where {K,V}
+Bucket{K,V} = PureFun.Association.Map{PureFun.Linked.List{Pair{K,V}}, K, V} where {K,V}
 
 HashMap8{K,V}   = HashMap{ HashTrie8{  HashedKey{K,3}, Int, Bucket{K,V} }, K,V } where {K,V}
 HashMap16{K,V}  = HashMap{ HashTrie16{ HashedKey{K,4}, Int, Bucket{K,V} }, K,V } where {K,V}

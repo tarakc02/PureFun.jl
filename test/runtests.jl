@@ -38,13 +38,14 @@ streams = [PureFun.Lazy.Stream]
 
 heaps   = [PureFun.Pairing.Heap, PureFun.SkewHeap.Heap, PureFun.FastMerging.Heap]
 
-PureFun.Tries.@Trie LTrie PureFun.AList.mapof(PureFun.Linked.List)
+PureFun.Tries.@Trie LTrie PureFun.Association.list(PureFun.Linked.List)
+PureFun.Tries.@Trie ChunkyTrie PureFun.Association.list(ChunkyList)
 PureFun.Tries.@Trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
 
 dicts = [PureFun.RedBlack.RBDict,
-         PureFun.AList.mapof(PureFun.Linked.List),
-         PureFun.AList.mapof(PureFun.VectorCopy.List),
-         LTrie, RBTrie,
+         PureFun.Association.list(PureFun.Linked.List),
+         PureFun.Association.list(PureFun.VectorCopy.List),
+         LTrie, RBTrie, ChunkyTrie,
          PureFun.HashTable.HashMap16]
 
 sets = [PureFun.RedBlack.RBSet]

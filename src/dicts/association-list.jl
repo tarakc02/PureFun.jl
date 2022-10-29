@@ -1,4 +1,4 @@
-module AList
+module Association
 
 using ..PureFun
 
@@ -16,7 +16,7 @@ end
 Map{L,K,V}() where {L,K,V} = Map{L,K,V}(L())
 Map{K,V}(L=PureFun.Linked.List) where {K,V} = Map(L{Pair{K,V}}())
 
-function mapof(ListType)
+function list(::Type{ListType}) where ListType
     Map{ListType{Pair{K,V}}, K, V} where {K,V}
 end
 
