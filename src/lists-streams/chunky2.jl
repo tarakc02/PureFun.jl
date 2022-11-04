@@ -151,15 +151,24 @@ end
 # map + mapreduce specializations {{{
 struct Init end
 
-function Base.mapreduce(f, op, xs::List; init=Init())
-    isempty(xs) && init isa Init && return Base.reduce_empty(op, eltype(xs))
-    isempty(xs) && return init
-    cs = chunks(xs)
-    rest = popfirst(cs)
-    chunk1 = Contiguous._mr_first(f, op, cs[1])
+function _mr_empty(f, op, init)
+    init isa Init ?
+        Base.reduce_empty(op, eltype(xs)) :
+        init
+end
+
+function _mr_fullchunks(f, op, c1, cs)
+    isempty(cs) && return c1
     func(chunk) = Contiguous._mr_rest(f, op, chunk)
-    out = isempty(cs) ? chunk1 : op(chunk1, mapreduce(func, op, rest))
-    init isa Init ? out : op(init, out)
+    op(c1, mapreduce(func, op, cs))
+end
+
+function Base.mapreduce(f, op, xs::List; init=Init())
+    isempty(xs) && return _mr_empty(f, op, init)
+    cs = chunks(xs)
+    chunk1 = Contiguous._mr_first(f, op, first(cs))
+    total = _mr_fullchunks(f, op, chunk1, popfirst(cs))
+    init isa Init ? total : op(init, total)
 end
 
 _ctype(l::Type{<:Contiguous.StaticChunk}) = Contiguous.StaticChunk{chunksize(l)}

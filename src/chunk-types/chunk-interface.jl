@@ -136,7 +136,7 @@ reverse_fast(xs::VectorChunk) = reverse(xs)
 _mr_first(f, op, chunk::StaticChunk) = mapreduce(f, op, @view chunk.v[chunk.head:end])
 _mr_rest(f, op, chunk::StaticChunk) = mapreduce(f, op, chunk.v)
 _mr_first(f, op, chunk::VectorChunk) = mapreduce(f, op, chunk.v)
-_mr_rest(f, op, chunk::VectorChunk) = mapreduce(f, op, chunk.v)
+_mr_rest(f, op, chunk::VectorChunk) = mapreduce(f, op, chunk.v.vec)
 
 Base.map(f, chunk::VectorChunk) = VectorChunk{chunksize(chunk)}(map(f, chunk.v))
 function Base.map(f, chunk::StaticChunk)
