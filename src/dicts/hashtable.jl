@@ -144,16 +144,17 @@ end
 
 function Base.iterate(b::Biterable{N,T}) where {N,T}
     mask = ~zero(b.x) >>> (nbits(T) - N)
-    nxt = 1+reinterpret(Int, b.x & mask)
-    fin = div(8*sizeof(T), N)
-    nxt, (mask << N, 1, fin)
+    nxt = one(T) + (b.x & mask)
+    fin = T(div(8*sizeof(T), N))
+    nxt, (mask << N, one(T), fin)
 end
 
 function Base.iterate(b::Biterable{N,T}, state) where {N,T}
     mask, k, fin = state
     k >= fin && return nothing
-    nxt = 1+reinterpret(Int, (b.x & mask) >>> (k*N))
-    nxt, (mask << N, k+1, fin)
+    nxt = one(T) + ((b.x & mask) >>> (k*N))
+    #nxt = 1+reinterpret(Int, (b.x & mask) >>> (k*N))
+    nxt, (mask << N, k+one(T), fin)
 end
 
 function Base.getindex(b::Biterable{N,T}, ix) where {N,T}
@@ -166,7 +167,7 @@ end
 Base.length(b::Biterable{N,T}) where {N,T} = div(nbits(T), N)
 Base.firstindex(b::Biterable) = 1
 Base.lastindex(b::Biterable) = length(b)
-Base.eltype(::Type{<:Biterable}) = Int
+Base.eltype(::Type{<:Biterable{N,T}}) where {N,T} = T
 
 biterate(x, ::Val{N}) where N = Biterable{N, typeof(x)}(x)
 

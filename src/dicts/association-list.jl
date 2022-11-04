@@ -14,7 +14,7 @@ function Map(l::PureFun.PFList{Pair{K,V}}) where {K,V}
     Map{L,K,V}(l)
 end
 Map{L,K,V}() where {L,K,V} = Map{L,K,V}(L())
-Map{K,V}(L=PureFun.Linked.List) where {K,V} = Map(L{Pair{K,V}}())
+Map{K,V}(::Type{L}) where {K,V,L} = Map(L{Pair{K,V}}())
 
 function list(::Type{ListType}) where ListType
     Map{ListType{Pair{K,V}}, K, V} where {K,V}
