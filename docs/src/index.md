@@ -41,7 +41,7 @@ writing multiple small functions [as recommended in the Julia
 docs](https://docs.julialang.org/en/v1/manual/performance-tips/#Break-functions-into-multiple-definitions), this can get expensive.
 
 Julia's base arrays, sets, and dictionaries are all mutable. This package
-provides data strucutres that are immutable, so they can be treated as values.
+provides data structures that are immutable, so they can be treated as values.
 
 ```@repl
 using PureFun
@@ -77,6 +77,9 @@ Provide efficient access to the front element, and can efficiently add and
 remove elements from the front. Sometimes also called a "stack." Primary
 operations:
 
+- `first(xs)`: get the first element of `xs`
+- `popfirst(xs)`: returns a new list that looks like `xs` but with the first
+  element removed
 - `pushfirst(xs, x)`: returns a new list with `x` added to the front of `xs`.
   The infix operator `⇀` (pronounced `\rightharpoonup`) is often more
   convenient. Note that it is right-associative, so
@@ -91,22 +94,32 @@ is equivalent to
 pushfirst(pushfirst(zs, y), x)
 ```
 
-- `first(xs)`: get the first element of `xs`
-- `popfirst(xs)`: returns a new list that looks like `xs` but with the first
-  element removed
 
 Additionally, PureFun.jl implements default implementations of a variety of
 [Abstract
 Vector](https://docs.julialang.org/en/v1/base/arrays/#Base.AbstractVector)-like
-methods for types that inherit from `PureFun.PFList`, though they are not
-necessarily efficient:
+methods for list types, though they are not necessarily efficient. All of these
+functions have similar meanings to their mutating (with a `!` at the end of the
+function name) counterparts in `Base`.
 
 - `reverse`
 - `insert`
 - `getindex` (`xs[i]` to get the i-th element of `xs`)
 - `setindex` (help wanted: nice syntax for non-mutating `setindex`)
 - `append` (use the infix notation `xs ⧺ ys` to append `ys` to the end of `xs`)
-- `map`, `reduce`/`mapreduce`, `filter`
+
+Lists iterate in
+[LIFO](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) order, and
+work with a variety of built-in [higher-order
+functions](https://en.wikipedia.org/wiki/Higher-order_function):
+
+- eager versions of `map`,  `filter`, `accumulate`
+- `(map)foldl`, `(map)foldr`, `(map)reduce`
+
+There are several different implementations of lists, optimized for different
+use-cases. All of the list implementations in PureFun.jl inherit from the
+abstract type `PureFun.PFList`. Complexities presented below are worst-case,
+unless stated otherwise.
 
 ### `PureFun.Linked.List` ($\S{2.1}$)
 
@@ -116,7 +129,7 @@ operations, which are all $\mathcal{O}(1)$.
 ### `PureFun.RandomAccess.List` ($\S{9.3.1}$)
 
 Adds efficient ($\mathcal{O}(\log{}n)$) indexing (`getindex` and `setindex`)
-operations, and an optimized `mapreduce` implementation. The implementation
+operations to the $\mathcal{O}(1)$ primary operations. The implementation
 stores elements in complete binary trees representing digits in the [skew
 binary number system](https://en.wikipedia.org/wiki/Skew_binary_number_system),
 as described in [this blog
@@ -143,7 +156,7 @@ l1 ⧺ l2
 ### `PureFun.VectorCopy.List`
 
 This is a wrapper around `Base.Vector` with copy-on-write semantics.
-`pushfirst` is $\mathcal{O}(n), but iteration and indexing are very fast.
+`pushfirst` is $\mathcal{O}(n)$, but iteration and indexing are very fast.
 Useful for small lists, or for lists that are traversed frequently relative to
 how often they are modified.
 
@@ -176,7 +189,7 @@ xs = ChunkyRandomAccessList(1:100)
 -999 ⇀ xs
 ```
 
-### Double-ended Queues: the `PureFun.Batched.@deque` functor
+### Double-ended Queues: `PureFun.Batched.@deque` $\S{5.2}$, excercise 5.1
 
 Deques are like lists but with symmetric efficient operations on the front
 (`pushfirst`, `popfirst`, `first`) and the back (`push`, `pop`, `last`). The
@@ -199,52 +212,110 @@ push(data, -1) |> last
 data[99_999]
 ```
 
-Implemented by:
+`pushfirst`, `popfirst`, `push`, and `pop` are all *amortized*
+$\mathcal{O}(1)$ rather than worst-case.
 
-- `PureFun.Linked.List`
-- `PureFun.RandomAccess.List`: fast access to arbitrary elements, compared to
-  regular linked lists which take linear time to access elements
-- `PureFun.Catenable.List`: fast catenation (appending) of lists, which takes
-  O(n) time for regular linked lists
+## Queues
 
-|List Type|`cons`|`head`|`tail`|`append`|`getindex`/`setindex`|`reverse`|
---- | --- | --- | --- | --- | --- | --- |
-|`Linked.List`|O(1)|O(1)|O(1)|O(n)|O(n)|O(n)|
-|`RandomAccess.List`|O(1)|O(1)|O(1)|O(n)|O(log(n))|O(n)|
-|`Catenable.List`|O(1)|O(1)|O(1)|O(1)|O(n)|O(n)|
+Unlike lists, queues iterate in first-in, last-out order. They implement the
+following efficiently:
 
-All implentations support these operations in constant time:
+- `push` (to push to the end, analogous to `Base.push!` -- kinda wish they had
+  called this `pushlast!` but alas)
+- `first`
+- `popfirst`
 
-- `cons` a new item to the front (alias: `pushfirst`)
-- `head` retrieves the item at the front
-- `tail` returns the collection without the front element
+You can use any existing list implementation as a Queue, using the `@deque`
+functor. However, the resulting queue achieves amortized constant complexity
+guarantees by batching expensive rebalancing operations: most operations are
+fast, but occasionally an operation takes $\mathcal{O}(n)$ time, and we refer
+to those as *expensive* operations. In amortized mutable data structures,
+expensive operations restore internal balance, which guarantees you a budget of
+cheap operations before the next rebalancing is required. An expensive
+operation on an immutable data structure returns a new, balanced data
+structure, and once again if you restrict your usage to this new value then the
+amortized analysis that we used in the immutable case still applies. But unlike
+a mutable data structure, a given instance of an immutable data structure may
+have multiple *logical futures* -- after calling an expensive operation, we can
+go back to the same imbalanced data structure and call an expensive operation
+again, without having first benefitted from all the cheap operations in
+between. The concept is explored in Chapter 6 ($\S{6.1}$) of *Purely Functional
+Data Structures*, which introduces the use of *lazy evaluation* in restoring
+amortized bounds in persistent settings.
 
-All `PFLists` also implement the following operations, which may be slow:
+Use the following queue types if your use-case involves utilizing multiple
+logical futures (example: concurrency/multi-threading):
 
-- `append`, or `⧺`: appends two lists. Fast (constant time) for
-  `PureFun.Catenable.List`
-- `getindex` for array-like indexing. This is fast (log(n)) for
-  `PureFun.RandomAccess.List`
-- `setindex`: for changing the value at an index. Fast for random-access lists
-- `reverse`
+### `PureFun.Bootstrapped.Queue` $\S{10.1.3}$
 
-## PFQueue
+`first` takes $\mathcal{O}(1)$ time, while both `push` and `popfirst` take
+$\mathcal{O}(\log^{*}{n})$ amortized time, where $\log^{*}$ is the [iterated
+logarithm](https://en.wikipedia.org/wiki/Iterated_logarithm), which is
+"constant in practice." The amortized bounds extend to settings that require
+persistence, this is achieved via disciplined use of [*lazy
+evaluation*](https://en.wikipedia.org/wiki/Lazy_evaluation) along with
+[memoization](https://en.wikipedia.org/wiki/Memoization)
 
-Implemented by:
+### `PureFun.RealTime.Queue` $\S{7.2}$
 
-- `PureFun.Batched.Queue`: supports all operations in amortized constant time.
-  However, if the queue is used persistently, the time to get the `tail` can
-  devolve to the worst-case, which is linear
-- `PureFun.Bootstrapped.Queue`: all operations in amortized constant time, and
-  the amortized bounds extend to persistent use (!).
-- `PureFun.RealTime.Queue`: worst-case constant time operations (but with a
-  higher overhead than the other two).
+All operations are worst-case $\mathcal{O}(1)$. These queues make heavy use of
+lazy evaluation. Due to the overheads associated with lazy evaluation, the
+`PureFun.RealTime.Queue` is slower on average than others, but can still be
+useful in settings (such as interactive user-interfaces) where bounded
+worst-case performance is more important than average performance.
 
-Operations:
+### `PureFun.HoodMelville.Queue` $\S{8.2.1}$
 
-- `snoc` a new item to the back of the queue (alias: `push`)
-- `head` get the item at the front of the queue
-- `tail` returns the collection without the first item
+Once again, these queues require worst-case constant time for all 3 queue
+operations. Unlike the `PureFun.RealTime.Queue`, the Hood-Melville queue does
+not use lazy evaluation, as it more explicitly schedules incremental work
+during each operation, smoothing out the costs of rebalancing across cheap
+operations. Since this requires doing rebalancing work before it becomes
+necessary, the Hood-Melville queues can end up doing unnecessary work, leading
+to higher on-average overheads. Once again, use when worst-case performance is
+more important than average performance.
+
+## Heaps
+
+Heaps, also known as *priority queues*, provide efficient access to the
+*minimum element* in a collection, and an efficient *delete-the-minimum*
+operation as well as a *merge* operation that takes two heaps and returns one.
+
+We define "minimum" with respect to an
+[`Ordering`](https://docs.julialang.org/en/v1/base/sort/#Alternate-orderings)
+type parameter, so heaps are parameterized by both the element type and the
+ordering.
+
+Heaps in PureFun.jl inherit from the abstract type `PureFun.PFHeap`. The full
+interface:
+
+- `push(xs, x)` returns a new heap containing `x` as well as all elements in
+  `xs`
+- `minimum`
+- `delete_min`
+
+Heaps iterate in sorted order.
+
+If not specified, the ordering for a heap defaults to `Base.Order.Forward`.
+Heap constructors are like the constructors for lists and queues, but take the
+ordering as an additional optional argument.
+
+### `PureFun.Pairing.Heap` $\S{5.5}
+
+Pairing heaps:
+
+> ... are one of those data structures that drive theoreticians crazy. On the
+> one hand, pairing heaps are simple to implement and perform extremely well in
+> practice. On the other hand, they have resisted analysis for over ten years!
+
+`push`, `merge`, and `minimum` all run in $\mathcal{O}(1)$ worst-case time.
+`delete_min`, however, can take $\mathcal{O}(n)$ time in the worst-case.
+However, it has been proven that the amortized time required by `delete_min` is
+no worse than $\mathcal{O}(\log{}n)$, and there is an open conjecture that it
+is in fact $\mathcal{O}(1)$. The amortized bounds here do *not* apply in
+persistent settings.
+
+### `PureFun.SkewHeap.Heap` $\S{9.3.2}$
 
 ## PFSet
 
