@@ -94,6 +94,9 @@ function test_functionals(List)
 end
 
 function test(List)
+    tmp = List(1:10)
+    tmp2 = empty(tmp)
+
     test_constructors(List),
     test_accessors(List),
     test_iterator(List),

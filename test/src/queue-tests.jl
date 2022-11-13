@@ -55,6 +55,9 @@ end
 
 
 function test(Queue)
+    tmp = Queue(1:10)
+    tmp2 = empty(tmp)
+
     test_constructors(Queue),
     test_snoc(Queue),
     test_accessors(Queue),

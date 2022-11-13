@@ -52,11 +52,13 @@ sets = [PureFun.RedBlack.RBSet]
 
 for q in queues
     println(); println(q)
+    tmp = q(1:10); tmp2 = empty(tmp);
     QueueTests.test(q)
 end
 
 for l in lists
     println(); println(l)
+    tmp = l(1:10); tmp2 = empty(tmp);
     ListTests.test(l)
 end
 
