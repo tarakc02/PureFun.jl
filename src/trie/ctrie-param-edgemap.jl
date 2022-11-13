@@ -22,23 +22,40 @@ Base.isempty(t::Trie) = !_isvalid(t) && isempty(subtries(t))
 ind(t::Trie) = t.i
 # }}}
 
+triekey(k) = k
+triekey(k::String) = codeunits(k)
+
+function iterable_key end
+
+_itereltype(::typeof(triekey), ::Type{String}) = codeunit("")
+_itereltype(::typeof(triekey), ::Type{T}) where T = eltype(T)
+
 # trie types {{{
-macro Trie(Name,DictType)
+macro Trie(Name,DictType,keyfunc=triekey)
     :(
       struct $Name{K,K0,V} <: Trie{K,V}
          kv::Option{Pair{K,V}}
          i::Int
          subtries::$(esc(DictType)){K0, $Name{K,K0,V}}
-         $Name{K,V}() where {K,V} = new{K,_itereltype(K),V}(nothing, 1, $(esc(DictType)){_itereltype(K), $Name{K, _itereltype(K), V}}())
-         $Name{K,K0,V}() where {K,K0,V} = new{K,K0,V}(nothing, 1, $(esc(DictType)){K0, $Name{K, K0, V}}())
+         function $Name{K,V}() where {K,V}
+             K0 = _itereltype($(esc(keyfunc)), K)
+             st = $(esc(DictType)){K0, $Name{K, K0, V}}()
+             new{K,K0,V}(nothing, 1, st)
+         end
+         function $Name{K,K0,V}() where {K,K0,V}
+             st = $(esc(DictType)){K0, $Name{K, K0, V}}()
+             new{K,K0,V}(nothing, 1, st)
+         end
          $Name{K,K0,V}(p, ix, e) where {K,K0,V} = new{K,K0,V}(p, ix, e)
          function $Name(iter)
+             isempty(iter) && return $Name{Any,Any}()
              peek = first(iter)
              peek isa Pair || throw(MethodError($Name, iter))
              K, V = typeof(peek[1]), typeof(peek[2])
              reduce(push, iter, init=$Name{K,V}())
          end
-     end
+     end;
+     PureFun.Tries.iterable_key(::$(esc(Name)), k) = $(esc(keyfunc))(k)
     )
 end
 # }}}
@@ -52,35 +69,30 @@ end
 # accessors {{{
 
 _kv(trie)    = trie.kv
-_key(trie)   = something(trie.kv).first
-_value(trie) = something(trie.kv).second
+#_key(trie)   = something(trie.kv).first
+_key(trie)   = iterable_key(trie, something(trie.kv).first)
+#_value(trie) = something(trie.kv).second
 
 # }}}
 
 # lookup/update {{{
 struct SearchFail end
 
-_itereltype(::Type{T}) where T = eltype(T)
-_itereltype(::Type{String}) = UInt8
-iterable_key(k) = k
-iterable_key(k::String) = codeunits(k)
-
-keymatch(trie::Trie, key) = keymatch(_kv(trie), key)
-function keymatch(trie::Trie{String}, key::Base.CodeUnits)
-    keymatch(_kv(trie), String(key))
+function Base.get(trie::Trie, key, default)
+    ikey = iterable_key(trie, key)
+    maybekv = _get(trie, ikey)
+    maybekv === nothing && return default
+    kv = something(maybekv)
+    k = kv.first
+    k == key ? kv.second : default
 end
-keymatch(::Nothing, key) = false
-keymatch(kv::Some, key) = key == something(kv).first
 
-function Base.get(trie::Trie, k, default)
-    key = iterable_key(k)
+function _get(trie::Trie, key)::Option{eltype(trie)}
     i = ind(trie)
-    i == (1 + lastindex(key)) &&
-        keymatch(trie, key) &&
-        return _value(trie)
-    i > lastindex(key) && return default
+    i == (1 + lastindex(key)) && return _kv(trie)
+    i > lastindex(key) && return nothing
     t = get(subtries(trie), key[i], SearchFail())
-    t isa SearchFail ? default : get(t, key, default)
+    t isa SearchFail ? nothing : _get(t, key)
 end
 
 function _first_valid_child(trie)
@@ -90,12 +102,6 @@ end
 function _next_key(trie)
     t = _first_valid_child(trie)
     _key(t)
-end
-
-function _next_key(trie::Trie{String})
-    t = _first_valid_child(trie)
-    st = _key(t)
-    codeunits(st)
 end
 
 function _get_split_ind(trie, key)
@@ -112,48 +118,43 @@ function _split(trie, key)
     _split(t, key)
 end
 
-function singleton(trie::Trie{String}, key, value)
-    typeof(trie)(Some(Pair(String(key), value)),
+function singleton(trie, key, kv)
+    typeof(trie)(kv,
                  1+lastindex(key),
                  empty(subtries(trie)))
 end
 
-function singleton(trie, key, value)
-    typeof(trie)(Some(Pair(key, value)),
-                 1+lastindex(key),
-                 empty(subtries(trie)))
-end
-
-function initval(trie, key, value)
-    newnode = singleton(trie, key, value)
+function initval(trie, key, kv)
+    newnode = singleton(trie, key, kv)
     i = firstindex(key)
     typeof(trie)(_kv(trie), i, setindex(subtries(trie), newnode, key[i]))
 end
 
 function Base.setindex(trie::Trie, value, k)
-    key = iterable_key(k)
-    isempty(trie) && return initval(trie, key, value)
+    kv = Some(Pair(k, value))
+    key = iterable_key(trie, k)
+    isempty(trie) && return initval(trie, key, kv)
     i, ch = _split(trie, key)
-    _setind(trie, i, key, value, ch)
+    _setind(trie, i, key, kv, ch)
 end
 
-function _setind(trie, i, key, value, ch)
+function _setind(trie, i, key, kv, ch)
     j = ind(trie)
     if j < i
         st = subtries(trie)
         # we know this exists
         nxt = st[key[j]]
-        nu = _setind(nxt, i, key, value, ch)
+        nu = _setind(nxt, i, key, kv, ch)
         return typeof(trie)(_kv(trie), j, setindex(st, nu, key[j]))
     elseif j > i
         st = empty(subtries(trie))
-        nu = singleton(trie, key, value)
+        nu = singleton(trie, key, kv)
         nu_st = setindex(st, trie, ch)
         return typeof(trie)(nothing, i, setindex(nu_st, nu, key[i]))
     elseif _isvalid(trie) && lastindex(_key(trie)) == lastindex(key)
-        return typeof(trie)(Some(Pair(key, value)), j, subtries(trie))
+        return typeof(trie)(kv, j, subtries(trie))
     else
-        nu = singleton(trie, key, value)
+        nu = singleton(trie, key, kv)
         return typeof(trie)(_kv(trie), j, setindex(subtries(trie), nu, key[j]))
     end
 end
@@ -191,3 +192,4 @@ PureFun.push(t::Trie, p::Pair) = setindex(t, p[2], p[1])
 # }}}
 
 end
+
