@@ -4,7 +4,7 @@ using ..PureFun
 
 # Bits: a single-integer bitset that stores small integers {{{
 
-struct Bits{T<:Unsigned}
+struct Bits{T}
     x::T
 end
 
@@ -23,7 +23,7 @@ Base.eltype(::Type{<:Bits}) = Int
 
 Base.isempty(b::Bits) = iszero(bits(b))
 
-one_at(i, T::Type{<:Unsigned}) = one(T) << (i-1)
+one_at(i, ::Type{T}) where T = one(T) << (i-1)
 ones_until(T, i) = ~zero(T) >> (nbits(T) - i)
 
 isoccupied(x::Bits, i) = !iszero(one_at(i, tp(x)) & bits(x))
@@ -66,7 +66,7 @@ end
 inds(bm::BitMap) = bm.b
 elems(bm::BitMap) = bm.elems
 
-function bitmap(n_elems=16, ListType = PureFun.VectorCopy.List)
+function bitmap(n_elems::Val=Val{16}(), LT::Type{ListType}=PureFun.VectorCopy.List) where ListType
     U = _uint_with_bits(n_elems)
     BitMap{Bits{U}, K, V, ListType{V}} where {K,V}
 end
@@ -92,7 +92,7 @@ function Base.empty(bm::BitMap)
             empty(elems(bm)) )
 end
 
-function _uint_with_bits(bits)
+function _uint_with_bits(::Val{bits}) where bits
     if bits == 8
         UInt8
     elseif bits == 16
@@ -132,87 +132,68 @@ PureFun.push(bm::BitMap, pair) = setindex(bm, pair[2], pair[1])
 # Bit-eration: iterate 64-bit hashes as a sequence of small ints {{{
 
 """
-    Biterable{N,T}
+    Biterate{N,T}
 
 take an unsigned integer of type T and iterate over it N bits at a time. The
 iterated elements are returned as unsigned integers (e.g. if N = 8, then
-Biterable will iterate UInt8)
+Biterate will iterate UInt8)
 """
-struct Biterable{N, T<:Unsigned}
+struct Biterate{N, T}
     x::T
+    Biterate{N,T}(x) where {N,T} = new{N,T}(x)
+    Biterate{N}(x) where {N} = new{N,typeof(x)}(x)
 end
 
-function Base.iterate(b::Biterable{N,T}) where {N,T}
+function Base.iterate(b::Biterate{N,T}) where {N,T}
     mask = ~zero(b.x) >>> (nbits(T) - N)
     nxt = one(T) + (b.x & mask)
     fin = T(div(8*sizeof(T), N))
     nxt, (mask << N, one(T), fin)
 end
 
-function Base.iterate(b::Biterable{N,T}, state) where {N,T}
+function Base.iterate(b::Biterate{N,T}, state) where {N,T}
     mask, k, fin = state
     k >= fin && return nothing
     nxt = one(T) + ((b.x & mask) >>> (k*N))
-    #nxt = 1+reinterpret(Int, (b.x & mask) >>> (k*N))
     nxt, (mask << N, k+one(T), fin)
 end
 
-function Base.getindex(b::Biterable{N,T}, ix) where {N,T}
+function Base.getindex(b::Biterate{N,T}, ix) where {N,T}
     i = ix - 1
     shifted_mask = ~zero(b.x) >>> (nbits(T) - N)
     mask = shifted_mask << (i*N)
     1+reinterpret(Int, (b.x & mask) >> (i*N))
 end
 
-Base.length(b::Biterable{N,T}) where {N,T} = div(nbits(T), N)
-Base.firstindex(b::Biterable) = 1
-Base.lastindex(b::Biterable) = length(b)
-Base.eltype(::Type{<:Biterable{N,T}}) where {N,T} = T
+Base.length(b::Biterate{N,T}) where {N,T} = div(nbits(T), N)
+Base.firstindex(b::Biterate) = 1
+Base.lastindex(b::Biterate) = length(b)
+Base.eltype(::Type{<:Biterate}) = Int
 
-biterate(x, ::Val{N}) where N = Biterable{N, typeof(x)}(x)
-
-# }}}
-
-# key type (container to hold key and iterable hash): {{{
-
-struct HashedKey{K, N}
-    #key::K
-    hash::Biterable{N, UInt64}
-end
-Base.show(io::IO, m::MIME"text/plain", x::HashedKey) = println(io, x.hash)
-Base.show(io::IO,  x::HashedKey) = print(io, x.hash)
-
-function HashedKey{K, N}(k::K) where {K,N}
-    HashedKey{K,N}(biterate(hash(k), Val{N}()))
-end
-
-function HashedKey(k, v::Val{N}) where N
-    HashedKey{typeof(k), N}(biterate(hash(k), v))
-end
-
-Base.iterate(x::HashedKey) = iterate(x.hash)
-Base.iterate(x::HashedKey, state) = iterate(x.hash, state)
-Base.length(x::HashedKey) = length(x.hash)
-Base.eltype(::Type{<:HashedKey}) = Int
-Base.getindex(x::HashedKey, i) = x.hash[i]
-Base.firstindex(x::HashedKey) = 1
-Base.lastindex(x::HashedKey) = length(x)
+biterate(::Val{N}, x) where N = Biterate{N, typeof(x)}(x)
+biterate(v::Val{N}) where N = Biterate{N}
 
 # }}}
 
 # the hash map {{{
 
-PureFun.Tries.@Trie HashTrie8   bitmap(8)
-PureFun.Tries.@Trie HashTrie16  bitmap(16)
-PureFun.Tries.@Trie HashTrie32  bitmap(32)
-PureFun.Tries.@Trie HashTrie64  bitmap(64)
-PureFun.Tries.@Trie HashTrie128 bitmap(128)
+# tries that convert inputs to iterators over ints, and use bitmaps as the
+# edgemaps
+PureFun.Tries.@Trie BitMapTrie8   bitmap(Val{8}())   biterate(Val{3}())
+PureFun.Tries.@Trie BitMapTrie16  bitmap(Val{16}())  biterate(Val{4}())
+PureFun.Tries.@Trie BitMapTrie32  bitmap(Val{32}())  biterate(Val{5}())
+PureFun.Tries.@Trie BitMapTrie64  bitmap(Val{64}())  biterate(Val{6}())
+PureFun.Tries.@Trie BitMapTrie128 bitmap(Val{128}()) biterate(Val{7}())
 
-HashTrie = Union{HashTrie8, HashTrie16, HashTrie32, HashTrie64, HashTrie128}
+BitMapTrie = Union{BitMapTrie8,
+                   BitMapTrie16,
+                   BitMapTrie32,
+                   BitMapTrie64,
+                   BitMapTrie128}
 
-struct HashMap{T,K,V} <: PureFun.PFDict{K,V} where {T <: HashTrie}
+struct HashMap{T,K,V} <: PureFun.PFDict{K,V} where {T <: BitMapTrie}
     trie::T
-    function HashMap{T,K,V}() where {K,V,T<:HashTrie}
+    function HashMap{T,K,V}() where {K,V,T<:BitMapTrie}
         new{T,K,V}(T())
     end
     HashMap{T,K,V}(trie) where {T,K,V} = new{T,K,V}(trie)
@@ -220,11 +201,11 @@ end
 
 Bucket{K,V} = PureFun.Association.Map{PureFun.Linked.List{Pair{K,V}}, K, V} where {K,V}
 
-HashMap8{K,V}   = HashMap{ HashTrie8{  HashedKey{K,3}, Int, Bucket{K,V} }, K,V } where {K,V}
-HashMap16{K,V}  = HashMap{ HashTrie16{ HashedKey{K,4}, Int, Bucket{K,V} }, K,V } where {K,V}
-HashMap32{K,V}  = HashMap{ HashTrie32{ HashedKey{K,5}, Int, Bucket{K,V} }, K,V } where {K,V}
-HashMap64{K,V}  = HashMap{ HashTrie64{ HashedKey{K,6}, Int, Bucket{K,V} }, K,V } where {K,V}
-HashMap128{K,V} = HashMap{ HashTrie64{ HashedKey{K,7}, Int, Bucket{K,V} }, K,V } where {K,V}
+HashMap8{K,V}   = HashMap{   BitMapTrie8{ UInt, Int, Bucket{K,V} }, K,V } where {K,V}
+HashMap16{K,V}  = HashMap{  BitMapTrie16{ UInt, Int, Bucket{K,V} }, K,V } where {K,V}
+HashMap32{K,V}  = HashMap{  BitMapTrie32{ UInt, Int, Bucket{K,V} }, K,V } where {K,V}
+HashMap64{K,V}  = HashMap{  BitMapTrie64{ UInt, Int, Bucket{K,V} }, K,V } where {K,V}
+HashMap128{K,V} = HashMap{ BitMapTrie128{ UInt, Int, Bucket{K,V} }, K,V } where {K,V}
 
 function _fromiter(iter, HM)
     peek = first(iter)
@@ -269,18 +250,14 @@ function Base.iterate(m::HashMap, state)
     kv_it[1], (trie_st, kvs, kv_it[2])
 end
 
-function hasher(m::HashMap)
-    keytype(m.trie)
-end
-
 function Base.get(m::HashMap, key, default)
-    k = hasher(m)(key)
+    k = hash(key)
     bucket = get(m.trie, k, Bucket{keytype(m), valtype(m)}())
     get(bucket, key, default)
 end
 
 function Base.setindex(m::HashMap, val, key)
-    k = hasher(m)(key)
+    k = hash(key)
     nu = update_at(m.trie, k, Bucket{keytype(m), valtype(m)}()) do bucket
         setindex(bucket, val, key)
     end

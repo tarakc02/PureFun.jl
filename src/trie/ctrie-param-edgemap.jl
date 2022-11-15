@@ -29,6 +29,7 @@ function iterable_key end
 
 _itereltype(::typeof(triekey), ::Type{String}) = codeunit("")
 _itereltype(::typeof(triekey), ::Type{T}) where T = eltype(T)
+_itereltype(f, ::Type{T}) where T = eltype(Core.Compiler.return_type(f, Tuple{T}))
 
 # trie types {{{
 macro Trie(Name,DictType,keyfunc=triekey)

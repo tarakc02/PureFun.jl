@@ -121,7 +121,7 @@ end
 # }}}
 
 using PureFun
-using .Tries: Trie
+#using .Tries: Trie
 
 using Random
 ks = [randstring("abcdefghijklmn", rand(15:25)) for _ in 1:500]
@@ -129,22 +129,68 @@ vs = [rand(Int) for _ in 1:500]
 
 using BenchmarkTools
 
-PureFun.Tries.@Trie MyTrie PureFun.AList.mapof(PureFun.Linked.List)
+const biterate = PureFun.HashTable.biterate(Val{5}())
+
+@btime Iterators.flatten(Iterators.map(biterate, codeunits(k))) setup=k=randstring(rand(15:25))
+
+PureFun.Tries.@Trie MyTrie PureFun.Association.list(PureFun.Linked.List)
+PureFun.Tries.@Trie MyTrie2 PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
+PureFun.Tries.@Trie HT PureFun.HashTable.bitmap(Val{32}()) biterate ∘ hash
+PureFun.Tries.@Trie HT PureFun.HashTable.bitmap(Val{32}()) PureFun.HashTable.Biterable{5} ∘ hash
+
+PureFun.Tries.@Trie EEE PureFun.HashTable.bitmap(Val{32}()) bloop
+
+#const bloop = biterate(Val{7}())
+PureFun.Tries.@Trie SparseVector PureFun.HashTable.bitmap(Val{128}()) PureFun.HashTable.biterate(Val{7}())
+
+v = SparseVector(i => k for (i,k) in enumerate(vs))
+@assert all(v[i] == vs[i] for i in eachindex(vs))
+
+@btime get($v, i, -1) setup=i=rand(Int)
+@btime $v[i] setup=i=rand(1:5000)
+@btime $vs[i] setup=i=rand(1:5000)
+@btime l[i] setup=(l=PureFun.RandomAccess.List(vs); i=rand(1:5000))
 
 t = MyTrie(k => v for (k,v) in zip(ks, vs))
+t2 = MyTrie2(k => v for (k,v) in zip(ks, vs))
 rb = PureFun.RedBlack.RBDict(k => v for (k,v) in zip(ks, vs))
 d = Dict(k => v for (k,v) in zip(ks, vs))
+ht = PureFun.HashTable.HashMap64(k => v for (k,v) in zip(ks, vs))
+ht2 = HT(k => v for (k,v) in zip(ks, vs))
+ee = EEE(k => v for (k,v) in zip(ks, vs))
+
+@assert all(ee[k] == d[k] for k in ks)
 
 @benchmark $t[k] setup=k=rand(ks)
+@benchmark $t2[k] setup=k=rand(ks)
 @benchmark $rb[k] setup=k=rand(ks)
 @benchmark $d[k] setup=k=rand(ks)
+@benchmark $ht[k] setup=k=rand(ks)
+@benchmark $ht2[k] setup=k=rand(ks)
+@benchmark $ee[k] setup=k=rand(ks)
 @benchmark get($t, k, 0) setup=k=randstring("abcdefghijklmn", rand(7:10))
+@benchmark get($t2, k, 0) setup=k=randstring("abcdefghijklmn", rand(7:10))
 @benchmark get($rb, k, 0) setup=k=randstring("abcdefghijklmn", rand(7:10))
 @benchmark get($d, k, 0) setup=k=randstring("abcdefghijklmn", rand(7:10))
+@benchmark get($ht, k, 0) setup=k=randstring("abcdefghijklmn", rand(7:10))
+@benchmark get($ht2, k, 0) setup=k=randstring("abcdefghijklmn", rand(7:10))
 #@btime $d[k] setup=k=rand(ks)
 
+function copy_and_update(d, v, i)
+    cp = copy(d)
+    d[i] = v
+end
+
 @benchmark setindex($t, 0, k) setup=k=rand(ks)
+@benchmark setindex($t2, 0, k) setup=k=rand(ks)
 @benchmark setindex($rb, 0, k) setup=k=rand(ks)
+@benchmark setindex($ht, 0, k) setup=k=rand(ks)
+@benchmark setindex($ht2, 0, k) setup=k=rand(ks)
+@benchmark copy_and_update($d, 0, k) setup= k=rand(ks)
+
+@benchmark setindex($t, 0, k) setup=k=randstring("abcdefghijklmn", rand(100:200))
+@benchmark setindex($rb, 0, k) setup=k=randstring("abcdefghijklmn", rand(100:200))
+@benchmark setindex($ht, 0, k) setup=k=randstring("abcdefghijklmn", rand(10:20))
 
 @benchmark t = Trie(k => v for (k,v) in zip($ks, $vs))
 @benchmark d = Dict(k => v for (k,v) in zip($ks, $vs))

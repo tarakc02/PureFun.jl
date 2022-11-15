@@ -46,7 +46,8 @@ dicts = [PureFun.RedBlack.RBDict,
          PureFun.Association.list(PureFun.Linked.List),
          PureFun.Association.list(PureFun.VectorCopy.List),
          LTrie, RBTrie, ChunkyTrie,
-         PureFun.HashTable.HashMap16]
+         PureFun.HashTable.HashMap16,
+         PureFun.HashTable.HashMap128]
 
 sets = [PureFun.RedBlack.RBSet]
 
