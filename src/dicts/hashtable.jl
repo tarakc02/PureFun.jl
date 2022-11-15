@@ -4,7 +4,7 @@ using ..PureFun
 
 # Bits: a single-integer bitset that stores small integers {{{
 
-struct Bits{T}
+struct Bits{T} <: PureFun.PFSet{T}
     x::T
 end
 
@@ -31,6 +31,10 @@ firstoccupied(x::Bits) = 1 + trailing_zeros(bits(x))
 lastoccupied(x::Bits) = nbits(x) - leading_zeros(bits(x))
 whichind(x::Bits, i) =  count_ones(ones_until(tp(x), i) & bits(x))
 setbit(x::Bits, i) = Bits(one_at(i, tp(x)) | bits(x))
+
+PureFun.push(x::Bits, i) = setbit(x, i)
+Base.in(i, x::Bits) = isoccupied(x, i)
+
 function unsetbit(x::Bits, i)
     mask = ~one_at(i, tp(x))
     Bits(mask & bits(x))
@@ -52,7 +56,10 @@ end
 # }}}
 
 # bitmap: maps small integer keys to values {{{
-struct BitMap{B<:Bits, K<:Integer, V, L <: PureFun.PFList{V}} <: PureFun.PFDict{K, V}
+# note: BitMap are constrained to have Int keys, we keep the K parameter around
+# in order to conform to expected PFDict interface, where you can e.g.
+# construct an empty dict via D{Int,V}()
+struct BitMap{B<:Bits, K<:Int, V, L <: PureFun.PFList{V}} <: PureFun.PFDict{K, V}
     b::B
     elems::L
     function BitMap{B,K,V,L}() where {B,K,V,L}
@@ -66,7 +73,8 @@ end
 inds(bm::BitMap) = bm.b
 elems(bm::BitMap) = bm.elems
 
-function bitmap(n_elems::Val=Val{16}(), LT::Type{ListType}=PureFun.VectorCopy.List) where ListType
+function bitmap(n_elems::Val=Val{16}(),
+        LT::Type{ListType}=PureFun.VectorCopy.List) where ListType
     U = _uint_with_bits(n_elems)
     BitMap{Bits{U}, K, V, ListType{V}} where {K,V}
 end
@@ -92,22 +100,11 @@ function Base.empty(bm::BitMap)
             empty(elems(bm)) )
 end
 
-function _uint_with_bits(::Val{bits}) where bits
-    if bits == 8
-        UInt8
-    elseif bits == 16
-        UInt16
-    elseif bits == 32
-        UInt32
-    elseif bits == 64
-        UInt64
-    elseif bits == 128
-        UInt128
-    else
-        throw(ErrorException("`bits` must be 8, 16, 32, 64, or 128"))
-    end
-end
-
+_uint_with_bits(::Val{8}) = UInt8
+_uint_with_bits(::Val{16}) = UInt16
+_uint_with_bits(::Val{32}) = UInt32
+_uint_with_bits(::Val{64}) = UInt64
+_uint_with_bits(::Val{128}) = UInt128
 
 function Base.iterate(bm::BitMap)
     ix = iterate(inds(bm))
