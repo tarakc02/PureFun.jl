@@ -27,6 +27,7 @@ function cons end
 Return the `PFList` that results from adding `x` to the front of `xs`.
 """
 pushfirst(xs::PFList, x) = cons(x, xs)
+push(xs::PFList, x) = snoc(xs, x)
 
 """
     head(xs)
@@ -92,8 +93,7 @@ function PureFun.insert(l::PFList, ix, v)
         cur = tail(cur)
     end
     i > 1 && throw(BoundsError(l, ix))
-    new = pushfirst(new, head(cur))
-    return reverse(cons(v, new)) ⧺ tail(cur)
+    foldl(pushfirst, v ⇀ new, init = cur)
 end
 
 Base.filter(f, l::PFList) = foldr(cons, Iterators.filter(f, l), init=empty(l))

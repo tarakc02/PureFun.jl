@@ -12,7 +12,7 @@ function _myname end
 #    rlen::Int
 #end
 
-abstract type Queue{T} <: PureFun.PFQueue{T} end
+abstract type Queue{T} <: PureFun.PFList{T} end
 
 macro deque(Name, ListType)
     :(

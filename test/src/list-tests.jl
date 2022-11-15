@@ -59,6 +59,24 @@ function stress_test(List)
     end
 end
 
+function test_insert(List)
+    @testset "insert" begin
+        e = List{String}()
+        l = List(1:20)
+        ei = insert(e, 1, "hello world")
+        @test isempty(e)
+        @test first(ei) == "hello world"
+        li1 = insert(l, 13, 0)
+        @test length(li1) == 21
+        @test li1[13] == 0
+        li2 = insert(l, 21, 0)
+        @test length(li2) == 21
+        @test li2[13] == 13
+        @test li2[21] == 0
+        @test all(x == y for (x,y) in zip(l, li2))
+    end
+end
+
 function test_etc(List)
     @testset "reverse, append, length" begin
         l = List(1:10)
@@ -99,6 +117,7 @@ function test(List)
 
     test_constructors(List),
     test_accessors(List),
+    test_insert(List),
     test_iterator(List),
     stress_test(List),
     test_etc(List),
