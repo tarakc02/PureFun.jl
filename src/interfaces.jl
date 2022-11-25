@@ -128,7 +128,8 @@ function Base.iterate(::PFListy, state)
 end
 
 Base.IndexStyle(::Type{<:PFIter}) = IndexLinear()
-Base.IteratorSize(::Type{<:PFIter}) = Base.SizeUnknown()
+Base.IteratorSize(::Type{<:PFIter}) = Base.HasLength()
+#Base.IteratorSize(::Type{<:PFIter}) = Base.SizeUnknown()
 Base.size(iter::PFIter) = (length(iter),)
 Base.eltype(::Type{<:PFIter{T}}) where T = T
 Base.firstindex(l::PFIter) = 1

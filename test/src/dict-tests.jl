@@ -30,6 +30,16 @@ function test_accessors(D)
     end
 end
 
+function test_empty(D)
+    @testset "empty" begin
+        ks = [randstring(10) for _ in 1:100]
+        l = D(k => k for k in ks)
+        @test isempty(empty(l))
+        @test empty(l) isa D
+    end
+end
+
+
 function test_etc(D)
     @testset "Edge cases for string keys" begin
         # tries require iterating over the key, can cause issues with

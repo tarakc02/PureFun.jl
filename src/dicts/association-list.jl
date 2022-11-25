@@ -1,62 +1,101 @@
 module Association
 
-using ..PureFun
+using PureFun
+using PureFun.Linked
 
-struct Map{L,K,V} <: PureFun.PFDict{K,V} where { L<:PureFun.PFList{Pair{K,V}} }
-    pairs::L
+abstract type Map{K,V} <: PureFun.PFDict{K,V} end
+
+# not using PureFun.VectorCopy.List here right now, b/c want to use various
+# vector/abstract array methods, e.g. `searchsortedfirst`. this would (i
+# think?) work fine if PFLists inherit from AbstractArray, and if
+# VectorCopyList had a function that wraps whatever vec operations you want in
+# a copy and vectorycopylist constructor
+#
+# Q2: why not just have a Base.Dict with copying,
+# analagous to VectorCopy.List for lists?
+struct VectorList{K,V} <: Map{K,V}
+    pairs::Vector{Pair{K,V}}
+    VectorList{K,V}() where {K,V} = new{K,V}(Pair{K,V}[])
+    VectorList{K,V}(v::Vector{Pair{K,V}}) where {K,V} = new{K,V}(v)
+    VectorList(v::Vector{Pair{K,V}}) where {K,V} = new{K,V}(v)
+    function VectorList(iter)
+        prs = collect(iter)
+        sort!(prs)
+        VectorList(prs)
+    end
+end
+
+struct LinkedList{K,V} <: Map{K,V}
+    pairs::PureFun.Linked.List{Pair{K,V}}
+    LinkedList{K,V}() where {K,V} = new{K,V}(Linked.List{Pair{K,V}}())
+    LinkedList(l::Linked.List{Pair{K,V}}) where {K,V} = new{K,V}(l)
+    function LinkedList(iter)
+        P = Base.@default_eltype(iter)
+        P <: Pair || throw(MethodError(LinkedList, iter))
+        prs = foldl(pushfirst, iter, init = Linked.List{P}())
+        LinkedList(prs)
+    end
 end
 
 Base.isempty(al::Map) = isempty(al.pairs)
-Base.empty(al::Map) = Map(empty(al.pairs))
 
-function Map(l::PureFun.PFList{Pair{K,V}}) where {K,V}
-    L = PureFun.container_type(l)
-    Map{L,K,V}(l)
-end
-Map{L,K,V}() where {L,K,V} = Map{L,K,V}(L())
-Map{K,V}(::Type{L}) where {K,V,L} = Map(L{Pair{K,V}}())
+Base.length(al::VectorList) = length(al.pairs)
+Base.length(l::LinkedList) = isempty(l) ? 0 : sum(1 for _ in l)
 
-function list(::Type{ListType}) where ListType
-    Map{ListType{Pair{K,V}}, K, V} where {K,V}
-end
+Base.iterate(d::VectorList) = iterate(d.pairs)
+Base.iterate(d::VectorList, state) = iterate(d.pairs, state)
 
-# once again, i'd like these to be generic but...
-
-function (Map{PureFun.Linked.List{Pair{K,V}}, K, V} where {K,V})(iter)
-    it = sort(collect(iter), rev = true)
-    peek = first(it)
-    peek isa Pair || return MethodError(Map, iter)
-    K, V = typeof(peek[1]), typeof(peek[2])
-    ps = foldl(pushfirst, it, init = PureFun.Linked.List{Pair{K,V}}())
-    Map(ps)
+function Base.iterate(l::LinkedList)
+    isempty(l) && return nothing
+    st = PureFun.RedBlack.RBSet{keytype(l)}()
+    el = first(l.pairs)
+    st = push(st, el.first)
+    el, (l.pairs, st)
 end
 
-function (Map{PureFun.VectorCopy.List{Pair{K,V}}, K, V} where {K,V})(iter)
-    l = PureFun.VectorCopy.List(sort(collect(iter)))
-    Map(l)
+function Base.iterate(ll::LinkedList, state)
+    l, st = popfirst(state[1]), state[2]
+    isempty(l) && return nothing
+    while first(l).first ∈ st
+        l = popfirst(l)
+        isempty(l) && return nothing
+    end
+    el = first(l)
+    st = push(st, el.first)
+    first(l), (l, st)
 end
 
-Base.length(al::Map) = length(al.pairs)
+Base.empty(al::VectorList) = VectorList(empty(al.pairs))
+Base.empty(al::LinkedList) = LinkedList(empty(al.pairs))
 
-Base.iterate(d::Map) = iterate(d.pairs)
-Base.iterate(d::Map, state) = iterate(d.pairs, state)
+Base.setindex(l::LinkedList, v, k) = LinkedList(Pair(k,v) ⇀ l.pairs)
 
-Base.setindex(l::Map, v, k) = Map(_setkey(l.pairs, Pair(k,v), k))
+# what is the right way to do this?
+_key(p::Pair) = p.first
+_key(x) = x
 
-function _setkey(l, newpair, key)
-    isempty(l)    && return cons(newpair, l)
-    curkey = head(l).first
-    key <  curkey && return cons(newpair, l)
-    key == curkey && return cons(newpair, tail(l))
-    cons(head(l), _setkey(tail(l), newpair, key))
+# credit https://stackoverflow.com/questions/25678112/insert-item-into-a-sorted-list-with-julia-with-and-without-duplicates
+function Base.setindex(l::VectorList{K,V}, v, k) where {K,V}
+    p = Pair(k,v)
+    newpairs = copy(l.pairs)
+    ix = searchsortedfirst(newpairs, p, by = _key)
+    insert!(newpairs, ix, p)
+    VectorList{K,V}(newpairs)
 end
 
-function PureFun.get(d::Map, k, default)
+function Base.get(v::VectorList, k, default)
+    pairs = v.pairs
+    ind = searchsortedfirst(pairs, k, by = _key)
+    (ind > lastindex(pairs) || pairs[ind].first != k) ?
+        default :
+        pairs[ind].second
+end
+
+function PureFun.get(d::LinkedList, k, default)
     pairs = d.pairs
     isempty(pairs) && return default
     for kv in pairs
         kv.first == k && return kv.second
-        k < kv.first  && return default
     end
     default
 end

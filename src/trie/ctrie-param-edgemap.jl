@@ -32,22 +32,19 @@ _itereltype(::typeof(triekey), ::Type{T}) where T = eltype(T)
 _itereltype(f, ::Type{T}) where T = eltype(Core.Compiler.return_type(f, Tuple{T}))
 
 # trie types {{{
+
 macro Trie(Name,DictType,keyfunc=triekey)
     :(
-      struct $Name{K,K0,V} <: Trie{K,V}
+      struct $Name{K,V} <: Trie{K,V}
          kv::Option{Pair{K,V}}
          i::Int
-         subtries::$(esc(DictType)){K0, $Name{K,K0,V}}
+         _subtries
          function $Name{K,V}() where {K,V}
              K0 = _itereltype($(esc(keyfunc)), K)
-             st = $(esc(DictType)){K0, $Name{K, K0, V}}()
-             new{K,K0,V}(nothing, 1, st)
+             st = $(esc(DictType)){K0, $Name{K, V}}()
+             new{K,V}(nothing, 1, st)
          end
-         function $Name{K,K0,V}() where {K,K0,V}
-             st = $(esc(DictType)){K0, $Name{K, K0, V}}()
-             new{K,K0,V}(nothing, 1, st)
-         end
-         $Name{K,K0,V}(p, ix, e) where {K,K0,V} = new{K,K0,V}(p, ix, e)
+         $Name{K,V}(p, ix, e) where {K,V} = new{K,V}(p, ix, e)
          function $Name(iter)
              isempty(iter) && return $Name{Any,Any}()
              peek = first(iter)
@@ -56,9 +53,51 @@ macro Trie(Name,DictType,keyfunc=triekey)
              reduce(push, iter, init=$Name{K,V}())
          end
      end;
-     PureFun.Tries.iterable_key(::$(esc(Name)), k) = $(esc(keyfunc))(k)
+     PureFun.Tries.iterable_key(::$(esc(Name)), k) = $(esc(keyfunc))(k);
+     function PureFun.Tries.subtries(obj::$(esc(Name)){K,V}) where {K,V}
+         K0 = _itereltype($(esc(keyfunc)), K)
+         return obj._subtries::$DictType{K0, $(esc(Name)){K,V}}
+     end
+     #function Base.getproperty(obj::$(esc(Name)){K,V}, sym::Symbol) where {K,V}
+     #    if sym === :subtries
+     #        K0 = _itereltype($(esc(keyfunc)), K)
+     #        return obj._subtries::$DictType{K0, $(esc(Name)){K,V}}
+     #    else
+     #        return getfield(obj, sym)
+     #    end
+     #end;
     )
 end
+
+
+
+#macro Trie(Name,DictType,keyfunc=triekey)
+#    :(
+#      struct $Name{K,K0,V} <: Trie{K,V}
+#         kv::Option{Pair{K,V}}
+#         i::Int
+#         subtries::$(esc(DictType)){K0, $Name{K,K0,V}}
+#         function $Name{K,V}() where {K,V}
+#             K0 = _itereltype($(esc(keyfunc)), K)
+#             st = $(esc(DictType)){K0, $Name{K, K0, V}}()
+#             new{K,K0,V}(nothing, 1, st)
+#         end
+#         function $Name{K,K0,V}() where {K,K0,V}
+#             st = $(esc(DictType)){K0, $Name{K, K0, V}}()
+#             new{K,K0,V}(nothing, 1, st)
+#         end
+#         $Name{K,K0,V}(p, ix, e) where {K,K0,V} = new{K,K0,V}(p, ix, e)
+#         function $Name(iter)
+#             isempty(iter) && return $Name{Any,Any}()
+#             peek = first(iter)
+#             peek isa Pair || throw(MethodError($Name, iter))
+#             K, V = typeof(peek[1]), typeof(peek[2])
+#             reduce(push, iter, init=$Name{K,V}())
+#         end
+#     end;
+#     PureFun.Tries.iterable_key(::$(esc(Name)), k) = $(esc(keyfunc))(k)
+#    )
+#end
 # }}}
 
 # empty constructors {{{
@@ -138,6 +177,36 @@ function Base.setindex(trie::Trie, value, k)
     i, ch = _split(trie, key)
     _setind(trie, i, key, kv, ch)
 end
+
+#function PureFun.update_at(f::Function, t::Trie, k, default)
+#    func(x) = Some(Pair(k, f(x)))
+#    func() = func(default)
+#    isempty(trie) && return initval(t, iterable_key(k), func())
+#    i, ch = _split(trie, key)
+#    _update_at(trie, i, key, func, ch)
+#end
+#
+#function _update_at(trie, i, key, func, ch)
+#    j = ind(trie)
+#    if j < i
+#        st = subtries(trie)
+#        # we know this exists
+#        nxt = st[key[j]]
+#        nu = _update_at(nxt, i, key, func, ch)
+#        return typeof(trie)(_kv(trie), j, setindex(st, nu, key[j]))
+#    elseif j > i
+#        st = empty(subtries(trie))
+#        nu = singleton(trie, key, func())
+#        nu_st = setindex(st, trie, ch)
+#        return typeof(trie)(nothing, i, setindex(nu_st, nu, key[i]))
+#    elseif _isvalid(trie) && lastindex(_key(trie)) == lastindex(key)
+#        return typeof(trie)(#kv -- should be func()#, j, subtries(trie))
+#    else
+#        nu = singleton(trie, key, kv)
+#        return typeof(trie)(_kv(trie), j, setindex(subtries(trie), nu, key[j]))
+#    end
+#end
+
 
 function _setind(trie, i, key, kv, ch)
     j = ind(trie)

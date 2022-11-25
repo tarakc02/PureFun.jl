@@ -154,5 +154,7 @@ function Base.iterate(c::Chunk, state)
 end
 # }}}
 
+include("bits.jl")
+
 end
 

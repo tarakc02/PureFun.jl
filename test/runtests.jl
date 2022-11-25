@@ -14,13 +14,14 @@ include("src/set-tests.jl")
 PureFun.Chunky.@list ChunkyList PureFun.Linked.List PureFun.Contiguous.StaticChunk{7}
 PureFun.Chunky.@list ChunkyRandomAccessList PureFun.RandomAccess.List PureFun.Contiguous.VectorChunk{3}
 PureFun.Chunky.@list ChunkyCatenableList PureFun.Catenable.List PureFun.Contiguous.StaticChunk{17}
-#ChunkyList = PureFun.Chunky.chunky(7)
-#ChunkyRandomAccessList = PureFun.Chunky.chunky(7, PureFun.RandomAccess.List)
-#ChunkyCatenableList = PureFun.Chunky.chunky(7, PureFun.Catenable.List)
 
 PureFun.Batched.@deque LDeque PureFun.Linked.List
 PureFun.Batched.@deque RDeque PureFun.RandomAccess.List
 PureFun.Batched.@deque CDeque ChunkyList
+
+PureFun.Tries.@Trie LTrie PureFun.Association.LinkedList
+PureFun.Tries.@Trie VTrie PureFun.Association.VectorList
+PureFun.Tries.@Trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
 
 queues  = [LDeque, RDeque, CDeque,
            PureFun.RealTime.Queue,
@@ -38,16 +39,13 @@ streams = [PureFun.Lazy.Stream]
 
 heaps   = [PureFun.Pairing.Heap, PureFun.SkewHeap.Heap, PureFun.FastMerging.Heap]
 
-PureFun.Tries.@Trie LTrie PureFun.Association.list(PureFun.Linked.List)
-PureFun.Tries.@Trie ChunkyTrie PureFun.Association.list(ChunkyList)
-PureFun.Tries.@Trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
-
 dicts = [PureFun.RedBlack.RBDict,
-         PureFun.Association.list(PureFun.Linked.List),
-         PureFun.Association.list(PureFun.VectorCopy.List),
-         LTrie, RBTrie, ChunkyTrie,
+         PureFun.Association.LinkedList,
+         PureFun.Association.VectorList,
+         LTrie, RBTrie, VTrie,
          PureFun.HashTable.HashMap16,
-         PureFun.HashTable.HashMap128]
+         PureFun.HashTable.HashMap128
+        ]
 
 sets = [PureFun.RedBlack.RBSet]
 
