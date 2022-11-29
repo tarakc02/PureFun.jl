@@ -1,7 +1,7 @@
-module FastMerging
+module BootstrappedSkewBinomial
 
 using ..PureFun
-const PrimHeap = PureFun.SkewHeap.Heap
+const PrimHeap = PureFun.SkewBinomial.Heap
 
 leq(o, x, y) = !Base.Order.lt(o, y, x)
 
@@ -25,8 +25,16 @@ HeapOfHeaps{T,O} = PrimHeap{
     Base.Order.By{typeof(elem), O}
    } where {T, O<:Base.Order.Ordering}
 
-"""
-    FastMerging.Heap{T}(ord=Base.Order.Forward)
+@doc raw"""
+    BootstrappedSkewBinomial.Heap{T}(ord=Base.Order.Forward)
+    BootstrappedSkewBinomial.Heap(iter, ord=Base.Order.Forward)
+
+Section $\S{10.2.2}$ of *Purely Functional Data Structures* demonstrates how to
+use structural abstraction to take a heap implementation with $\mathcal{O}(1)$
+`push` and improve the running time of `merge` and `minimum` to
+$\mathcal{O}(1)$. The `BootStrappedSkewBinomial.Heap` uses the technique on the
+[`SkewBinomial.Heap`](@ref).
+
 """
 Heap{T}(ord=Base.Order.Forward) where T = Empty{T, typeof(ord)}(ord)
 
@@ -53,7 +61,6 @@ function Base.merge(h1::Heap{T,O}, h2::Heap{T,O}) where {T,O}
 end
 
 function PureFun.push(heap::NonEmpty, x)
-    #merge(heap, NonEmpty(x, ordering(heap), empty(heap.prim_heap)))
     merge(push(empty(heap), x), heap)
 end
 

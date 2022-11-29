@@ -12,9 +12,66 @@ function _listname end
 
 abstract type List{T} <: PureFun.PFList{T} end
 
-# example usage:
-#@list MyList Contiguous.VectorChunk{32} RandomAccess.List
-# bloop = MyList{Int}()
+"""
+    Chunky.@list Name ListType ChunkType
+
+Creates a new list type (implements all list functions and inherits from
+`PureFun.PFList`) by assembling a list (of type `ListType`) of *chunks* (of
+type `ChunkType`). Assuming `ChunkType` stores chunk elements contiguously, the
+resulting list will have improved iteration performance.
+[`Contiguous.VectorChunk`](@ref) and [`Contiguous.StaticChunk`](@ref) implement
+the chunk type and can be used in chunky lists.
+
+# Examples
+
+This example creates a chunky list called `ChunkyList` consisting of (up to)
+16-element chunks stored contiguously in memory as static arrays, linked
+together via a linked list. The resulting list has the same interface as any
+other list type in PureFun.jl:
+
+```jldoctest
+julia> using PureFun, PureFun.Linked, PureFun.Chunky, PureFun.Contiguous
+
+julia> Chunky.@list ChunkyList Linked.List Contiguous.StaticChunk{16}
+
+julia> clist = ChunkyList(1:100)
+100-element ChunkyList{Int64}
+1
+2
+3
+4
+5
+6
+7
+...
+
+julia> clist[18]
+18
+
+julia> mapfoldl(sqrt, +, clist)
+671.4629471031477
+```
+
+Similarly, the following example uses [`RandomAccess.List`](@ref)s and chunks
+of `Base.Vector`:
+
+```jldoctest
+julia> using PureFun, PureFun.RandomAccess, PureFun.Chunky, PureFun.Contiguous
+
+julia> Chunky.@list CRList RandomAccess.List Contiguous.VectorChunk{256}
+
+julia> em = CRList{Float64}()
+0-element CRList{Float64}
+
+
+julia> 1.0 ⇀ 2.0 ⇀ em
+2-element CRList{Float64}
+1.0
+2.0
+
+```
+
+"""
 macro list(Name, ListType, ChunkType)
     :(
       struct $Name{T} <: List{T}

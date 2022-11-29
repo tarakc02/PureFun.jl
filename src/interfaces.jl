@@ -68,10 +68,8 @@ end
 
 function Base.show(io::IO, ::MIME"text/plain", s::Union{PFIter, PFSet})
     msg = Base.IteratorSize(s) isa Union{Base.HasLength, Base.HasShape} ?
-        "$(length(s))-element $(supertype(typeof(s)))" :
-        "$(supertype(typeof(s)))"
+        "$(length(s))-element $(typeof(s))" : "$(typeof(s))"
     println(io, msg)
-    #println("$(typeof(s))")
     cur = s
     n = 7
     for x in s

@@ -36,14 +36,19 @@ Literate.markdown(joinpath(@__DIR__, "src/suffixes.jl"),
 
 push!(LOAD_PATH,"../src/")
 makedocs(sitename="PureFun.jl",
+         repo = "https://github.com/tarakc02/PureFun.jl/blob/main/{path}#{line}",
          pages = [
             "index.md",
+            "Lists" => "lists.md",
+            "Queues" => "queues.md",
+            "Heaps" => "heaps.md",
+            "Dictionaries" => "dicts.md",
             "Streams" => "generated/streams.md",
-            "Reference" => "lists.md",
             "Examples" => [
                 "Estimating π" => "generated/estimating-pi.md",
                 "Balanced Parentheses" => "generated/balanced-parentheses.md",
                 "Ramanujan (taxicab) numbers" => "generated/taxicab.md",
                 "Generating Suffixes" => "generated/suffixes.md"
-               ]
+               ],
+            "Reference" => "lists.md",
         ])

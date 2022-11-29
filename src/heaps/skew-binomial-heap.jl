@@ -1,4 +1,4 @@
-module SkewHeap
+module SkewBinomial
 
 using ..PureFun, ..PureFun.Linked
 using ..PureFun.Linked: List
@@ -18,6 +18,21 @@ struct Heap{T,O} <: PureFun.PFHeap{T,O}
     ord::O
 end
 
+@doc raw"""
+
+    SkewBinomial.Heap{T}(o=Base.Order.Forward)
+    SkewBinomial.Heap(iter, o=Base.Order.Forward)
+
+The Skew Binomial Heap $\S{9.3.2}$ is a twist on the [Binomial
+Heap](https://en.wikipedia.org/wiki/Binomial_heap): by basing tree sizes on
+skew-binary (rather than binary) numbers, pushing a new element into a skew
+binomial heap is worst-case $\mathcal{O}(1)$ (as opposed to
+$\mathcal{O}(\log{}n)$ for binomial heaps). `merge`, `delete_min`, and
+`minimum` are worst-case $\mathcal{O}(\log{}n)$. See also
+[`BootstrappedSkewBinomial.Heap`](@ref), which uses structural abstraction to
+improve `minimum` and `merge` to worst-case $\mathcal{O}(1)$
+
+"""
 function Heap{T}(o::Base.Order.Ordering=Base.Order.Forward) where T
     Heap(List{Node{T}}(), o)
 end

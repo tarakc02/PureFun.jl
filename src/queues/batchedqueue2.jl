@@ -5,15 +5,56 @@ using ..PureFun
 function _myname end
 
 # types, accessors, constructors, etc. {{{
-#struct Queue{T,L} <: PureFun.PFQueue{T} where {L <: PureFun.PFList{T}}
-#    front::L
-#    rear::L
-#    flen::Int
-#    rlen::Int
-#end
-
 abstract type Queue{T} <: PureFun.PFList{T} end
 
+@doc raw"""
+
+    Batched.@deque Name ListType
+
+Deques are like lists but with symmetric efficient operations on the front
+(`pushfirst`, `popfirst`, `first`) and the back (`push`, `pop`, `last`). The
+`Batched.@deque` [functor](https://ocaml.org/docs/functors) takes any existing
+list implementation (`ListType`), and makes it double-ended. The
+`Batched.@deque` works by batching occasional reversals (which are
+$\mathcal{O}(n)$) so that all oeprations require *amortized* constant time.
+
+# Examples
+
+```jldoctest
+julia> Batched.@deque Deque PureFun.Linked.List
+
+julia> d = Deque{Int}()
+0-element Deque{Int64}
+
+
+julia> 1 ⇀ 2 ⇀ 3 ⇀ d
+3-element Deque{Int64}
+1
+2
+3
+
+
+julia> alpha = Deque('a':'z')
+26-element Deque{Char}
+a
+b
+c
+d
+e
+f
+g
+...
+
+julia> first(alpha), last(alpha)
+('a', 'z')
+
+julia> alpha |> pop |> last
+'y': ASCII/Unicode U+0079 (category Ll: Letter, lowercase)
+
+julia> alpha |> popfirst |> first
+'b': ASCII/Unicode U+0062 (category Ll: Letter, lowercase)
+```
+"""
 macro deque(Name, ListType)
     :(
     struct $Name{T} <: Queue{T}
@@ -54,12 +95,6 @@ end
 Base.length(q::Queue) = q.flen + q.rlen
 Base.isempty(q::Queue) = length(q) == 0
 
-#Queue(iter, L=PureFun.Linked.List) = foldl(push, iter, init=Queue{eltype(iter)}(L))
-#Queue{T}(L = PureFun.Linked.List) where T = Queue{T,L{T}}(L{T}(), L{T}(), 0, 0)
-#function Queue(f::F, r::R, flen, rlen) where {T, F <: PureFun.PFList{T}, R <: PureFun.PFList{T}}
-#    L = PureFun.container_type(f)
-#    Queue{T,L}(f, r, flen, rlen)
-#end
 # }}}
 
 # re-balancing etc. {{{
@@ -211,10 +246,6 @@ function Base.mapreduce(f, op, xs::Queue; init=Init())
     init isa Init ?
         op(mapreduce(f, op, front(xs)), mapreduce(f, op, rear(xs))) :
         op(init, op(mapreduce(f, op, front(xs)), mapreduce(f, op, rear(xs))))
-    #rf = init isa Init ?
-    #    mapreduce(f, op, front(xs)) :
-    #    mapreduce(f, op, front(xs), init=init)
-    #mapreduce(f, op, rear(xs), init=rf)
 end
 
 # }}}

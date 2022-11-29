@@ -2,6 +2,16 @@ module VectorCopy
 
 using ..PureFun
 
+@doc raw"""
+
+    VectorCopy.List{T}()
+    VectorCopy.List(iter)
+
+`VectorCopy.List` is a wrapper around `Base.Vector` with copy-on-write
+semantics. `pushfirst` is $\mathcal{O}(n)$, but iteration and indexing are very
+fast. Useful for small lists, or for lists that are traversed frequently
+relative to how often they are modified.
+"""
 struct List{T} <: PureFun.PFList{T}
     vec::Vector{T}
     head::Int

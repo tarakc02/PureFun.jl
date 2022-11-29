@@ -56,14 +56,14 @@ suffixes(test)
 
 # First, we generate some data for the experiments:
 
-input_lists = List.(1:k for k in 10:10:500);
+input_lists = List.(1:k for k in 25:25:500);
 input_lengths = length.(input_lists);
 input_sizes = Base.summarysize.(input_lists);
 
 # Now, we measure the time and the space used to generate suffixes:
 
 suffix_times = map(input_lists) do l
-    @belapsed suffixes($l) evals=1 samples=5
+    @belapsed suffixes($l) evals=1 samples=2
 end;
 
 suffix_sizes = map(suffixes.(input_lists)) do s
@@ -72,33 +72,27 @@ end;
 
 #=
 
-Each call to `pushfirst` allocates a copy of the element being pushed, plus a
-new pointer to the remainder of the list. On my machine, a pointer is 8 bytes.
-So when working with lists of `Int` (aka `Int64`), each `next_suffix` requires
-a copy of an `Int` (8-bytes) and a pointer, for a total of 16 bytes. From
-there, `add_suffix` requires a pointer to the newly created suffix, plus a
-pointer to the previously generated suffixes, for another 16 bytes. Altogether,
-generating a list of all suffixes of a list of Int64 of length N requires 32
-bytes per original element, plus the fixed overhead of the empty suffix at the end:
+Our solution satisfies the $\mathcal{O}(n)$ space requirement:
 
 =#
 
-init_size = Base.summarysize(empty_suffixlist(Int));
-@assert all(@. suffix_sizes == (32input_lengths + init_size))
+plot(input_lengths, suffix_sizes/1000,
+     seriestype = :scatter,
+     xlabel = "# of input elements",
+     ylabel = "kB",
+     title = "Space required to represent all suffixes of a list",
+     legend = false)
 
 #=
 
-Based on that, clearly our solution satisfies the $\mathcal{O}(n)$ space
-requirement.
-
-Similarly, the time required to generate the suffixes is observably linear in
-the length of the input:
+Similarly, the time required to generate the suffixes is approximately linear
+in the length of the input:
 
 =#
 
-plot(input_lengths, 1e9*suffix_times,
+plot(input_lengths, 1e6*suffix_times,
      seriestype = :scatter,
      xlabel = "# of input elements",
-     ylabel = "nanoseconds",
+     ylabel = "μs",
      title = "Time to generate all suffixes of a list",
      legend = false)

@@ -1,5 +1,6 @@
 module Pairing
 
+
 using ..PureFun
 using ..PureFun.Linked
 
@@ -17,7 +18,29 @@ end
 
 Heap{T,O} = Union{Empty{T,O}, NonEmpty{T,O}} where {T,O}
 
-Heap{T}(o::Base.Order.Ordering=Base.Order.Forward) where T = Empty{T,typeof(o)}(o)
+@doc raw"""
+
+    Pairing.Heap{T}(o::Base.Order.Ordering=Base.Order.Forward)
+    Pairing.Heap(iter, ord=Base.Order.Forward)
+
+Pairing heaps ($\S{5.5}$):
+
+> ... are one of those data structures that drive theoreticians crazy. On the
+> one hand, pairing heaps are simple to implement and perform extremely well in
+> practice. On the other hand, they have resisted analysis for over ten years!
+
+`push`, `merge`, and `minimum` all run in $\mathcal{O}(1)$ worst-case time.
+`delete_min` can take $\mathcal{O}(n)$ time in the worst-case. However, it has
+been proven that the amortized time required by `delete_min` is no worse than
+$\mathcal{O}(\log{}n)$, and there is an open conjecture that it is in fact
+$\mathcal{O}(1)$. The amortized bounds here do *not* apply in persistent
+settings. For heaps suited to persistent use-cases, see [`SkewBinomial.Heap`](@ref)
+and [`BootstrappedSkewBinomial.Heap`](@ref)
+
+"""
+function Heap{T}(o::Base.Order.Ordering=Base.Order.Forward) where T
+    Empty{T,typeof(o)}(o)
+end
 
 Base.isempty(::Empty) = true
 Base.isempty(::NonEmpty) = false
@@ -65,7 +88,6 @@ function merge_pairs(l, o)
 end
 
 PureFun.delete_min(h::NonEmpty) = merge_pairs(heaps(h), ordering(h))
-#PureFun.tail(h::Heap) = delete_min(h)
 
 Heap(iter::Heap) = iter
 function Heap(iter, ord=Base.Order.Forward)

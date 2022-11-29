@@ -56,17 +56,18 @@ function link_all(q::Queue{ SuspList{T} }) where T
     isempty(q2) ? t : link(t, SuspList{T}(@lz link_all(q2)))
 end
 
-"""
+@doc raw"""
     Catenable.List{T}()
     Catenable.List(iter)
 
-A `Catenable.List` supports the usual list operations, but unlike the
-`Linked.List` you can append two catenable lists in constant time. These lists
-are presented in section 10.2.1 of the book, as an example of data-structural
-bootstrapping. In addition to list functions, catenable lists also support
-`snoc`. Catenable lists work by maintaining the `head` element plus a queue of
-catenable lists. Each element of this queue is suspended. `head` takes constant
-time, while `cons`, `tail`, `snoc`, and `⧺` require amortized constant time.
+A `Catenable.List` ($\S{10.2.1}$) supports the usual list operations, but
+unlike the `Linked.List` you can append two catenable lists in constant time.
+These lists are presented in section 10.2.1 of the book, as an example of
+data-structural bootstrapping. In addition to list functions, catenable lists
+also support `push`. Catenable lists work by maintaining the `head` element
+plus a queue of catenable lists. Each element of this queue is suspended.
+`first` takes constant time, while `pushfirst`, `popfirst`, `push`, and `⧺`
+require *amortized* (rather than worst-case) constant time.
 
 # Examples
 ```@jldoctest

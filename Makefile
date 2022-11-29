@@ -10,15 +10,15 @@ docsrc := $(wildcard docs/src)
 all: $(docindex) test
 
 $(docindex): $(src) docs/make.jl $(docsrc)
-	julia --project=docs -e "using Pkg; Pkg.resolve(); Pkg.instantiate()"
-	julia --project=docs docs/make.jl
+	julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+	julia --project=docs/ docs/make.jl
 
 docs: $(docindex)
 
 showdocs: $(docs)
 	cd docs/build && python -m http.server --bind localhost
 
-test:
+test: deps
 	julia --project -e "using Pkg; Pkg.test()"
 
 benchmarks:

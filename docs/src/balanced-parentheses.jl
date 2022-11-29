@@ -62,11 +62,11 @@ function isvalid(chars, opens)
     isempty(chars) && return isempty(opens)
     c, rest... = chars
     if isopening(c)
-        isvalid(rest, cons(c, opens))
+        isvalid(rest, c ⇀ opens)
     elseif isclosing(c)
         !isempty(opens) &&
-            ismatching(head(opens), c) &&
-            isvalid(rest, tail(opens))
+            ismatching(first(opens), c) &&
+            isvalid(rest, popfirst(opens))
     else
         throw(DomainError(c, "character outside of valid alphabet"))
     end

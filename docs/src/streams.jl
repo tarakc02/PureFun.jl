@@ -61,4 +61,11 @@ bar = zip(foo, drop(foo, 1)) |> Stream
 
 collect(take(bar, 7))
 
+#=
+
+We can access elements of streams the same way we would do for regular (eager)
+lists:
+
+=#
+
 bar[2000]

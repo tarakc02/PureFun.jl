@@ -51,7 +51,7 @@ Base.empty(::Stream, eltype) = Empty{eltype}()
 (PureFun.head(s::NonEmpty{T})::T) where {T} = force(s.head)::T
 (PureFun.tail(s::NonEmpty{T})::Stream{T}) where {T} = force(s.tail)::Stream{T}
 
-Base.IteratorSize(s::Stream) = Base.SizeUnknown()
+Base.IteratorSize(::Type{<:Stream}) = Base.SizeUnknown()
 Base.isempty(s::NonEmpty) = false
 Base.isempty(s::Empty) = true
 

@@ -60,16 +60,17 @@ Base.firstindex(d::Digit) = 1
 # }}}
 
 # PFList API {{{
-"""
+@doc raw"""
     RandomAccess.List{T}()
     RandomAccess.List(iter)
 
-A `RandomAccess.List` supports the usual list operations, and additionally
-provides access to get or set the *k*th index in O(log(k)) time, rather than
-O(k)
-
-# Parameters
-`T::Type` element type (inferred if creating from `iter`)
+A `RandomAccess.List` ($\S{9.3.2}$) adds efficient ($\mathcal{O}(\log{2}n)$)
+indexing (`getindex` and `setindex`) operations to the $\mathcal{O}(1)$ primary
+operations. The implementation stores elements in complete binary trees
+representing digits in the [skew binary number
+system](https://en.wikipedia.org/wiki/Skew_binary_number_system), as described
+in [this blog
+post](http://arh68.com/software/2015/05/19/skew-binary-random-access-lists.html).
 
 # Examples
 ```@jldoctest
@@ -91,7 +92,6 @@ julia> rl[937]
 List{α}() where α = List{α}(Linked.List{ Digit{α} }())
 List(iter::List)  = iter
 List(rl::Linked.List{Digit{α}}) where α = List{α}(rl)
-#List(iter)  = foldr( cons, iter; init=List{eltype(iter)}() )
 List(iter) = makelist(iter)
 
 function PureFun.cons(x, xs::List)

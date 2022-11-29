@@ -44,6 +44,19 @@ dictkey(p::Pair) = p.first
 dictkey(x) = x
 dictorder(o) = Base.Order.By(dictkey, o)
 
+@doc raw"""
+
+    RBDict{O,K,V} where O
+    RBDict{K,V}(ord=Base.Order.Forward)
+    RBDict(iter, o::Ordering=Forward)
+
+Immutable dictionary implemented using a red-black tree (balanced binary search
+tree). All major operations are $\matchcal{O}(\log{}n)$. Note the ordering
+parameter, the RBDict iterates in sorted order according to the ordering `O`.
+In addition to the main `PFDict` methods, `RBDict` implements `delete`,
+`delete_min`, and `delete_max`.
+
+"""
 struct RBDict{O,K,V} <: PureFun.PFDict{K,V} where O
     t::NonRed{Pair{K,V}, Base.Order.By{typeof(PureFun.RedBlack.dictkey), O}}
 end
@@ -59,7 +72,6 @@ function RBDict{O,K,V}() where {O,K,V}
     t = E{ Pair{K,V} }(o)
     RBDict{O,K,V}(t)
 end
-
 
 RBDict(t::NonRed{ Pair{K,V},O }) where {K,V,O} = RBDict{O,K,V}(t)
 
@@ -86,9 +98,10 @@ Base.length(d::RBDict) = length(d.t)
 
 Iterators.reverse(d::RBDict) = Iterators.reverse(d.t)
 
-function Base.show(i::IO, m::MIME"text/plain", s::RBDict)
-    show(i,m,s.t)
-end
+PureFun.delete(d::RBDict, key) = RBDict(delete(d.t, key))
+PureFun.delete_min(d::RBDict) = RBDict(delete_min(d.t))
+PureFun.delete_max(d::RBDict) = RBDict(delete_max(d.t))
+
 # }}}
 
 # PFSet interface {{{

@@ -22,38 +22,38 @@ PureFun.tail(l::NonEmpty) = l.tail
 Base.isempty(::Empty) = true
 Base.isempty(::NonEmpty) = false
 
-"""
+@doc raw"""
     Linked.List{T}()
     Linked.List(iter)
 
-construct an empty linked List, or a linked list containing the elements of
-`iter`.
-
-# Parameters
-`T::Type` element type (inferred if creating from `iter`)
+The `Linked.List` ($\S{2.1}$) is the simplest of the list types, and the
+fastest for the primary operations, which are all $\mathcal{O}(1)$.
 
 # Examples
 ```jldoctest
-julia> l = PureFun.Linked.List(1:3)
+julia> using PureFun, PureFun.Linked
+julia> l = Linked.List(1:3)
+3-element PureFun.Linked.NonEmpty{Int64}
 1
 2
 3
 
 
-julia> m = cons(10, l)
+julia> m = pushfirst(l, 10)
+4-element PureFun.Linked.NonEmpty{Int64}
 10
 1
 2
 3
 
 
-julia> head(l)
+julia> first(l)
 1
 
-julia> head(m)
+julia> first(m)
 10
 
-julia> all(tail(m) .== l)
+julia> popfirst(m) == l
 true
 ```
 """

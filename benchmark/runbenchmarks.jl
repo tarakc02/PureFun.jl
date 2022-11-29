@@ -37,7 +37,9 @@ lists   = [PureFun.Linked.List,
 
 streams = [PureFun.Lazy.Stream]
 
-heaps   = [PureFun.Pairing.Heap, PureFun.SkewHeap.Heap, PureFun.FastMerging.Heap]
+heaps   = [PureFun.Pairing.Heap,
+           PureFun.SkewBinomial.Heap,
+           PureFun.BootstrappedSkewBinomial.Heap]
 
 suite = BenchmarkGroup()
 
