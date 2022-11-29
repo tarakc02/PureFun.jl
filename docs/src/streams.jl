@@ -11,7 +11,7 @@ feel for to use Streams.
 =#
 
 using PureFun
-using PureFun.Lazy: Stream, @cons
+using PureFun.Lazy: Stream, @stream
 
 #=
 
@@ -69,3 +69,13 @@ lists:
 =#
 
 bar[2000]
+
+#=
+
+# Reference
+
+```@docs
+PureFun.Lazy.Stream
+PureFun.Lazy.@stream
+```
+=#

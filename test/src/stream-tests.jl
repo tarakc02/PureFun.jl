@@ -7,7 +7,7 @@ using Test
 function test_constructors(Stream)
     @testset "Constructors" begin
         l = Stream{Int64}()
-        m = @cons(Int64, 17, l)
+        m = @stream(Int64, 17, l)
         l_10 = Stream(1:10)
         @test l isa Stream
         @test m isa Stream

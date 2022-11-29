@@ -5,7 +5,7 @@ import PureFun.Lazy.@lz, PureFun.Lazy.force
 suite = BenchmarkGroup()
 #suite["lazy-eval"] = BenchmarkGroup(["lazy+force", "vanilla"])
 r = rand(100);
-integers_from(n) = @cons(Int64, n, integers_from(n+1))
+integers_from(n) = @stream(Int64, n, integers_from(n+1))
 suite["lazy-eval"] = BenchmarkGroup()
 suite["lazy-eval"]["suspend"] = @benchmarkable l = @lz sum($r)
 suite["lazy-eval"]["lz+force"] = @benchmarkable (l = @lz sum($r); force(l)) 

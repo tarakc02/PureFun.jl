@@ -7,7 +7,7 @@ necessary.
 =#
 module Lazy
 
-export @cons
+export @stream
 using ..PureFun
 include("laziness.jl")
 
@@ -30,11 +30,11 @@ subsequent accesses are cheap.
 Stream{T} = Union{ NonEmpty{T}, Empty{T} }
 
 """
-    @cons T headexpr tailexpr
+    @stream T headexpr tailexpr
 
 this macro makes it more convenient to construct a stream
 """
-macro cons(T, headexpr, tailexpr)
+macro stream(T, headexpr, tailexpr)
     h = quote
         () -> $(esc(headexpr))
     end
@@ -60,20 +60,20 @@ function Stream(iter)
     el = iterate(iter)
     isnothing(el) && return Empty{T}()
     #init, state = el
-    return @cons(T, el[1], Stream(T, iter, el[2]))
+    return @stream(T, el[1], Stream(T, iter, el[2]))
 end
 
 function Stream(T, iter, state)
     el = iterate(iter, state)
     isnothing(el) && return Empty{T}()
     next, state = el
-    return @cons(T, next, Stream(T, iter, state))
+    return @stream(T, next, Stream(T, iter, state))
 end
 
 Stream{T}() where T = Empty{T}()
 
 function PureFun.append(s1::Stream{T}, s2::Stream{T}) where T
-    isempty(s1) ? s2 : @cons(eltype(s1), head(s1), tail(s1) ⧺ s2)
+    isempty(s1) ? s2 : @stream(eltype(s1), head(s1), tail(s1) ⧺ s2)
 end
 
 #=
@@ -90,30 +90,30 @@ In each case, we do some setup
 
 _map(T, f, s::Empty) = Empty{T}()
 function _map(T, f, s::NonEmpty)
-    @cons T f(head(s)) _map(T, f, tail(s))
+    @stream T f(head(s)) _map(T, f, tail(s))
 end
 
 function Base.map(f, s::NonEmpty)
     init = f(head(s))
     T = typeof(init)
-    @cons T init _map(T, f, tail(s))
+    @stream T init _map(T, f, tail(s))
 end
 
 _accumulate(T, f, xs::Empty, init) = Empty{T}()
 function _accumulate(T, f, xs::NonEmpty, init)
     nextval = @lz f(init, head(xs))
-    @cons T force(nextval) _accumulate(T, f, tail(xs), force(nextval))
+    @stream T force(nextval) _accumulate(T, f, tail(xs), force(nextval))
 end
 
 function Base.accumulate(f, xs::NonEmpty, init)
     initval = f(init, head(xs))
     T = typeof(initval)
-    @cons T initval _accumulate(T, f, tail(xs), initval)
+    @stream T initval _accumulate(T, f, tail(xs), initval)
 end
 
 function Base.filter(p, xs::NonEmpty{T}) where {T}
     pred = p(head(xs))
-    pred ? @cons(T, head(xs), filter(p, tail(xs))) : filter(p, tail(xs))
+    pred ? @stream(T, head(xs), filter(p, tail(xs))) : filter(p, tail(xs))
 end
 
 end
