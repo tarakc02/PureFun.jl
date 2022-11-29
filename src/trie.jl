@@ -128,8 +128,7 @@ ks = [randstring("abcdefghijklmn", rand(15:25)) for _ in 1:500]
 vs = [rand(Int) for _ in 1:500]
 
 
-PureFun.Tries.@Trie LTrie PureFun.Association.LinkedList
-PureFun.Tries.@Trie VTrie PureFun.Association.VectorList
+PureFun.Tries.@Trie LTrie PureFun.Association.List
 PureFun.Tries.@Trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
 
 PureFun.Tries.@Trie BitMapTrie32  PureFun.Contiguous.bitmap(Val{64}())  PureFun.Contiguous.biterate(Val{6}())

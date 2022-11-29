@@ -19,8 +19,8 @@ PureFun.Batched.@deque LDeque PureFun.Linked.List
 PureFun.Batched.@deque RDeque PureFun.RandomAccess.List
 PureFun.Batched.@deque CDeque ChunkyList
 
-PureFun.Tries.@Trie LTrie PureFun.Association.LinkedList
-PureFun.Tries.@Trie VTrie PureFun.Association.VectorList
+PureFun.Tries.@Trie LTrie PureFun.Association.List
+#PureFun.Tries.@Trie VTrie PureFun.Association.VectorList
 PureFun.Tries.@Trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
 
 queues  = [LDeque, RDeque, CDeque,
@@ -42,9 +42,9 @@ heaps   = [PureFun.Pairing.Heap,
            PureFun.BootstrappedSkewBinomial.Heap]
 
 dicts = [PureFun.RedBlack.RBDict,
-         PureFun.Association.LinkedList,
-         PureFun.Association.VectorList,
-         LTrie, RBTrie, VTrie,
+         PureFun.Association.List,
+         #PureFun.Association.VectorList,
+         LTrie, RBTrie,
          PureFun.HashTable.HashMap16,
          PureFun.HashTable.HashMap128
         ]

@@ -27,7 +27,7 @@ struct HashMap{T,K,V} <: PureFun.PFDict{K,V} where {T <: BitMapTrie}
     HashMap{T,K,V}(trie) where {T,K,V} = new{T,K,V}(trie)
 end
 
-Bucket{K,V} = PureFun.Association.LinkedList{K, V} where {K,V}
+Bucket{K,V} = PureFun.Association.List{K, V} where {K,V}
 
 HashMap8{K,V}   = HashMap{   BitMapTrie8{ UInt, Bucket{K,V} }, K,V } where {K,V}
 HashMap16{K,V}  = HashMap{  BitMapTrie16{ UInt, Bucket{K,V} }, K,V } where {K,V}
