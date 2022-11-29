@@ -35,7 +35,7 @@ settings.
 Use the following queue types if your use-case involves utilizing multiple
 logical futures (example: concurrency/multi-threading):
 
-## `PureFun.Bootstrapped.Queue` $\S{10.1.3}$
+## `Bootstrapped.Queue` $\S{10.1.3}$
 
 `first` takes $\mathcal{O}(1)$ time, while both `push` and `popfirst` take
 $\mathcal{O}(\log^{*}{n})$ amortized time, where $\log^{*}$ is the [iterated
@@ -45,7 +45,7 @@ persistence, this is achieved via disciplined use of [*lazy
 evaluation*](https://en.wikipedia.org/wiki/Lazy_evaluation) along with
 [memoization](https://en.wikipedia.org/wiki/Memoization)
 
-## `PureFun.RealTime.Queue` $\S{7.2}$
+## `RealTime.Queue` $\S{7.2}$
 
 All operations are worst-case $\mathcal{O}(1)$. These queues make heavy use of
 lazy evaluation. Due to the overheads associated with lazy evaluation, the
@@ -53,14 +53,9 @@ lazy evaluation. Due to the overheads associated with lazy evaluation, the
 useful in settings (such as interactive user-interfaces) where bounded
 worst-case performance is more important than average performance.
 
-## `PureFun.HoodMelville.Queue` $\S{8.2.1}$
+## `HoodMelville.Queue` $\S{8.2.1}$
 
-Once again, these queues require worst-case constant time for all 3 queue
-operations. Unlike the `PureFun.RealTime.Queue`, the Hood-Melville queue does
-not use lazy evaluation, as it more explicitly schedules incremental work
-during each operation, smoothing out the costs of rebalancing across cheap
-operations. Since this requires doing rebalancing work before it becomes
-necessary, the Hood-Melville queues can end up doing unnecessary work, leading
-to higher on-average overheads. Once again, use when worst-case performance is
-more important than average performance.
+```@docs
+HoodMelville.Queue
+```
 

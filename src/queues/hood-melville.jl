@@ -81,6 +81,21 @@ function _tail(lenf, f, state, lenr, r)
         check(lenf-1, tail(f), invalidate(state), lenr, r)
 end
 
+@doc raw"""
+
+    HoodMelville.Queue{T}()
+    HoodMelville.Queue(iter)
+
+`HoodMelville.Queue`s require worst-case constant time for all 3 queue
+operations. Unlike the [`PureFun.RealTime.Queue`](@ref), the Hood-Melville
+queue does not use lazy evaluation, as it more explicitly schedules incremental
+work during each operation, smoothing out the costs of rebalancing across cheap
+operations. Since this requires doing rebalancing work before it becomes
+necessary, the Hood-Melville queues can end up doing unnecessary work, leading
+to higher on-average overheads. Use when worst-case performance is more
+important than average performance.
+
+"""
 function Queue(iter)
     T = Base.@default_eltype(iter)
     lenfm = length(iter)

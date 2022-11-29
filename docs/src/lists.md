@@ -52,26 +52,26 @@ use-cases. All of the list implementations in PureFun.jl inherit from the
 abstract type `PureFun.PFList`. Complexities presented below are worst-case,
 unless stated otherwise.
 
-## `PureFun.Linked.List` ($\S{2.1}$)
+## `Linked.List` ($\S{2.1}$)
 
 ```@docs
 Linked.List
 ```
 
 
-## `PureFun.RandomAccess.List` ($\S{9.3.1}$)
+## `RandomAccess.List` ($\S{9.3.1}$)
 
 ```@docs
 RandomAccess.List
 ```
 
-## `PureFun.Catenable.List` ($\S{10.2.1}$)
+## `Catenable.List` ($\S{10.2.1}$)
 
 ```@docs
 Catenable.List
 ```
 
-## `PureFun.VectorCopy.List`: an immutable wrapper for `Base.Vector`
+## `VectorCopy.List`: an immutable wrapper for `Base.Vector`
 
 ```@docs
 VectorCopy.List

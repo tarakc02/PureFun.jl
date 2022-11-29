@@ -29,19 +29,19 @@ If not specified, the ordering for a heap defaults to `Base.Order.Forward`.
 Heap constructors are like the constructors for lists and queues, but take the
 ordering as an additional optional argument.
 
-## `PureFun.Pairing.Heap` $\S{5.5}$
+## `Pairing.Heap` $\S{5.5}$
 
 ```@docs
 Pairing.Heap
 ```
 
-## `PureFun.SkewBinomial.Heap` $\S{9.3.2}$
+## `SkewBinomial.Heap` $\S{9.3.2}$
 
 ```@docs
 SkewBinomial.Heap
 ```
 
-## `PureFun.BootstrappedSkewBinomial.Heap` $\S{10.2.2}$
+## `BootstrappedSkewBinomial.Heap` $\S{10.2.2}$
 
 ```@docs
 BootstrappedSkewBinomial.Heap

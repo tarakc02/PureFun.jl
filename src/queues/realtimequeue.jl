@@ -19,12 +19,12 @@ Base.empty(q::Queue) = Queue(empty(front(q)), empty(rear(q)), empty(sched(q)))
 Queue{T}() where T = Queue(Lazy.Stream{T}(), Linked.List{T}(), Lazy.Stream{T}())
 
 function rotate(f::Lazy.Empty{T}, r::Linked.NonEmpty{T}, s::Lazy.Stream) where T
-    @cons T head(r) s
+    @stream T head(r) s
 end
 
 function rotate(f::Lazy.NonEmpty{T}, r::Linked.NonEmpty{T}, s::Lazy.Stream{T}) where T 
-    cc = @cons T head(r) s
-    @cons T head(f) rotate(tail(f), tail(r), cc)
+    cc = @stream T head(r) s
+    @stream T head(f) rotate(tail(f), tail(r), cc)
 end
 
 function exec(f, r, s::Lazy.NonEmpty) 

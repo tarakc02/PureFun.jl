@@ -1,5 +1,5 @@
 using PureFun
-using PureFun.Lazy: Stream, @cons
+using PureFun.Lazy: Stream, @stream
 
 #=
 
@@ -18,7 +18,7 @@ gives us a way to approximate $\pi$:
 
 =#
 function pi_summands(n, one)
-    @cons(Float64, one/n, pi_summands(n+2, -one))
+    @stream(Float64, one/n, pi_summands(n+2, -one))
 end
 
 function approx_pi(n)
@@ -54,7 +54,7 @@ So:
 euler_transform(s₀, s₁, s₂) = s₂ - (s₂ - s₁)^2/(s₀ - 2s₁ + s₂)
 
 function euler_transform(s::Stream)
-    @cons(Float64,
+    @stream(Float64,
           euler_transform(s[1], s[2], s[3]),
           euler_transform(tail(s)))
 end

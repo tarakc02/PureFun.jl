@@ -37,6 +37,40 @@ $\mathcal{O}(1)$. The amortized bounds here do *not* apply in persistent
 settings. For heaps suited to persistent use-cases, see [`SkewBinomial.Heap`](@ref)
 and [`BootstrappedSkewBinomial.Heap`](@ref)
 
+# Examples
+
+```jldoctest
+julia> using PureFun, PureFun.Pairing
+julia> xs = [5, 3, 1, 4, 2];
+
+julia> Pairing.Heap(xs)
+5-element PureFun.Pairing.NonEmpty{Int64, Base.Order.ForwardOrdering}
+1
+2
+3
+4
+5
+
+
+julia> Pairing.Heap(xs, Base.Order.Reverse)
+5-element PureFun.Pairing.NonEmpty{Int64, Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
+5
+4
+3
+2
+1
+
+
+julia> empty = Pairing.Heap{Int}(Base.Order.Reverse);
+julia> reduce(push, xs, init=empty)
+5-element PureFun.Pairing.NonEmpty{Int64, Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
+5
+4
+3
+2
+1
+```
+
 """
 function Heap{T}(o::Base.Order.Ordering=Base.Order.Forward) where T
     Empty{T,typeof(o)}(o)

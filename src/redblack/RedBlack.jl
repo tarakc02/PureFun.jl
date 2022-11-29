@@ -46,16 +46,38 @@ dictorder(o) = Base.Order.By(dictkey, o)
 
 @doc raw"""
 
-    RBDict{O,K,V} where O
-    RBDict{K,V}(ord=Base.Order.Forward)
-    RBDict(iter, o::Ordering=Forward)
+    RedBlack.RBDict{O,K,V} where O
+    RedBlack.RBDict{K,V}(ord=Base.Order.Forward)
+    RedBlack.RBDict(iter, o::Ordering=Forward)
 
 Immutable dictionary implemented using a red-black tree (balanced binary search
-tree). All major operations are $\matchcal{O}(\log{}n)$. Note the ordering
+tree). All major operations are $\mathcal{O}(\log{}n)$. Note the ordering
 parameter, the RBDict iterates in sorted order according to the ordering `O`.
 In addition to the main `PFDict` methods, `RBDict` implements `delete`,
 `delete_min`, and `delete_max`.
 
+# Examples
+
+```jldoctest
+julia> using PureFun, PureFun.RedBlack
+
+julia> RedBlack.RBDict(("zyz" => 1, "abc" => 2, "ghi" => 3))
+PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering, String, Int64} with 3 entries:
+  "abc" => 2
+  "ghi" => 3
+  "zyz" => 1
+
+julia> RedBlack.RBDict(("zyz" => 1, "abc" => 2, "ghi" => 3), Base.Order.Reverse)
+PureFun.RedBlack.RBDict{Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}, String, Int64} with 3 entries:
+  "zyz" => 1
+  "ghi" => 3
+  "abc" => 2
+
+# forward-ordered by default, so:
+julia> d = RedBlack.RBDict{Base.Order.ForwardOrdering}{String,Int}();
+julia> d === RedBlack.RBDict{String,Int}()
+true
+```
 """
 struct RBDict{O,K,V} <: PureFun.PFDict{K,V} where O
     t::NonRed{Pair{K,V}, Base.Order.By{typeof(PureFun.RedBlack.dictkey), O}}
