@@ -20,8 +20,9 @@ PureFun.Batched.@deque RDeque PureFun.RandomAccess.List
 PureFun.Batched.@deque CDeque ChunkyList
 
 PureFun.Tries.@Trie LTrie PureFun.Association.List
-#PureFun.Tries.@Trie VTrie PureFun.Association.VectorList
 PureFun.Tries.@Trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
+
+PureFun.@dict2set LSet LTrie
 
 queues  = [LDeque, RDeque, CDeque,
            PureFun.RealTime.Queue,
@@ -43,13 +44,12 @@ heaps   = [PureFun.Pairing.Heap,
 
 dicts = [PureFun.RedBlack.RBDict,
          PureFun.Association.List,
-         #PureFun.Association.VectorList,
          LTrie, RBTrie,
          PureFun.HashTable.HashMap16,
          PureFun.HashTable.HashMap128
         ]
 
-sets = [PureFun.RedBlack.RBSet]
+sets = [PureFun.RedBlack.RBSet, LSet]
 
 for q in queues
     println(); println(q)
