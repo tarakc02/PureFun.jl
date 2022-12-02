@@ -37,6 +37,18 @@ integers = Stream(Iterators.countfrom(1))
 
 #=
 
+The `@stream` macro enables you to build streams by providing an expression
+which evaluates to the first element, and  one that evaluates to a stream of
+remaining elements. Both expressions are suspended, and only evaluated when the
+value is needed (at which time, the value is cached).
+
+=#
+
+fibonacci(a,b) = @stream(Int, a, fibonacci(b, a+b))
+fibonacci(0, 1)
+
+#=
+
 ## Comparison to iterators
 
 Like Streams, Julia's

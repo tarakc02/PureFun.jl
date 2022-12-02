@@ -50,5 +50,5 @@ makedocs(sitename="PureFun.jl",
                 "Ramanujan (taxicab) numbers" => "generated/taxicab.md",
                 "Generating Suffixes" => "generated/suffixes.md"
                ],
-            "Reference" => "lists.md",
+            "Reference" => "reference.md",
         ])
