@@ -29,8 +29,8 @@ Base.empty(::List{T}) where T = Empty{T}()
 Base.empty(::List, ::Type{U}) where U = Empty{U}()
 
 PureFun.head(l::NonEmpty) = l.head
-PureFun.append(xs::NonEmpty{T}, ::Empty{T}) where T = xs
-PureFun.append(::Empty{T}, ys::NonEmpty{T}) where T = ys
+PureFun.append(xs::NonEmpty, ::Empty) = xs
+PureFun.append(::Empty, ys::NonEmpty) = ys
 PureFun.append(xs::NonEmpty, ys::NonEmpty) = link(xs, suspend(ys))
 
 link(xs, ys) = NonEmpty(head(xs), snoc(xs.tail, ys))
@@ -87,7 +87,9 @@ List{T}() where T = Empty{T}()
 function List(iter)
     T = Base.@default_eltype(iter)
     init = Empty{T}()
-    foldl(snoc, iter, init=init)
+    rev = reverse!(collect(iter))
+    foldl(pushfirst, rev, init=init)
+    #foldl(snoc, iter, init=init)
 end
 
 PureFun.container_type(::Type{<:List{T}}) where T = List{T}
