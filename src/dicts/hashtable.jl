@@ -7,11 +7,11 @@ using ..PureFun.Contiguous: bitmap, biterate
 
 # tries that convert inputs to iterators over ints, and use bitmaps as the
 # edgemaps
-PureFun.Tries.@Trie BitMapTrie8   PureFun.Contiguous.bitmap(Val{8}())   PureFun.Contiguous.biterate(Val{3}())
-PureFun.Tries.@Trie BitMapTrie16  PureFun.Contiguous.bitmap(Val{16}())  PureFun.Contiguous.biterate(Val{4}())
-PureFun.Tries.@Trie BitMapTrie32  PureFun.Contiguous.bitmap(Val{32}())  PureFun.Contiguous.biterate(Val{5}())
-PureFun.Tries.@Trie BitMapTrie64  PureFun.Contiguous.bitmap(Val{64}())  PureFun.Contiguous.biterate(Val{6}())
-PureFun.Tries.@Trie BitMapTrie128 PureFun.Contiguous.bitmap(Val{128}()) PureFun.Contiguous.biterate(Val{7}())
+PureFun.Tries.@trie BitMapTrie8   PureFun.Contiguous.bitmap(Val{8}())   PureFun.Contiguous.biterate(Val{3}())
+PureFun.Tries.@trie BitMapTrie16  PureFun.Contiguous.bitmap(Val{16}())  PureFun.Contiguous.biterate(Val{4}())
+PureFun.Tries.@trie BitMapTrie32  PureFun.Contiguous.bitmap(Val{32}())  PureFun.Contiguous.biterate(Val{5}())
+PureFun.Tries.@trie BitMapTrie64  PureFun.Contiguous.bitmap(Val{64}())  PureFun.Contiguous.biterate(Val{6}())
+PureFun.Tries.@trie BitMapTrie128 PureFun.Contiguous.bitmap(Val{128}()) PureFun.Contiguous.biterate(Val{7}())
 
 BitMapTrie = Union{BitMapTrie8,
                    BitMapTrie16,

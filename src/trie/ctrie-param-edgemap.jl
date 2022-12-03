@@ -33,7 +33,7 @@ _itereltype(f, ::Type{T}) where T = eltype(Core.Compiler.return_type(f, Tuple{T}
 
 # trie types {{{
 
-macro Trie(Name,DictType,keyfunc=triekey)
+macro trie(Name,DictType,keyfunc=triekey)
     :(
       struct $Name{K,V} <: Trie{K,V}
          kv::Option{Pair{K,V}}

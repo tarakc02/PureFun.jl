@@ -19,8 +19,8 @@ PureFun.Batched.@deque LDeque PureFun.Linked.List
 PureFun.Batched.@deque RDeque PureFun.RandomAccess.List
 PureFun.Batched.@deque CDeque ChunkyList
 
-PureFun.Tries.@Trie LTrie PureFun.Association.List
-PureFun.Tries.@Trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
+PureFun.Tries.@trie LTrie PureFun.Association.List
+PureFun.Tries.@trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
 
 PureFun.@dict2set LSet LTrie
 

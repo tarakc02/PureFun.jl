@@ -128,12 +128,12 @@ ks = [randstring("abcdefghijklmn", rand(15:25)) for _ in 1:500]
 vs = [rand(Int) for _ in 1:500]
 
 
-PureFun.Tries.@Trie LTrie PureFun.Association.List
-PureFun.Tries.@Trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
+PureFun.Tries.@trie LTrie PureFun.Association.List
+PureFun.Tries.@trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
 
-PureFun.Tries.@Trie BitMapTrie32  PureFun.Contiguous.bitmap(Val{64}())  PureFun.Contiguous.biterate(Val{6}())
-PureFun.Tries.@Trie StringTrie Main.BitMapTrie32
-PureFun.Tries.@Trie HT PureFun.Contiguous.bitmap(Val{32}()) PureFun.Contiguous.Biterate{5} ∘ hash
+PureFun.Tries.@trie BitMapTrie32  PureFun.Contiguous.bitmap(Val{64}())  PureFun.Contiguous.biterate(Val{6}())
+PureFun.Tries.@trie StringTrie Main.BitMapTrie32
+PureFun.Tries.@trie HT PureFun.Contiguous.bitmap(Val{32}()) PureFun.Contiguous.Biterate{5} ∘ hash
 
 
 lt = LTrie(k => v for (k,v) in zip(ks, vs))
