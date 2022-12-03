@@ -60,22 +60,20 @@ macro deque(Name, ListType)
     struct $Name{T} <: Queue{T}
         front::$(esc(ListType)){T}
         rear::$(esc(ListType)){T}
-        flen::Int
-        rlen::Int
         function $Name{T}() where T
-            new{T}($(esc(ListType)){T}(), $(esc(ListType)){T}(), 0, 0)
+            new{T}($(esc(ListType)){T}(), $(esc(ListType)){T}())
         end
         function $Name(iter)
             f = $(esc(ListType))(iter)
             r = empty(f)
             T = eltype(f)
-            _split_front($Name{T}, f, r, length(f), 0)
+            _split_front($Name{T}, f, r)
         end
-        function $Name{T}(f, r, flen, rlen) where T
-            new{T}(f, r, flen, rlen)
+        function $Name{T}(f, r) where T
+            new{T}(f, r)
         end
-        function $Name(f, r, flen, rlen)
-            new{eltype(f)}(f, r, flen, rlen)
+        function $Name(f, r)
+            new{eltype(f)}(f, r)
         end
     end;
     PureFun.Batched._myname(::$(esc(Name))) = $(esc(Name))
@@ -90,75 +88,30 @@ end
 function Base.empty(q::Queue, ::Type{T}) where T
     f = empty(front(q), T)
     r = empty(rear(q), T)
-    _myname(q)(f, r, 0, 0)
+    _myname(q)(f, r)
 end
-Base.length(q::Queue) = q.flen + q.rlen
-Base.isempty(q::Queue) = length(q) == 0
+Base.length(q::Queue) = length(front(q)) + length(rear(q))
+Base.isempty(q::Queue) = isempty(front(q)) && isempty(rear(q))
 
 # }}}
 
 # re-balancing etc. {{{
-function checkf(T, f, r, lenf, lenr)
-    isempty(f) ? _split_rear(T, f, r, lenf, lenr) : T(f, r, lenf, lenr)
-end
-function checkr(T, f, r, lenf, lenr)
-    isempty(r) ? _split_front(T, f, r, lenf, lenr) : T(f, r, lenf, lenr)
-end
+checkf(T, f, r) = isempty(f) ? _split_rear(T, f, r) : T(f, r)
+checkr(T, f, r) = isempty(r) ? _split_front(T, f, r) : T(f, r)
 
-"""
-    _split_reverse(xs)
-
-Takes some elements (how many is an implementation detail) off the end of `xs`
-and reverses them. Returns the reversed sequence (as the same list type as
-`xs`), the remaining truncated sequence, and the new length of the truncated
-sequence
-
-"""
 function _split_reverse(xs)
-    len = length(xs)
-    at = cld(len, 2)
-    rest = xs
-    restlen = 0
-    top = empty(xs)
-    while !isempty(rest) && at > 0
-        top = cons(head(rest), top)
-        rest = tail(rest)
-        at -= 1
-        restlen += 1
-    end
-    return reverse(top), reverse(rest), restlen
+    f,r = halfish(xs)
+    f, reverse(r)
 end
 
-function _split_reverse(xs::PureFun.RandomAccess.List)
-    f,r = PureFun.RandomAccess.halfish(xs)
-    f, reverse(r), length(f)
+function _split_rear(T, f, r)
+    nu_r, nu_f = _split_reverse(r)
+    T(nu_f, nu_r)
 end
 
-function _split_reverse(xs::PureFun.Chunky.List)
-    isempty(xs) && return xs, xs, 0
-    cs = PureFun.Chunky.chunks(xs)
-    ck = popfirst(cs)
-    if isempty(ck) && length(first(cs)) > 1
-        c = first(cs)
-        return (typeof(xs)(PureFun.Chunky.initialize(c[1], empty(xs))),
-                typeof(xs)(reverse(popfirst(c))), 1)
-    end
-    _f, _r, bleh = _split_reverse(cs)
-    f = typeof(xs)(_f)
-    r = isempty(_r) ?
-        typeof(xs)(_r) :
-        typeof(xs)( reverse(_r[1]) ⇀ popfirst(map(PureFun.Contiguous.reverse_fast, _r)))
-    f, r, length(f)
-end
-
-function _split_rear(T, f, r, lenf, lenr)
-    nu_r, nu_f, nu_lenr = _split_reverse(r)
-    T(nu_f, nu_r, lenr-nu_lenr, nu_lenr)
-end
-
-function _split_front(T, f, r, lenf, lenr)
-    nu_f, nu_r, nu_lenf = _split_reverse(f)
-    T(nu_f, nu_r, nu_lenf, lenf-nu_lenf)
+function _split_front(T, f, r)
+    nu_f, nu_r = _split_reverse(f)
+    T(nu_f, nu_r)
 end
 # }}}
 
@@ -168,12 +121,12 @@ function PureFun.head(q::Queue)
     f = front(q)
     isempty(f) ? rear(q)[1] : f[1]
 end
-PureFun.snoc(q::Queue, x) = checkf(typeof(q), front(q), cons(x, rear(q)), q.flen, q.rlen+1)
+PureFun.snoc(q::Queue, x) = checkf(typeof(q), front(q), cons(x, rear(q)))
 function PureFun.tail(q::Queue)
     isempty(q) && throw(BoundsError(q, 1))
     f = front(q)
     isempty(f) && return empty(q)
-    checkf(typeof(q), tail(f), rear(q), q.flen-1, q.rlen)
+    checkf(typeof(q), tail(f), rear(q))
 end
 
 function Base.last(q::Queue)
@@ -183,60 +136,38 @@ function Base.last(q::Queue)
 end
 
 function PureFun.cons(x, q::Queue)
-    checkr(typeof(q), cons(x, front(q)), rear(q), q.flen + 1, q.rlen)
+    checkr(typeof(q), cons(x, front(q)), rear(q))
 end
 function PureFun.pop(q::Queue)
     isempty(q) && throw(BoundsError(q, 1))
     r = rear(q)
     isempty(r) && return empty(q)
-    checkr(typeof(q), front(q), tail(r), q.flen, q.rlen-1)
+    checkr(typeof(q), front(q), tail(r))
 end
 # }}}
 
 # etc. {{{
 function Base.reverse(q::Queue)
-    isempty(q) ? q : typeof(q)(rear(q), front(q), q.rlen, q.flen)
+    isempty(q) ? q : typeof(q)(rear(q), front(q))
 end
 Iterators.reverse(q::Queue) = Base.reverse(q)
 
 function Base.getindex(q::Queue, ix)
-    if ix <= q.flen
-        front(q)[ix]
-    elseif ix <= q.flen+q.rlen
-        rear(q)[length(q)-ix+1]
-    else
-        throw(BoundsError(q, ix))
-    end
+    ix <= length(front(q)) ? front(q)[ix] : rear(q)[length(q)-ix+1]
 end
 
 function Base.setindex(q::Queue, value, i)
-    if i <= q.flen
-        typeof(q)(setindex(front(q), value, i), rear(q), q.flen, q.rlen)
-    elseif i <= q.flen+q.rlen
-        typeof(q)(front(q), setindex(rear(q), value, length(q)-i+1), q.flen, q.rlen)
-    else
-        throw(BoundsError(q, i))
-    end
+    i <= length(front(q)) ?
+        typeof(q)(setindex(front(q), value, i), rear(q)) :
+        typeof(q)(front(q), setindex(rear(q), value, length(q)-i+1))
 end
-
-# reverse l2 and put it on top of l1
-function _revtop(l1::PureFun.Linked.List, l2::PureFun.Linked.List)
-    foldl(pushfirst, l2, init=l1)
-end
-
-# for chunky lists, if chunks are bigger then this is going to be faster,
-# even though it looks worse
-_revtop(l1, l2) = reverse(l2) ⧺ l1
 
 function PureFun.append(q1::Queue{T}, q2::Queue{T}) where {T}
     r = rear(q2) ⧺ foldl(pushfirst, front(q2), init=rear(q1))
-    #r = rear(q2) ⧺ _revtop(rear(q1), front(q2))
-    typeof(q1)(front(q1), r, q1.flen, q1.rlen+q2.flen+q2.rlen)
+    typeof(q1)(front(q1), r)
 end
 
-function Base.map(f, q::Queue)
-    _myname(q)(map(f, front(q)), map(f, rear(q)), q.flen, q.rlen)
-end
+Base.map(f, q::Queue) = _myname(q)(map(f, front(q)), map(f, rear(q)))
 
 struct Init end
 
