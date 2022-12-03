@@ -2,7 +2,7 @@ module Chunky
 
 using ..PureFun
 using ..PureFun.Contiguous
-using ..PureFun.Contiguous: chunksize, isfull, nearempty, initval
+using ..PureFun.Contiguous: chunksize, isfull, nearempty, initval, reverse_fast
 using StaticArrays
 
 function _myname end
@@ -280,10 +280,33 @@ end
 
 # monolithic stuff (reverse, append) {{{
 
-Base.reverse(l::List) = isempty(l) ? l : typeof(l)(reverse!(collect(l)))
+function Base.reverse(l::List)
+    isempty(l) && return l
+    cs = chunks(l)
+    isfull(cs[1]) ?
+        typeof(l)(mapfoldl(reverse_fast, pushfirst, cs, init = empty(cs))) :
+        typeof(l)(reverse!(collect(l)))
+end
 
-function PureFun.append(l1::List, l2::List)
-    typeof(l1)(vcat(collect(l1), collect(l2)))
+function PureFun.append(l1::L, l2::L) where {L <: List}
+    isempty(l1) && return l2
+    isempty(l2) && return l1
+    ck = first(chunks(l2))
+    isfull(ck) ? L(chunks(l1) ⧺ chunks(l2)) : L(vcat(collect(l1), collect(l2)))
+end
+
+function PureFun.halfish(xs::List)
+    isempty(xs) && return xs, xs
+    cs = chunks(xs)
+    ck = popfirst(cs)
+    if isempty(ck) && length(first(cs)) > 1
+        c = first(cs)
+        f = typeof(xs)(initialize(c[1], empty(xs)))
+        r = typeof(xs)(popfirst(c))
+        return (f,r,1)
+    end
+    f, r = halfish(cs)
+    typeof(xs)(f), typeof(xs)(r)
 end
 
 # }}}

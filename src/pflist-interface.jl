@@ -123,3 +123,25 @@ function drop(l::PFList, n)
     end
     return l
 end
+
+@doc raw"""
+
+    halfish(xs)
+
+Split `xs` *roughly* in half, and return the two halves as a tuple (front,
+back). Also returns the new length of the truncated front half
+
+"""
+function halfish(xs)
+    len = length(xs)
+    at = cld(len, 2)
+    rest = xs
+    revtop = empty(xs)
+    while at > 0
+        revtop = rest[1] ⇀ revtop
+        rest = popfirst(rest)
+        at -= 1
+    end
+    return reverse(revtop), rest
+end
+

@@ -25,7 +25,7 @@ end
 """
 split a `Digit` approximately in half and return the two halves as `List`s
 """
-function halfish(d::Digit)
+function PureFun.halfish(d::Digit)
     if isleaf(d)
         f = digit_to_list(d)
         r = empty(f)
@@ -40,10 +40,9 @@ function halfish(d::Digit)
     front, rest
 end
 
-function halfish(l::List)
+function PureFun.halfish(l::List)
     isempty(l) && return l, l
     T = eltype(l)
-    remlen = length(l)
     ds = digits(l)
     d = first(ds)
     isempty(popfirst(ds)) && return halfish(d)
@@ -51,11 +50,9 @@ function halfish(l::List)
     while !isempty(popfirst(ds))
         d = first(ds)
         ds = popfirst(ds)
-        remlen -= length(d)
         front_digits_reversed = pushfirst(front_digits_reversed, d)
     end
-    PureFun.RandomAccess.List{T}(reverse(front_digits_reversed)),
-    digit_to_list(first(ds))
+    List{T}(reverse(front_digits_reversed)), digit_to_list(first(ds))
 end
 
 # }}}

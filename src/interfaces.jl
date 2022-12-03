@@ -7,7 +7,8 @@ export cons, pushfirst, ⇀,
        setindex, insert,
        delete_min, delete_max,
        delete, update_at,
-       drop, pop, popfirst
+       drop, pop, popfirst,
+       halfish
 
 import StaticArrays.pushfirst,
        StaticArrays.push,
