@@ -1,3 +1,8 @@
+"""
+
+Abstract supertype for immutable dictionaries.
+
+"""
 abstract type PFDict{K, V} <: AbstractDict{K, V} end
 
 """

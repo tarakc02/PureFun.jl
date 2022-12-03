@@ -74,6 +74,7 @@ function bitmap(n_elems::Val=Val{16}())
     U = _uint_with_bits(n_elems)
     BitMap{Bits{U}}
 end
+bitmap(n_elems) = bitmap(Val(n_elems))
 
 function Base.get(bm::BitMap, ix, default)
     isoccupied(inds(bm), ix) || return default
@@ -165,5 +166,7 @@ Base.eltype(::Type{<:Biterate}) = Int
 
 biterate(::Val{N}, x) where N = Biterate{N, typeof(x)}(x)
 biterate(v::Val{N}) where N = Biterate{N}
+biterate(v) = biterate(Val(v))
+biterate(v, x) = biterate(Val(v), x)
 
 # }}}

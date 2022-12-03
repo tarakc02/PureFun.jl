@@ -10,3 +10,14 @@ DocSetup = quote using PureFun end
 ```@docs
 RedBlack.RBDict
 ```
+
+## `Tries` ($\S{10.3.1}$)
+
+These tries use path compression (exercise 10.10, although using the
+"Compressed Trie with digit numbers" variant presented
+[here](https://www.cise.ufl.edu/~sahni/dsaaj/enrich/c16/tries.htm)), resulting
+in compact and efficient dictionaries
+
+```@docs
+Tries.@trie
+```

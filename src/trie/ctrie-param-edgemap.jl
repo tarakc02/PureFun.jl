@@ -33,7 +33,106 @@ _itereltype(f, ::Type{T}) where T = eltype(Core.Compiler.return_type(f, Tuple{T}
 
 # trie types {{{
 
-macro trie(Name,DictType,keyfunc=triekey)
+@doc raw"""
+    Trie.@trie Name edgemap keyfunc
+
+Tries are defined by the `keyfunc`, which takes keys and returns an iterator of
+simpler keys, and the `edgemap`, which maps the simpler keys to subtries.
+`keyfunc` is an optional argument, if not specified it will be set to the
+identity function for all types except for Strings, for which it is `codeunits`
+(in order to properly handle variable width character encodings). Once `Name`
+has been defined, it can be used like any other [`PureFun.PFDict`](@ref)
+
+# Examples
+
+```jldoctest
+julia> using PureFun.Tries
+julia> Tries.@trie SimpleMap PureFun.Association.List
+
+julia> s = SimpleMap{String,Int}()
+SimpleMap{String, Int64}()
+
+julia> setindex(s, 42, "hello world")
+SimpleMap{String, Int64}(...):
+  "hello world" => 42
+
+julia> SimpleMap(c => c for c in 'a':'e')
+SimpleMap{Char, Char}(...):
+  'e' => 'e'
+  'd' => 'd'
+  'c' => 'c'
+  'b' => 'b'
+  'a' => 'a'
+```
+
+The `edgemap` can be any data structure which implements the PFDict interface:
+it iterates pairs, has `get`, `setindex`, and `isempty` methods, and an empty
+constructor that has the signature `edgemap{K,V}()`. A tricky detail is that
+`edgemap{K,V}` should be a concrete type for concrete `K` and `V`, something
+you have to account for when defining the trie type if your edgemap dictionary
+type has extra type parameters. For example, here we must specify the ordering
+parameter for our RedBlack dictionary in order to use it as the `edgemap`:
+
+```jldoctest
+julia> Tries.@trie RedBlackMap PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
+
+julia> RedBlackMap(("hello" => "world", "reject" => "fascism"))
+RedBlackMap{String, String}(...):
+  "hello"  => "world"
+  "reject" => "fascism"
+```
+
+## Cache-efficient bitmap tries
+
+[`PureFun.Contiguous.biterate`](@ref) breaks single integer keys into iterators
+of smaller integer keys. [`PureFun.Contiguous.bitmap`](@ref) is a fast
+dictionary for small integer keys. By combining them, we end up with a
+[bitmap-trie](https://en.wikipedia.org/wiki/Bitwise_trie_with_bitmap)
+
+```jldoctest
+julia> PureFun.Tries.@trie BitMapTrie PureFun.Contiguous.bitmap(16) PureFun.Contiguous.biterate(4)
+
+julia> BitMapTrie(x => Char(x) for x in rand(UInt16, 5))
+BitMapTrie{UInt16, Char}(...):
+  0x5f60 => '彠'
+  0xce8b => '캋'
+  0x92c6 => '鋆'
+  0xa2ce => 'ꋎ'
+  0xadff => '귿'
+
+julia> PureFun.Tries.@trie BitMapTrie64 PureFun.Contiguous.bitmap(64) PureFun.Contiguous.biterate(6)
+
+julia> b = BitMapTrie64(x => 2x for x in 1:1_000)
+BitMapTrie64{Int64, Int64}(...):
+  64  => 128
+  128 => 256
+  192 => 384
+  256 => 512
+  320 => 640
+  384 => 768
+  448 => 896
+  512 => 1024
+  576 => 1152
+  640 => 1280
+  ⋮   => ⋮
+
+julia> b[13]
+26
+```
+
+Tries themselves can be edgemaps for other tries:
+
+```jldoctest
+julia> @trie BitMapTrie PureFun.Contiguous.bitmap(16) PureFun.Contiguous.biterate(4)
+julia> PureFun.Tries.@trie StringTrie Main.BitMapTrie codeunits
+
+julia> StringTrie(("hello" => 1, "world" => 2))
+StringTrie{String, Int64}(...):
+  "world" => 2
+  "hello" => 1
+```
+"""
+macro trie(Name, edgemap, keyfunc=triekey)
     :(
       struct $Name{K,V} <: Trie{K,V}
          kv::Option{Pair{K,V}}
@@ -41,7 +140,7 @@ macro trie(Name,DictType,keyfunc=triekey)
          _subtries
          function $Name{K,V}() where {K,V}
              K0 = _itereltype($(esc(keyfunc)), K)
-             st = $(esc(DictType)){K0, $Name{K, V}}()
+             st = $(esc(edgemap)){K0, $Name{K, V}}()
              new{K,V}(nothing, 1, st)
          end
          $Name{K,V}(p, ix, e) where {K,V} = new{K,V}(p, ix, e)
@@ -56,48 +155,11 @@ macro trie(Name,DictType,keyfunc=triekey)
      PureFun.Tries.iterable_key(::$(esc(Name)), k) = $(esc(keyfunc))(k);
      function PureFun.Tries.subtries(obj::$(esc(Name)){K,V}) where {K,V}
          K0 = _itereltype($(esc(keyfunc)), K)
-         return obj._subtries::$DictType{K0, $(esc(Name)){K,V}}
+         return obj._subtries::$edgemap{K0, $(esc(Name)){K,V}}
      end
-     #function Base.getproperty(obj::$(esc(Name)){K,V}, sym::Symbol) where {K,V}
-     #    if sym === :subtries
-     #        K0 = _itereltype($(esc(keyfunc)), K)
-     #        return obj._subtries::$DictType{K0, $(esc(Name)){K,V}}
-     #    else
-     #        return getfield(obj, sym)
-     #    end
-     #end;
     )
 end
 
-
-
-#macro Trie(Name,DictType,keyfunc=triekey)
-#    :(
-#      struct $Name{K,K0,V} <: Trie{K,V}
-#         kv::Option{Pair{K,V}}
-#         i::Int
-#         subtries::$(esc(DictType)){K0, $Name{K,K0,V}}
-#         function $Name{K,V}() where {K,V}
-#             K0 = _itereltype($(esc(keyfunc)), K)
-#             st = $(esc(DictType)){K0, $Name{K, K0, V}}()
-#             new{K,K0,V}(nothing, 1, st)
-#         end
-#         function $Name{K,K0,V}() where {K,K0,V}
-#             st = $(esc(DictType)){K0, $Name{K, K0, V}}()
-#             new{K,K0,V}(nothing, 1, st)
-#         end
-#         $Name{K,K0,V}(p, ix, e) where {K,K0,V} = new{K,K0,V}(p, ix, e)
-#         function $Name(iter)
-#             isempty(iter) && return $Name{Any,Any}()
-#             peek = first(iter)
-#             peek isa Pair || throw(MethodError($Name, iter))
-#             K, V = typeof(peek[1]), typeof(peek[2])
-#             reduce(push, iter, init=$Name{K,V}())
-#         end
-#     end;
-#     PureFun.Tries.iterable_key(::$(esc(Name)), k) = $(esc(keyfunc))(k)
-#    )
-#end
 # }}}
 
 # empty constructors {{{
