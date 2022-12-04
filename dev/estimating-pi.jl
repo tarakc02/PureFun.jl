@@ -7,7 +7,7 @@ using PureFun.Lazy: Stream, @stream
 
 This example is adapted from [Chapter 3 of Structure and Interpretation of
 Computer
-Programs](https://mitpress.mit.edu/sites/default/files/sicp/full-text/sicp/book/node72.html)
+Programs](https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/6515/sicp.zip/full-text/book/book-Z-H-24.html#%_sec_3.5.3)
 
 The summation:
 
