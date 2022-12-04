@@ -53,3 +53,7 @@ makedocs(sitename="PureFun.jl",
                ],
             "Reference" => "reference.md",
         ])
+
+deploydocs(
+    repo = "github.com/tarakc02/PureFun.jl.git",
+)
