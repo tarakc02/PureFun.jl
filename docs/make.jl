@@ -40,10 +40,11 @@ makedocs(sitename="PureFun.jl",
          pages = [
             "index.md",
             "Lists" => "lists.md",
-            "Queues" => "queues.md",
+            "Queues/Deques" => "queues.md",
             "Heaps" => "heaps.md",
             "Dictionaries" => "dicts.md",
             "Streams" => "generated/streams.md",
+            "Small size optimizations" => "contiguous.md",
             "Examples" => [
                 "Estimating π" => "generated/estimating-pi.md",
                 "Balanced Parentheses" => "generated/balanced-parentheses.md",

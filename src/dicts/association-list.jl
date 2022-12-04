@@ -25,6 +25,29 @@ abstract type Map{K,V} <: PureFun.PFDict{K,V} end
 #    end
 #end
 
+@doc raw"""
+    Association.List{K,V}()
+    Association.List(iter)
+
+A dictionary implemented as a linked list of pairs. Adding/updating new items
+is very fast, but lookups can be as bad as $\mathcal{O}(n)$. Almost identical
+to `Base.ImmutableDict`, but with a few extra bells and whistles to conform the
+expected interface for [`PureFun.PFDict`](@ref).
+
+# Examples
+
+```jldoctest
+julia> using PureFun, PureFun.Association
+
+julia> Association.List(k => Char(k) for k in rand(UInt16, 5))
+PureFun.Association.List{UInt16, Char} with 5 entries:
+  0x5d5d => '嵝'
+  0x6ab9 => '檹'
+  0x4eb0 => '亰'
+  0xd55c => '한'
+  0xd018 => '퀘'
+```
+"""
 struct List{K,V} <: Map{K,V}
     pairs::PureFun.Linked.List{Pair{K,V}}
     List{K,V}() where {K,V} = new{K,V}(Linked.List{Pair{K,V}}())

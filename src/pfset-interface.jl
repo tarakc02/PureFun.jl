@@ -15,6 +15,48 @@ Base.intersect(s::PFSet, sets...) = reduce(sets, intersect, init=s)
 
 abstract type SetFromDict{T} <: PureFun.PFSet{T} end
 
+@doc raw"""
+    @dict2set Name DictType
+
+Given a dictionary implementation, without any extra overhead we can implement
+a set by mapping every key to `nothing` and defining the set methods
+appropriately. That's what `@dict2set` does.
+
+# Examples
+
+```jldoctest
+julia> PureFun.Tries.@trie MyDictionary PureFun.Association.List
+
+julia> PureFun.@dict2set MySet MyDictionary
+
+julia> s = MySet([1,2,2,3,4])
+4-element MySet{Int64}
+4
+3
+2
+1
+
+
+julia> push(s, 99)
+5-element MySet{Int64}
+99
+4
+3
+2
+1
+
+
+julia> 3 ∈ s
+true
+
+julia> intersect(s, [1,2,3])
+3-element MySet{Int64}
+3
+2
+1
+```
+
+"""
 macro dict2set(Name, DictType)
     :(
       struct $Name{T} <: SetFromDict{T}
@@ -25,8 +67,10 @@ macro dict2set(Name, DictType)
               init = $Name{Base.@default_eltype(iter)}()
               reduce(push, iter, init = init)
           end
-      end
-     )
+      end;
+    Base.empty(s::SetFromDict) = $(esc(Name)){eltype(s)}();
+    Base.empty(s::SetFromDict, ::Type{U}) where U = $(esc(Name)){U}()
+   )
 end
 
 PureFun.push(s::SetFromDict, x) = typeof(s)(setindex(s.d, nothing, x))

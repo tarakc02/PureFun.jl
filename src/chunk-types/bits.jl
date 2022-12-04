@@ -1,6 +1,25 @@
 
 # Bits: a single-integer bitset that stores small integers {{{
 
+@doc raw"""
+
+A sparse set with small integer elements.
+
+# Examples
+
+```jldoctest
+julia> b = PureFun.Contiguous.Bits{UInt16}()
+0000000000000000
+
+# the 1s in the bitstring mark the elements that are present
+julia> b = reduce(push, [1,9,4,15,15], init=b)
+0100000100001001
+
+
+julia> 15 ∈ b, 4 ∈ b, 2 ∈ b
+(true, true, false)
+```
+"""
 struct Bits{T} <: PureFun.PFSet{T}
     x::T
 end
@@ -53,9 +72,6 @@ end
 # }}}
 
 # bitmap: maps small integer keys to values {{{
-# note: BitMap are constrained to have Int keys, we keep the K parameter around
-# in order to conform to expected PFDict interface, where you can e.g.
-# construct an empty dict via D{Int,V}()
 struct BitMap{B<:Bits, K<:Int, V} <: PureFun.PFDict{K, V}
     b::B
     elems::PureFun.VectorCopy.List{V}
@@ -70,6 +86,24 @@ end
 inds(bm::BitMap) = bm.b
 elems(bm::BitMap) = bm.elems
 
+@doc raw"""
+    bitmap(n_elems::Val=Val{16}())
+
+Create a bitmap with `n_elems` elements. See also [`PureFun.Tries.@trie`](@ref)
+
+# Examples
+
+```jldoctest
+julia> BM = PureFun.Contiguous.bitmap(8)
+PureFun.Contiguous.BitMap{PureFun.Contiguous.Bits{UInt8}}
+
+julia> b = BM{Int,Char}()
+PureFun.Contiguous.BitMap{PureFun.Contiguous.Bits{UInt8}, Int64, Char}()
+
+julia> setindex(b, 'a', 1)
+PureFun.Contiguous.BitMap{PureFun.Contiguous.Bits{UInt8}, Int64, Char} with 1 entry:
+  1 => 'a'
+"""
 function bitmap(n_elems::Val=Val{16}())
     U = _uint_with_bits(n_elems)
     BitMap{Bits{U}}

@@ -69,56 +69,51 @@ For example, `push` is a non-mutating version of
 instead of modifying its input argument it returns a new collection with an
 element added.
 
-Examples follow.
-
 - [Lists](@ref): insert/remove from the front of the list, get the element at
   the front of the lists, and iterate inserted elements in
   [LIFO](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) order
+
+- [Queues](@ref): insert at the end, remove from the front, iterate in
+  [FIFO](https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)) order
 
 - [Heaps](@ref): insert elements, remove elements, retrieve the minimum, and
   iterate in sorted order (wrt an
   [`Ordering`](https://docs.julialang.org/en/v1/base/sort/#Alternate-orderings))
 
-## PFSet
+- [Dictionaries](@ref): associate keys with values
 
-Implemented by:
+- [Sets](@ref): insert keys, test for membership, various set operations
+  including `intersect` and `union`
 
-- `PureFun.RedBlack.RBSet` (supports all operations in log2(n) time)
-- `PureFun.RedBlack.RBSet` also supports `delete`, `delete_min`, and
-  `delete_max`, and iteration order is determined by an
-  [`Ordering`](https://docs.julialang.org/en/v1/base/sort/#Alternate-orderings)
-  type parameter
+# Customizable data structures: Batched.@deque, Tries.@trie, Chunky.@list
 
-Supports:
+These use generic design strategies to produce more powerful data structures
+from simpler ones.
 
-- `push`
-- `in`, `∈`
+[`PureFun.Batched.@deque`](@ref) takes a list implementation and adds efficient access
+(push/pop/read) to the rear of the list, making it into a double-ended queue.
+The resulting deque maintains the advantages of the list used to create it, so
+for example a deque made from [`PureFun.RandomAccess.List`](@ref) will maintain
+fast indexing (get/set index) operations.
 
-## PFDict
+[`PureFun.Chunky.@list`](@ref) takes any list implementation, and uses it to
+store chunks of elements rather than single elements, in order to improve
+iteration speed.
 
-Implemented by:
+[`PureFun.Tries.@trie`](@ref) builds efficient dictionaries for complex key
+types by chaining together dictionaries of simpler keys.
 
-- `PureFun.RedBlack.RBDict` (supports all operations in log2(n) time)
+# `PureFun.Contiguous`: small size optimizations
 
-Supports:
-
-- `setindex`, `getindex`
-- `PureFun.RedBlack.RBDict` also supports `delete`, `delete_min`, and
-  `delete_max`, and iteration order is determined by an
-  [`Ordering`](https://docs.julialang.org/en/v1/base/sort/#Alternate-orderings)
-  type parameter
-
-## PFHeap
-
-Implemented by:
-
-- `PureFun.Pairing.Heap`: 
-- `PureFun.SkewHeap.Heap`: 
-- `PureFun.FastMerging.Heap`:
-
+Tries and chunky lists assume the availability of efficient small collections
+that can be linked together to build general purpose collections. The
+[`PureFun.Contiguous`](@ref) module provides a variety of performant data
+structures that make use of [data
+locality](https://gameprogrammingpatterns.com/data-locality.html)
 
 # See also
 
 - [FunctionalCollections.jl](https://github.com/JuliaCollections/FunctionalCollections.jl)
 - [Lazy.jl](https://github.com/MikeInnes/Lazy.jl)
+- [MLStyle.jl](https://thautwarm.github.io/MLStyle.jl/latest/index.html)
 - [Air.jl](https://github.com/noahbenson/Air.jl)

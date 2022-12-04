@@ -1,3 +1,9 @@
+@doc raw"""
+`PureFun.Contiguous` implements small-sized versions of lists, sets, and
+dictionaries. These structures maintain data in contiguous storage, allowing
+them to leverage the [CPU cache](https://en.wikipedia.org/wiki/CPU_cache) to
+improve the performance of indexing and iteration.
+"""
 module Contiguous
 
 using ..PureFun
@@ -7,12 +13,47 @@ using StaticArrays
 # type defs {{{
 abstract type Chunk{N,T} <: PureFun.PFList{T} where N end
 
+@doc raw"""
+
+    StaticChunk{N,T}
+    StaticChunk{N}(iter)
+
+Backed by [Static
+Arrays](https://juliaarrays.github.io/StaticArrays.jl/stable/), `StaticChunks`
+implement all list functions but are constrained to a maximum size. Useful in
+conjunction with `PureFun.Chunky.@list`, which chains together small chunks to
+build general list types that benefit from [data
+locality](https://gameprogrammingpatterns.com/data-locality.html).
+
+# Examples
+
+This example builds a list with maximum length 8. Until we hit the maximum
+length, we can use the `StaticChunk` like any other list type:
+
+```jldoctest
+julia> xs = Contiguous.StaticChunk{8}(1:3)
+3-element PureFun.Contiguous.StaticChunk{8, Int64}
+1
+2
+3
+
+julia> 41 ⇀ 42 ⇀ xs
+5-element PureFun.Contiguous.StaticChunk{8, Int64}
+41
+42
+1
+2
+3
+
+julia> popfirst(xs)
+2-element PureFun.Contiguous.StaticChunk{8, Int64}
+2
+3
+```
+"""
 struct StaticChunk{N,T} <: Chunk{N,T}
     v::SVector{N,T}
     head::Int
-    #function StaticChunk{N,T}() where {N,T}
-    #    new{N,T}(SVector{N,T}(Vector{T}(undef, N)), N+1)
-    #end
     StaticChunk(v::SVector{N,T}, head) where {N,T} = new{N,T}(v, head)
     StaticChunk{N,T}(v::SVector{N,T}, head) where {N,T} = new{N,T}(v, head)
     function StaticChunk{N,T}(iter) where {N,T}
@@ -28,6 +69,44 @@ struct StaticChunk{N,T} <: Chunk{N,T}
     StaticChunk{N}(iter) where N = StaticChunk{N,eltype(iter)}(iter)
 end
 
+@doc raw"""
+
+    VectorChunk{N,T}
+    VectorChunk{N}(iter)
+
+Backed by `Base.Vector`, `VectorChunk`s implement all list functions but are
+constrained to a maximum size. Useful in conjunction with
+`PureFun.Chunky.@list`, which chains together small chunks to build general
+list types that benefit from [data
+locality](https://gameprogrammingpatterns.com/data-locality.html).
+
+# Examples
+
+This example builds a list with maximum length 128. Until we hit the maximum
+length, we can use the `VectorChunk` like any other list type:
+
+```jldoctest
+julia> using PureFun, PureFun.Contiguous
+julia> xs = Contiguous.VectorChunk{128}(1:3)
+3-element PureFun.Contiguous.VectorChunk{128, Int64}
+1
+2
+3
+
+
+julia> (41 ⇀ 42 ⇀ xs) ⧺ xs
+8-element PureFun.Contiguous.VectorChunk{128, Int64}
+41
+42
+1
+2
+3
+1
+2
+...
+
+```
+"""
 struct VectorChunk{N,T} <: Chunk{N,T}
     v::VectorCopy.List{T}
     VectorChunk{N,T}() where {N,T} = new{N,T}(VectorCopy.List{T}())

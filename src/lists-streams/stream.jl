@@ -19,13 +19,13 @@ struct NonEmpty{T} <: PureFun.PFStream{T}
     tail::Susp
 end
 
-"""
+@doc raw"""
     Stream{T} <: PureFun.PFStream{T}
 
 Stream with elements of type `T`. Every cell in a stream is systematically
 suspended, and only evaluated when the value in that cell is required.
 Furthermore, the value is cached the first time a cell is evaluated, so that
-subsequent accesses are cheap.
+subsequent accesses are cheap. Introduced in $\S{4.2}$
 """
 Stream{T} = Union{ NonEmpty{T}, Empty{T} }
 

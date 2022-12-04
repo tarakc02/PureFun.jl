@@ -77,7 +77,7 @@ Catenable.List
 VectorCopy.List
 ```
 
-## The `Chunky.@list` functor: CPU-cache friendly lists
+## CPU-cache friendly lists: `Chunky.@list`
 
 Pointer-based data structures are at a disadvantage performance-wise when
 compared to arrays and vectors. Memory accesses are high-latency operations, so
@@ -99,7 +99,15 @@ together in each list cell. `PureFun.Chunky.@list` converts any list type to a
 Chunky.@list
 ```
 
-## Converting any list to a double-ended queue: $\S{5.2}$, excercise 5.1
+For more on cache-friendly data structures and the role of cache misses on
+performance:
+
+- [Data Locality](https://gameprogrammingpatterns.com/data-locality.html)
+- [Going nowhere faster](https://youtu.be/2EWejmkKlxs) 
+- [Gallery of processor cache
+  effects](http://igoro.com/archive/gallery-of-processor-cache-effects/)
+
+## Custom double-ended queue: $\S{5.2}$ (excercise 5.1)
 
 ```@docs
 Batched.@deque

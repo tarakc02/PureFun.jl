@@ -48,7 +48,7 @@ dictorder(o) = Base.Order.By(dictkey, o)
 
     RedBlack.RBDict{O,K,V} where O
     RedBlack.RBDict{K,V}(ord=Base.Order.Forward)
-    RedBlack.RBDict(iter, o::Ordering=Forward)
+    RedBlack.RBDict(iter, o::Ordering=Base.Order.Forward)
 
 Immutable dictionary implemented using a red-black tree (balanced binary search
 tree). All major operations are $\mathcal{O}(\log{}n)$. Note the ordering
@@ -61,16 +61,41 @@ In addition to the main `PFDict` methods, `RBDict` implements `delete`,
 ```jldoctest
 julia> using PureFun, PureFun.RedBlack
 
-julia> RedBlack.RBDict(("zyz" => 1, "abc" => 2, "ghi" => 3))
+julia> f = RedBlack.RBDict(("zyz" => 1, "abc" => 2, "ghi" => 3))
 PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering, String, Int64} with 3 entries:
   "abc" => 2
   "ghi" => 3
   "zyz" => 1
 
-julia> RedBlack.RBDict(("zyz" => 1, "abc" => 2, "ghi" => 3), Base.Order.Reverse)
+julia> b = RedBlack.RBDict(("zyz" => 1, "abc" => 2, "ghi" => 3), Base.Order.Reverse)
 PureFun.RedBlack.RBDict{Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}, String, Int64} with 3 entries:
   "zyz" => 1
   "ghi" => 3
+  "abc" => 2
+
+julia> delete_min(f)
+PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering, String, Int64} with 2 entries:
+  "ghi" => 3
+  "zyz" => 1
+
+julia> delete_max(f)
+PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering, String, Int64} with 2 entries:
+  "abc" => 2
+  "ghi" => 3
+
+julia> delete_min(b)
+PureFun.RedBlack.RBDict{Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}, String, Int64} with 2 entries:
+  "ghi" => 3
+  "abc" => 2
+
+julia> delete_max(b)
+PureFun.RedBlack.RBDict{Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}, String, Int64} with 2 entries:
+  "zyz" => 1
+  "ghi" => 3
+
+julia> delete(b, "ghi")
+PureFun.RedBlack.RBDict{Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}, String, Int64} with 2 entries:
+  "zyz" => 1
   "abc" => 2
 
 # forward-ordered by default, so:
@@ -114,19 +139,58 @@ val(p) = elem(p).second
 Base.get(d::RBDict, k, default) = traverse(d.t, k, val, x -> default)
 Base.get(f::Function, d::RBDict, k) = traverse(d.t, k, val, x -> f())
 
-Base.iterate(d::RBDict) = iterate(d.t)
-Base.iterate(d::RBDict, state) = iterate(d.t, state)
-Base.length(d::RBDict) = length(d.t)
-
-Iterators.reverse(d::RBDict) = Iterators.reverse(d.t)
-
-PureFun.delete(d::RBDict, key) = RBDict(delete(d.t, key))
-PureFun.delete_min(d::RBDict) = RBDict(delete_min(d.t))
-PureFun.delete_max(d::RBDict) = RBDict(delete_max(d.t))
-
 # }}}
 
 # PFSet interface {{{
+@doc raw"""
+
+    RBSet{O,T} where O
+    RBSet{O,T}(ord=Base.Order.Forward)
+    RBSet(iter, o=Base.Order.Forward)
+
+An immutable ordered set. All major operations are $\mathcal{O}(\log{}n)$. Note
+the ordering parameter, the RBDict iterates in sorted order according to the
+ordering `O`. In addition to the main `PFDict` methods, `RBDict` implements
+`delete`, `delete_min`, and `delete_max`.
+
+# Examples
+
+```jldoctest
+julia> using PureFun, PureFun.RedBlack
+
+julia> s1 = RedBlack.RBSet(1:10)
+1
+2
+3
+⋮
+8
+9
+10
+
+
+julia> s2 = RedBlack.RBSet(1:10, Base.Order.Reverse)
+10
+9
+8
+⋮
+3
+2
+1
+
+
+julia> 1 ∈ s1, 1 ∈ s2
+(true, true)
+
+julia> 17 ∈ s1, 17 ∈ s2
+(false, false)
+
+julia> 1 ∈ delete_min(s1)
+false
+
+julia> 17 ∈ push(s2, 17)
+true
+```
+"""
 struct RBSet{O,T} <: PureFun.PFSet{T} where O
     t::NonRed{T,O}
 end
@@ -151,15 +215,22 @@ end
 PureFun.push(s::RBSet, x) = RBSet(insert(s.t, x))
 Base.in(x, s::RBSet) = traverse(s.t, x, return_true, return_false)
 
-Base.iterate(s::RBSet) = iterate(s.t)
-Base.iterate(s::RBSet, state) = iterate(s.t, state)
-Base.length(s::RBSet) = length(s.t)
-Iterators.reverse(d::RBSet) = Iterators.reverse(s.t)
-
 function Base.show(i::IO, m::MIME"text/plain", s::RBSet)
     show(i,m,s.t)
 end
 
 # }}}
+
+DS = Union{RBDict, RBSet}
+
+Base.iterate(d::DS) = iterate(d.t)
+Base.iterate(d::DS, state) = iterate(d.t, state)
+Base.length(d::DS) = length(d.t)
+
+Iterators.reverse(d::DS) = Iterators.reverse(d.t)
+
+PureFun.delete(d::DS, key) = typeof(d)(delete(d.t, key))
+PureFun.delete_min(d::DS) = typeof(d)(delete_min(d.t))
+PureFun.delete_max(d::DS) = typeof(d)(delete_max(d.t))
 
 end

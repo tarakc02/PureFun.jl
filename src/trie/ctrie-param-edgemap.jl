@@ -34,14 +34,15 @@ _itereltype(f, ::Type{T}) where T = eltype(Core.Compiler.return_type(f, Tuple{T}
 # trie types {{{
 
 @doc raw"""
+    Trie.@trie Name edgemap
     Trie.@trie Name edgemap keyfunc
 
-Tries are defined by the `keyfunc`, which takes keys and returns an iterator of
-simpler keys, and the `edgemap`, which maps the simpler keys to subtries.
-`keyfunc` is an optional argument, if not specified it will be set to the
-identity function for all types except for Strings, for which it is `codeunits`
-(in order to properly handle variable width character encodings). Once `Name`
-has been defined, it can be used like any other [`PureFun.PFDict`](@ref)
+Tries are defined by an optional `keyfunc`, which takes keys and returns an
+iterator of simpler keys, and the `edgemap`, which maps the simpler keys to
+subtries. if `keyfunc`  is not specified it will be set to the identity
+function for all types except for Strings, for which it is `codeunits` (in
+order to properly handle variable width character encodings). Once `Name` has
+been defined, it can be used like any other [`PureFun.PFDict`](@ref)
 
 # Examples
 

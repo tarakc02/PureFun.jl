@@ -21,3 +21,20 @@ in compact and efficient dictionaries
 ```@docs
 Tries.@trie
 ```
+
+## `HashTable`: $\S{10.3.1}$ exercise 10.11
+
+Between the path-compressed tries and the ultra-fast `BitMap` used for the
+edgemaps, this dictionary type is very fast for both updates and lookups.
+Updates/inserts will become even more efficient once there is a fix for
+[#17](@ref)
+
+```@docs
+HashTable.HashMap
+```
+
+## `Association.List`
+
+```@docs
+Association.List
+```
