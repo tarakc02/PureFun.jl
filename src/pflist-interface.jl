@@ -40,8 +40,8 @@ Return the first element of a `PFList` or `PFQueue`. See also [`tail`](@ref)
 function head end
 
 """
-    tail(xs)
     popfirst(xs)
+    tail(xs)
 
 Return the collection `xs` without its first element (without modifying `xs`).
 """
@@ -71,9 +71,46 @@ julia> l1 ⧺ l2
 """
 function append end
 
+"""
+return a reversed version of the input list
+"""
 Base.reverse(l::PFList) = foldl(pushfirst, l, init=empty(l))
 append(l1::PFList, l2::PFList) = foldr(cons, l1, init=l2)
 
+"""
+    setindex(l::PFList, newval, ind)
+
+Return a new list with the value at index `ind` set to `newval`
+
+# Examples
+
+```jldoctest
+julia> using PureFun, PureFun.RandomAccess
+
+julia> l = RandomAccess.List(1:10)
+10-element PureFun.RandomAccess.List{Int64}
+1
+2
+3
+4
+5
+6
+7
+...
+
+julia> setindex(l, 99, 4)
+10-element PureFun.RandomAccess.List{Int64}
+1
+2
+3
+99
+5
+6
+7
+...
+
+```
+"""
 function Base.setindex(l::PFList, newval, ind)
     new = empty(l)
     cur = l
@@ -87,6 +124,11 @@ function Base.setindex(l::PFList, newval, ind)
     return reverse(cons(newval, new)) ⧺ tail(cur)
 end
 
+@doc raw"""
+    insert(list::PFList, ix, v)
+
+Return a new list with the element `v` inserted at index `ix`.
+"""
 function PureFun.insert(l::PFList, ix, v)
     new = empty(l)
     cur = l
@@ -129,8 +171,40 @@ end
     halfish(xs)
 
 Split `xs` *roughly* in half, and return the two halves as a tuple (front,
-back). Also returns the new length of the truncated front half
+back).
 
+# Examples
+
+```jldoctest
+julia< using PureFun
+julia> l = PureFun.Linked.List(1:100)
+100-element PureFun.Linked.NonEmpty{Int64}
+1
+2
+3
+4
+5
+6
+7
+...
+
+julia> halves = halfish(l)
+(1, 2, 3, 4, 5, ..., 51, 52, 53, 54, 55, ...)
+
+julia> length(halves[1]), length(halves[2])
+(50, 50)
+
+julia> halves[2]
+50-element PureFun.Linked.NonEmpty{Int64}
+51
+52
+53
+54
+55
+56
+57
+...
+```
 """
 function halfish(xs)
     len = length(xs)

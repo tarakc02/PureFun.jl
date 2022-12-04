@@ -87,14 +87,18 @@ inds(bm::BitMap) = bm.b
 elems(bm::BitMap) = bm.elems
 
 @doc raw"""
-    bitmap(n_elems::Val=Val{16}())
+    bitmap(n_elems=Val{16}())
 
-Create a bitmap with `n_elems` elements. See also [`PureFun.Tries.@trie`](@ref)
+Create a BitMap with `n_elems` elements. See also
+[`PureFun.Tries.@trie`](@ref). If the number of elements are known at compile
+time, then using `Val{N}()` rather than `N` to specify the number might be more
+efficient.
 
 # Examples
 
 ```jldoctest
-julia> BM = PureFun.Contiguous.bitmap(8)
+julia> using PureFun, PureFun.Contiguous
+julia> BM = Contiguous.bitmap(8) # equivalently: Contiguous.bitmap(Val{8}())
 PureFun.Contiguous.BitMap{PureFun.Contiguous.Bits{UInt8}}
 
 julia> b = BM{Int,Char}()
@@ -103,6 +107,7 @@ PureFun.Contiguous.BitMap{PureFun.Contiguous.Bits{UInt8}, Int64, Char}()
 julia> setindex(b, 'a', 1)
 PureFun.Contiguous.BitMap{PureFun.Contiguous.Bits{UInt8}, Int64, Char} with 1 entry:
   1 => 'a'
+```
 """
 function bitmap(n_elems::Val=Val{16}())
     U = _uint_with_bits(n_elems)
@@ -159,13 +164,6 @@ PureFun.push(bm::BitMap, pair) = setindex(bm, pair[2], pair[1])
 
 # Bit-eration: iterate 64-bit hashes as a sequence of small ints {{{
 
-"""
-    Biterate{N,T}
-
-take an unsigned integer of type T and iterate over it N bits at a time. The
-iterated elements are returned as unsigned integers (e.g. if N = 8, then
-Biterate will iterate UInt8)
-"""
 struct Biterate{N, T}
     x::T
     Biterate{N,T}(x) where {N,T} = new{N,T}(x)
@@ -198,6 +196,30 @@ Base.firstindex(b::Biterate) = 1
 Base.lastindex(b::Biterate) = length(b)
 Base.eltype(::Type{<:Biterate}) = Int
 
+@doc raw"""
+    biterate(v)
+    biterate(v, x)
+
+take an integer and iterate over it N bits at a time. The iterated elements are
+interpreted as integers between 1 and $2^v$ (e.g. if `v` = 6, then biterate
+will iterate integers between 1 and 64). The iterated integers are meant to be
+interpreted as array indexes, and are are always greater than 0.
+
+If the number of bits `v` is known at compile-time, specifying it as `Val{N}()`
+might be more efficient than just passing the number as an integer.
+
+# Examples
+
+```jldoctest
+julia> using PureFun, PureFun.Contiguous
+julia> Contiguous.biterate(4, UInt16(79)) |> collect
+4-element Vector{Int64}:
+ 16
+  5
+  1
+  1
+```
+"""
 biterate(::Val{N}, x) where N = Biterate{N, typeof(x)}(x)
 biterate(v::Val{N}) where N = Biterate{N}
 biterate(v) = biterate(Val(v))

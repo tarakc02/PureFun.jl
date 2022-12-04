@@ -38,3 +38,11 @@ HashTable.HashMap
 ```@docs
 Association.List
 ```
+
+## Function reference
+
+```@docs
+PureFun.setindex(d::PureFun.PFDict, v, i)
+Base.get(d::PureFun.PFDict, key, default)
+PureFun.PFDict
+```

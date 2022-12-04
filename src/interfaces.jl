@@ -57,6 +57,12 @@ abstract type PFStream{T} end
 
 # implements `head` and `tail`
 const PFListy{T} = Union{PFList{T}, PFQueue{T}, PFStream{T}} where T
+
+"""
+    popfirst(xs)
+
+Return the collection `xs` without its first element (without modifying `xs`).
+"""
 popfirst(xs::PFListy) = tail(xs)
 
 # iterates over elements of type T in a specified order

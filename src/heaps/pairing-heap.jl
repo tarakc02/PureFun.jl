@@ -34,8 +34,9 @@ Pairing heaps ($\S{5.5}$):
 been proven that the amortized time required by `delete_min` is no worse than
 $\mathcal{O}(\log{}n)$, and there is an open conjecture that it is in fact
 $\mathcal{O}(1)$. The amortized bounds here do *not* apply in persistent
-settings. For heaps suited to persistent use-cases, see [`SkewBinomial.Heap`](@ref)
-and [`BootstrappedSkewBinomial.Heap`](@ref)
+settings. For heaps suited to persistent use-cases, see
+[`PureFun.SkewBinomial.Heap`](@ref) and
+[`PureFun.BootstrappedSkewBinomial.Heap`](@ref)
 
 # Examples
 

@@ -41,6 +41,17 @@ PureFun.head(q::Queue) = head(front(q))
 PureFun.snoc(q::Queue, x) = exec(front(q), cons(x, rear(q)), sched(q))
 PureFun.tail(q::Queue) = exec(tail(front(q)), rear(q), sched(q))
 
+@doc raw"""
+
+    RealTime.Queue{T}()
+    RealTime.Queue(iter)
+
+All operations are worst-case $\mathcal{O}(1)$. These queues make heavy use of
+lazy evaluation. Due to the overheads associated with lazy evaluation, the
+`PureFun.RealTime.Queue` is slower on average than others, but can still be
+useful in settings (such as interactive user-interfaces) where bounded
+worst-case performance is more important than average performance.
+"""
 function Queue(iter)
     l = Lazy.Stream(iter)
     Queue(l, Linked.List{eltype(iter)}(), l)

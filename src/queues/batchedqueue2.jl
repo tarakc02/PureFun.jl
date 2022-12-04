@@ -16,7 +16,7 @@ Deques are like lists but with symmetric efficient operations on the front
 `Batched.@deque` [functor](https://ocaml.org/docs/functors) takes any existing
 list implementation (`ListType`), and makes it double-ended. The
 `Batched.@deque` works by batching occasional reversals (which are
-$\mathcal{O}(n)$) so that all oeprations require *amortized* constant time.
+$\mathcal{O}(n)$) so that all operations require *amortized* constant time.
 
 # Examples
 

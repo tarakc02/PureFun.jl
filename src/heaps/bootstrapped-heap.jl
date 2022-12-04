@@ -33,7 +33,7 @@ Section $\S{10.2.2}$ of *Purely Functional Data Structures* demonstrates how to
 use structural abstraction to take a heap implementation with $\mathcal{O}(1)$
 `push` and improve the running time of `merge` and `minimum` to
 $\mathcal{O}(1)$. The `BootStrappedSkewBinomial.Heap` uses the technique on the
-[`SkewBinomial.Heap`](@ref).
+[`PureFun.SkewBinomial.Heap`](@ref).
 
 """
 Heap{T}(ord=Base.Order.Forward) where T = Empty{T, typeof(ord)}(ord)

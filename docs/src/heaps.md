@@ -31,6 +31,13 @@ ordering as an additional optional argument.
 
 ## `Pairing.Heap` $\S{5.5}$
 
+The `Pairing.Heap` is very fast, but requires occasional expensive rebalancing
+operations to maintain efficient access to the minimum element, and should be
+used when the data structure has only a single logical future (see the
+discussion in [Queues](@ref) for more information about this concept).
+Otherwise, try the [`SkewBinomial.Heap`](@ref) or the
+[`BootstrappedSkewBinomial.Heap`](@ref)
+
 ```@docs
 Pairing.Heap
 ```
@@ -45,4 +52,13 @@ SkewBinomial.Heap
 
 ```@docs
 BootstrappedSkewBinomial.Heap
+```
+
+## Function reference
+
+```@docs
+PureFun.minimum(::PFHeap)
+PureFun.delete_min
+PureFun.push(::PFHeap, x)
+Base.merge(::PFHeap, ::PFHeap)
 ```

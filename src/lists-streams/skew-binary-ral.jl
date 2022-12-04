@@ -64,7 +64,7 @@ Base.firstindex(d::Digit) = 1
     RandomAccess.List{T}()
     RandomAccess.List(iter)
 
-A `RandomAccess.List` ($\S{9.3.2}$) adds efficient ($\mathcal{O}(\log{2}n)$)
+A `RandomAccess.List` ($\S{9.3.2}$) adds efficient ($\mathcal{O}(\log{}n)$)
 indexing (`getindex` and `setindex`) operations to the $\mathcal{O}(1)$ primary
 operations. The implementation stores elements in complete binary trees
 representing digits in the [skew binary number

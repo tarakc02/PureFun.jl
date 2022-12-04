@@ -76,6 +76,43 @@ function checkf(lenfm, f::Linked.List{T}, m, lenr, r) where T
     NonEmpty(lenfm, f, m, lenr, r)::NonEmpty{T}
 end
 
+@doc raw"""
+
+    Bootstrapped.Queue{T}()
+    Bootstrapped.Queue(iter)
+
+`first` takes $\mathcal{O}(1)$ time, while both `push` and `popfirst` take
+$\mathcal{O}(\log^{*}{n})$ amortized time, where $\log^{*}$ is the [iterated
+logarithm](https://en.wikipedia.org/wiki/Iterated_logarithm), which is
+"constant in practice." The amortized bounds extend to settings that require
+persistence, this is achieved via disciplined use of [*lazy
+evaluation*](https://en.wikipedia.org/wiki/Lazy_evaluation) along with
+[memoization](https://en.wikipedia.org/wiki/Memoization)
+
+# Examples
+
+```jldoctest
+julia> using PureFun, PureFun.Bootstrapped
+julia> q = Bootstrapped.Queue(1:3)
+3-element PureFun.Bootstrapped.NonEmpty{Int64}
+1
+2
+3
+
+julia> push(q, 4)
+4-element PureFun.Bootstrapped.NonEmpty{Int64}
+1
+2
+3
+4
+
+julia> popfirst(q)
+2-element PureFun.Bootstrapped.NonEmpty{Int64}
+2
+3
+
+```
+"""
 Queue{T}() where T = Empty{T}()
 function Queue(iter)
     T = eltype(iter)

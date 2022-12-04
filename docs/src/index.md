@@ -91,7 +91,7 @@ These use generic design strategies to produce more powerful data structures
 from simpler ones.
 
 [`PureFun.Batched.@deque`](@ref) takes a list implementation and adds efficient access
-(push/pop/read) to the rear of the list, making it into a double-ended queue.
+(push/pop/last) to the rear of the list, making it into a double-ended queue.
 The resulting deque maintains the advantages of the list used to create it, so
 for example a deque made from [`PureFun.RandomAccess.List`](@ref) will maintain
 fast indexing (get/set index) operations.

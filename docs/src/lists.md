@@ -13,17 +13,8 @@ operations:
   element removed
 - `pushfirst(xs, x)`: returns a new list with `x` added to the front of `xs`.
   The infix operator `⇀` (pronounced `\rightharpoonup`) is often more
-  convenient. Note that it is right-associative, so
-
-```
-x ⇀ y ⇀ zs
-```
-
-is equivalent to
-
-```
-pushfirst(pushfirst(zs, y), x)
-```
+  convenient. Note that it is right-associative, so `x ⇀ y ⇀ zs ` is equivalent
+  to `pushfirst(pushfirst(zs, y), x)`
 
 
 Additionally, PureFun.jl implements default implementations of a variety of
@@ -31,7 +22,9 @@ Additionally, PureFun.jl implements default implementations of a variety of
 Vector](https://docs.julialang.org/en/v1/base/arrays/#Base.AbstractVector)-like
 methods for list types, though they are not necessarily efficient. All of these
 functions have similar meanings to their mutating (with a `!` at the end of the
-function name) counterparts in `Base`.
+function name) counterparts in `Base`. When these functions are already present
+in [StaticArrays.jl](https://juliaarrays.github.io/StaticArrays.jl/stable/),
+PureFun.jl just adds methods to the existing functions.
 
 - `reverse`
 - `insert`
@@ -47,10 +40,13 @@ functions](https://en.wikipedia.org/wiki/Higher-order_function):
 - eager versions of `map`, `filter`, `accumulate`
 - `(map)foldl`, `(map)foldr`, `(map)reduce`
 
-There are several different implementations of lists, optimized for different
-use-cases. All of the list implementations in PureFun.jl inherit from the
-abstract type `PureFun.PFList`. Complexities presented below are worst-case,
-unless stated otherwise.
+All of the lists types provide the same functionality and interface, but
+different implementations are optimized for different use-cases and types of
+operations. For example, getting or setting an index in a linked list usually
+takes $\mathcal{O}(n)$ time, but `PureFun.RandomAccess.List` provides indexing
+operations that take $\mathcal{O}(\log{_2}n)$. All of the list
+implementations in PureFun.jl inherit from the abstract type `PureFun.PFList`.
+Complexities presented below are worst-case, unless stated otherwise.
 
 ## `Linked.List` ($\S{2.1}$)
 
@@ -90,10 +86,10 @@ The [unrolled linked list](https://en.wikipedia.org/wiki/Unrolled_linked_list)
 strikes a compromise between the two extremes by storing chunks of values
 together in each list cell. `PureFun.Chunky.@list` converts any list type to a
 "chunky" version, using one of the chunk types provided by
-`PureFun.Contiguous`:
+[`PureFun.Contiguous`](@ref):
 
-- `Contiguous.StaticChunk{N}`: Backed by `StaticArrays.SVector`
-- `Contiguous.VectorChunk{N}`: Backed by `Base.Vector`
+- [`Contiguous.StaticChunk{N}`](@ref): Backed by `StaticArrays.SVector`
+- [`Contiguous.VectorChunk{N}`](@ref): Backed by `Base.Vector`
 
 ```@docs
 Chunky.@list
@@ -112,3 +108,15 @@ performance:
 ```@docs
 Batched.@deque
 ```
+
+## Function reference
+
+```@docs
+PureFun.pushfirst(::PureFun.PFList, x)
+PureFun.popfirst(::PureFun.PFListy)
+PureFun.append
+PureFun.insert(::PureFun.PFList, i, v)
+PureFun.setindex(::PureFun.PFList, v, i)
+PureFun.halfish
+```
+

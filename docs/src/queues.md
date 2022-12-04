@@ -37,21 +37,15 @@ logical futures (example: concurrency/multi-threading):
 
 ## `Bootstrapped.Queue` $\S{10.1.3}$
 
-`first` takes $\mathcal{O}(1)$ time, while both `push` and `popfirst` take
-$\mathcal{O}(\log^{*}{n})$ amortized time, where $\log^{*}$ is the [iterated
-logarithm](https://en.wikipedia.org/wiki/Iterated_logarithm), which is
-"constant in practice." The amortized bounds extend to settings that require
-persistence, this is achieved via disciplined use of [*lazy
-evaluation*](https://en.wikipedia.org/wiki/Lazy_evaluation) along with
-[memoization](https://en.wikipedia.org/wiki/Memoization)
+```@docs
+PureFun.Bootstrapped.Queue
+```
 
 ## `RealTime.Queue` $\S{7.2}$
 
-All operations are worst-case $\mathcal{O}(1)$. These queues make heavy use of
-lazy evaluation. Due to the overheads associated with lazy evaluation, the
-`PureFun.RealTime.Queue` is slower on average than others, but can still be
-useful in settings (such as interactive user-interfaces) where bounded
-worst-case performance is more important than average performance.
+```@docs
+PureFun.RealTime.Queue
+```
 
 ## `HoodMelville.Queue` $\S{8.2.1}$
 
@@ -59,3 +53,9 @@ worst-case performance is more important than average performance.
 HoodMelville.Queue
 ```
 
+# Function reference
+
+```@docs
+PureFun.push
+PureFun.popfirst
+```

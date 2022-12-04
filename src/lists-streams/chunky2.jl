@@ -19,8 +19,9 @@ Creates a new list type (implements all list functions and inherits from
 `PureFun.PFList`) by assembling a list (of type `ListType`) of *chunks* (of
 type `ChunkType`). Assuming `ChunkType` stores chunk elements contiguously, the
 resulting list will have improved iteration performance.
-[`Contiguous.VectorChunk`](@ref) and [`Contiguous.StaticChunk`](@ref) implement
-the chunk type and can be used in chunky lists.
+[`PureFun.Contiguous.VectorChunk`](@ref) and
+[`PureFun.Contiguous.StaticChunk`](@ref) implement the chunk type and can be
+used in chunky lists.
 
 # Examples
 
@@ -52,8 +53,8 @@ julia> mapfoldl(sqrt, +, clist)
 671.4629471031477
 ```
 
-Similarly, the following example uses [`RandomAccess.List`](@ref)s and chunks
-of `Base.Vector`:
+Similarly, the following example uses [`PureFun.RandomAccess.List`](@ref)s and
+chunks of `Base.Vector`:
 
 ```jldoctest
 julia> using PureFun, PureFun.RandomAccess, PureFun.Chunky, PureFun.Contiguous

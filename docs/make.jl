@@ -50,8 +50,7 @@ makedocs(sitename="PureFun.jl",
                 "Balanced Parentheses" => "generated/balanced-parentheses.md",
                 "Ramanujan (taxicab) numbers" => "generated/taxicab.md",
                 "Generating Suffixes" => "generated/suffixes.md"
-               ],
-            "Reference" => "reference.md",
+               ]
         ])
 
 deploydocs(

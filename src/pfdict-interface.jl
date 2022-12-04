@@ -15,3 +15,10 @@ function update_at(f::Function, d::PFDict, key, default)
     cur = get(d, key, default)
     setindex(d, f(cur), key)
 end
+
+"""
+    setindex(d::PFDict, v, i)
+
+Return a new dictionary with the value at key `i` set to `v`
+"""
+Base.setindex(d::PFDict, v, i) = throw(MethodError(setindex, (d, v, i)))

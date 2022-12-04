@@ -29,8 +29,8 @@ skew-binary (rather than binary) numbers, pushing a new element into a skew
 binomial heap is worst-case $\mathcal{O}(1)$ (as opposed to
 $\mathcal{O}(\log{}n)$ for binomial heaps). `merge`, `delete_min`, and
 `minimum` are worst-case $\mathcal{O}(\log{}n)$. See also
-[`BootstrappedSkewBinomial.Heap`](@ref), which uses structural abstraction to
-improve `minimum` and `merge` to worst-case $\mathcal{O}(1)$
+[`PureFun.BootstrappedSkewBinomial.Heap`](@ref), which uses structural
+abstraction to improve `minimum` and `merge` to worst-case $\mathcal{O}(1)$
 
 """
 function Heap{T}(o::Base.Order.Ordering=Base.Order.Forward) where T
