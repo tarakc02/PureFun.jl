@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Dictionaries · PureFun.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">PureFun.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Purely Functional Data Structures, in Julia</a></li><li><a class="tocitem" href="../lists/">Lists</a></li><li><a class="tocitem" href="../queues/">Queues/Deques</a></li><li><a class="tocitem" href="../heaps/">Heaps</a></li><li class="is-active"><a class="tocitem" href>Dictionaries</a><ul class="internal"><li><a class="tocitem" href="#RedBlack.RBDict-(\\S{3.3})"><span><code>RedBlack.RBDict</code> (<span>$\S{3.3}$</span>)</span></a></li><li><a class="tocitem" href="#Tries-(\\S{10.3.1})"><span><code>Tries</code> (<span>$\S{10.3.1}$</span>)</span></a></li><li><a class="tocitem" href="#HashTable:-\\S{10.3.1}-exercise-10.11"><span><code>HashTable</code>: <span>$\S{10.3.1}$</span> exercise 10.11</span></a></li><li><a class="tocitem" href="#Association.List"><span><code>Association.List</code></span></a></li></ul></li><li><a class="tocitem" href="../generated/streams/">Streams</a></li><li><a class="tocitem" href="../contiguous/">Small size optimizations</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../generated/estimating-pi/">Estimating π</a></li><li><a class="tocitem" href="../generated/balanced-parentheses/">Balanced Parentheses</a></li><li><a class="tocitem" href="../generated/taxicab/">Ramanujan (taxicab) numbers</a></li><li><a class="tocitem" href="../generated/suffixes/">Generating Suffixes</a></li></ul></li><li><a class="tocitem" href="../reference/">Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Dictionaries</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Dictionaries</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/tarakc02/PureFun.jl/blob/main//docs/src/dicts.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Dictionaries"><a class="docs-heading-anchor" href="#Dictionaries">Dictionaries</a><a id="Dictionaries-1"></a><a class="docs-heading-anchor-permalink" href="#Dictionaries" title="Permalink"></a></h1><h2 id="RedBlack.RBDict-(\\S{3.3})"><a class="docs-heading-anchor" href="#RedBlack.RBDict-(\\S{3.3})"><code>RedBlack.RBDict</code> (<span>$\S{3.3}$</span>)</a><a id="RedBlack.RBDict-(\\S{3.3})-1"></a><a class="docs-heading-anchor-permalink" href="#RedBlack.RBDict-(\\S{3.3})" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-binding" id="PureFun.RedBlack.RBDict" href="#PureFun.RedBlack.RBDict"><code>PureFun.RedBlack.RBDict</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia hljs">RedBlack.RBDict{O,K,V} where O
+RedBlack.RBDict{K,V}(ord=Base.Order.Forward)
+RedBlack.RBDict(iter, o::Ordering=Base.Order.Forward)</code></pre><p>Immutable dictionary implemented using a red-black tree (balanced binary search tree). All major operations are <span>$\mathcal{O}(\log{}n)$</span>. Note the ordering parameter, the RBDict iterates in sorted order according to the ordering <code>O</code>. In addition to the main <code>PFDict</code> methods, <code>RBDict</code> implements <code>delete</code>, <code>delete_min</code>, and <code>delete_max</code>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using PureFun, PureFun.RedBlack
+
+julia&gt; f = RedBlack.RBDict((&quot;zyz&quot; =&gt; 1, &quot;abc&quot; =&gt; 2, &quot;ghi&quot; =&gt; 3))
+PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering, String, Int64} with 3 entries:
+  &quot;abc&quot; =&gt; 2
+  &quot;ghi&quot; =&gt; 3
+  &quot;zyz&quot; =&gt; 1
+
+julia&gt; b = RedBlack.RBDict((&quot;zyz&quot; =&gt; 1, &quot;abc&quot; =&gt; 2, &quot;ghi&quot; =&gt; 3), Base.Order.Reverse)
+PureFun.RedBlack.RBDict{Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}, String, Int64} with 3 entries:
+  &quot;zyz&quot; =&gt; 1
+  &quot;ghi&quot; =&gt; 3
+  &quot;abc&quot; =&gt; 2
+
+julia&gt; delete_min(f)
+PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering, String, Int64} with 2 entries:
+  &quot;ghi&quot; =&gt; 3
+  &quot;zyz&quot; =&gt; 1
+
+julia&gt; delete_max(f)
+PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering, String, Int64} with 2 entries:
+  &quot;abc&quot; =&gt; 2
+  &quot;ghi&quot; =&gt; 3
+
+julia&gt; delete_min(b)
+PureFun.RedBlack.RBDict{Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}, String, Int64} with 2 entries:
+  &quot;ghi&quot; =&gt; 3
+  &quot;abc&quot; =&gt; 2
+
+julia&gt; delete_max(b)
+PureFun.RedBlack.RBDict{Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}, String, Int64} with 2 entries:
+  &quot;zyz&quot; =&gt; 1
+  &quot;ghi&quot; =&gt; 3
+
+julia&gt; delete(b, &quot;ghi&quot;)
+PureFun.RedBlack.RBDict{Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}, String, Int64} with 2 entries:
+  &quot;zyz&quot; =&gt; 1
+  &quot;abc&quot; =&gt; 2
+
+# forward-ordered by default, so:
+julia&gt; d = RedBlack.RBDict{Base.Order.ForwardOrdering}{String,Int}();
+julia&gt; d === RedBlack.RBDict{String,Int}()
+true</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/tarakc02/PureFun.jl/blob/main//src/redblack/RedBlack.jl#L47-L106">source</a></section></article><h2 id="Tries-(\\S{10.3.1})"><a class="docs-heading-anchor" href="#Tries-(\\S{10.3.1})"><code>Tries</code> (<span>$\S{10.3.1}$</span>)</a><a id="Tries-(\\S{10.3.1})-1"></a><a class="docs-heading-anchor-permalink" href="#Tries-(\\S{10.3.1})" title="Permalink"></a></h2><p>These tries use path compression (exercise 10.10, although using the &quot;Compressed Trie with digit numbers&quot; variant presented <a href="https://www.cise.ufl.edu/~sahni/dsaaj/enrich/c16/tries.htm">here</a>), resulting in compact and efficient dictionaries</p><article class="docstring"><header><a class="docstring-binding" id="PureFun.Tries.@trie" href="#PureFun.Tries.@trie"><code>PureFun.Tries.@trie</code></a> — <span class="docstring-category">Macro</span></header><section><div><pre><code class="language-julia hljs">Trie.@trie Name edgemap
+Trie.@trie Name edgemap keyfunc</code></pre><p>Tries are defined by an optional <code>keyfunc</code>, which takes keys and returns an iterator of simpler keys, and the <code>edgemap</code>, which maps the simpler keys to subtries. if <code>keyfunc</code>  is not specified it will be set to the identity function for all types except for Strings, for which it is <code>codeunits</code> (in order to properly handle variable width character encodings). Once <code>Name</code> has been defined, it can be used like any other <a href="../reference/#PureFun.PFDict"><code>PureFun.PFDict</code></a></p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using PureFun.Tries
+julia&gt; Tries.@trie SimpleMap PureFun.Association.List
+
+julia&gt; s = SimpleMap{String,Int}()
+SimpleMap{String, Int64}()
+
+julia&gt; setindex(s, 42, &quot;hello world&quot;)
+SimpleMap{String, Int64}(...):
+  &quot;hello world&quot; =&gt; 42
+
+julia&gt; SimpleMap(c =&gt; c for c in &#39;a&#39;:&#39;e&#39;)
+SimpleMap{Char, Char}(...):
+  &#39;e&#39; =&gt; &#39;e&#39;
+  &#39;d&#39; =&gt; &#39;d&#39;
+  &#39;c&#39; =&gt; &#39;c&#39;
+  &#39;b&#39; =&gt; &#39;b&#39;
+  &#39;a&#39; =&gt; &#39;a&#39;</code></pre><p>The <code>edgemap</code> can be any data structure which implements the PFDict interface: it iterates pairs, has <code>get</code>, <code>setindex</code>, and <code>isempty</code> methods, and an empty constructor that has the signature <code>edgemap{K,V}()</code>. A tricky detail is that <code>edgemap{K,V}</code> should be a concrete type for concrete <code>K</code> and <code>V</code>, something you have to account for when defining the trie type if your edgemap dictionary type has extra type parameters. For example, here we must specify the ordering parameter for our RedBlack dictionary in order to use it as the <code>edgemap</code>:</p><pre><code class="language-julia-repl hljs">julia&gt; Tries.@trie RedBlackMap PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
+
+julia&gt; RedBlackMap((&quot;hello&quot; =&gt; &quot;world&quot;, &quot;reject&quot; =&gt; &quot;fascism&quot;))
+RedBlackMap{String, String}(...):
+  &quot;hello&quot;  =&gt; &quot;world&quot;
+  &quot;reject&quot; =&gt; &quot;fascism&quot;</code></pre><p><strong>Cache-efficient bitmap tries</strong></p><p><a href="@ref"><code>PureFun.Contiguous.biterate</code></a> breaks single integer keys into iterators of smaller integer keys. <a href="@ref"><code>PureFun.Contiguous.bitmap</code></a> is a fast dictionary for small integer keys. By combining them, we end up with a <a href="https://en.wikipedia.org/wiki/Bitwise_trie_with_bitmap">bitmap-trie</a></p><pre><code class="language-julia-repl hljs">julia&gt; PureFun.Tries.@trie BitMapTrie PureFun.Contiguous.bitmap(16) PureFun.Contiguous.biterate(4)
+
+julia&gt; BitMapTrie(x =&gt; Char(x) for x in rand(UInt16, 5))
+BitMapTrie{UInt16, Char}(...):
+  0x5f60 =&gt; &#39;彠&#39;
+  0xce8b =&gt; &#39;캋&#39;
+  0x92c6 =&gt; &#39;鋆&#39;
+  0xa2ce =&gt; &#39;ꋎ&#39;
+  0xadff =&gt; &#39;귿&#39;
+
+julia&gt; PureFun.Tries.@trie BitMapTrie64 PureFun.Contiguous.bitmap(64) PureFun.Contiguous.biterate(6)
+
+julia&gt; b = BitMapTrie64(x =&gt; 2x for x in 1:1_000)
+BitMapTrie64{Int64, Int64}(...):
+  64  =&gt; 128
+  128 =&gt; 256
+  192 =&gt; 384
+  256 =&gt; 512
+  320 =&gt; 640
+  384 =&gt; 768
+  448 =&gt; 896
+  512 =&gt; 1024
+  576 =&gt; 1152
+  640 =&gt; 1280
+  ⋮   =&gt; ⋮
+
+julia&gt; b[13]
+26</code></pre><p>Tries themselves can be edgemaps for other tries:</p><pre><code class="language-julia-repl hljs">julia&gt; @trie BitMapTrie PureFun.Contiguous.bitmap(16) PureFun.Contiguous.biterate(4)
+julia&gt; PureFun.Tries.@trie StringTrie Main.BitMapTrie codeunits
+
+julia&gt; StringTrie((&quot;hello&quot; =&gt; 1, &quot;world&quot; =&gt; 2))
+StringTrie{String, Int64}(...):
+  &quot;world&quot; =&gt; 2
+  &quot;hello&quot; =&gt; 1</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/tarakc02/PureFun.jl/blob/main//src/trie/ctrie-param-edgemap.jl#L36-L135">source</a></section></article><h2 id="HashTable:-\\S{10.3.1}-exercise-10.11"><a class="docs-heading-anchor" href="#HashTable:-\\S{10.3.1}-exercise-10.11"><code>HashTable</code>: <span>$\S{10.3.1}$</span> exercise 10.11</a><a id="HashTable:-\\S{10.3.1}-exercise-10.11-1"></a><a class="docs-heading-anchor-permalink" href="#HashTable:-\\S{10.3.1}-exercise-10.11" title="Permalink"></a></h2><p>Between the path-compressed tries and the ultra-fast <code>BitMap</code> used for the edgemaps, this dictionary type is very fast for both updates and lookups. Updates/inserts will become even more efficient once there is a fix for <a href="https://github.com/tarakc02/PureFun.jl/issues/17">#17</a></p><article class="docstring"><header><a class="docstring-binding" id="PureFun.HashTable.HashMap" href="#PureFun.HashTable.HashMap"><code>PureFun.HashTable.HashMap</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia hljs">HashTable.HashMap8
+HashTable.HashMap16
+HashTable.HashMap32
+HashTable.HashMap64
+HashTable.HashMap128</code></pre><p>From exercise 10.11 in <span>$\S{10.3.1}$</span>:</p><blockquote><p>Another common data structure that involves multiple layers of finite maps is the <em>hash table</em>. Complete the following implementation . . .</p><pre><code class="nohighlight hljs">functor HashTable(structure Approx : FiniteMap
+                  structure Exact : FiniteMap
+                  val hash : Exact.Key → Approx.Key) : FiniteMap =
+struct
+    type Key = Exact.Key
+    type α Map = α Exact.Map Approx.Map
+    ...
+    fun lookup(k,m) = Exact.lookup(k, Approx.lookup(hash k, m))
+end</code></pre><p>The advantage of this representation is that <code>Approx</code> can use an efficient key type (such as integers) and <code>Exact</code> can use a trivial implementation (such as association lists)</p></blockquote><p>Hash maps in PureFun.jl uses <a href="#PureFun.Association.List"><code>PureFun.Association.List</code></a> for the <code>Exact</code> map, and a bitmapped <a href="#PureFun.Tries.@trie"><code>PureFun.Tries.@trie</code></a> of hash values for the <code>Approx</code> map. The resulting data structure is nearly identical to the one described in <a href="https://www.semanticscholar.org/paper/Ideal-Hash-Trees-Bagwell/4fc240d0d9e690cb9b0bcb2f8a5e5ca918b01410">Ideal Hash Trees</a>, which also features prominently among <a href="https://clojure.org/reference/data_structures">Clojure&#39;s standard data structures</a>, and in <a href="https://github.com/JuliaCollections/FunctionalCollections.jl">FunctionalCollections.jl</a>. <code>HashMap8</code> uses a trie with 8-way branching, <code>HashMap16</code> has 16-way branching, and so on.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using PureFun.HashTable: HashMap64
+
+julia&gt; d = HashMap64((&quot;hello&quot; =&gt; 1, &quot;world&quot; =&gt; 2))
+PureFun.HashTable.HashMap{PureFun.HashTable.BitMapTrie64{UInt64, PureFun.Association.List{String, Int64}}, String, Int64}(...):
+  &quot;hello&quot; =&gt; 1
+  &quot;world&quot; =&gt; 2
+
+julia&gt; d[&quot;world&quot;]
+2
+
+julia&gt; setindex(d, 42, &quot;another entry&quot;)
+PureFun.HashTable.HashMap{PureFun.HashTable.BitMapTrie64{UInt64, PureFun.Association.List{String, Int64}}, String, Int64}(...):
+  &quot;another entry&quot; =&gt; 42
+  &quot;hello&quot;         =&gt; 1
+  &quot;world&quot;         =&gt; 2</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/tarakc02/PureFun.jl/blob/main//src/dicts/hashtable.jl#L82-L140">source</a></section></article><h2 id="Association.List"><a class="docs-heading-anchor" href="#Association.List"><code>Association.List</code></a><a id="Association.List-1"></a><a class="docs-heading-anchor-permalink" href="#Association.List" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-binding" id="PureFun.Association.List" href="#PureFun.Association.List"><code>PureFun.Association.List</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia hljs">Association.List{K,V}()
+Association.List(iter)</code></pre><p>A dictionary implemented as a linked list of pairs. Adding/updating new items is very fast, but lookups can be as bad as <span>$\mathcal{O}(n)$</span>. Almost identical to <code>Base.ImmutableDict</code>, but with a few extra bells and whistles to conform the expected interface for <a href="../reference/#PureFun.PFDict"><code>PureFun.PFDict</code></a>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using PureFun, PureFun.Association
+
+julia&gt; Association.List(k =&gt; Char(k) for k in rand(UInt16, 5))
+PureFun.Association.List{UInt16, Char} with 5 entries:
+  0x5d5d =&gt; &#39;嵝&#39;
+  0x6ab9 =&gt; &#39;檹&#39;
+  0x4eb0 =&gt; &#39;亰&#39;
+  0xd55c =&gt; &#39;한&#39;
+  0xd018 =&gt; &#39;퀘&#39;</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/tarakc02/PureFun.jl/blob/main//src/dicts/association-list.jl#L28-L50">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../heaps/">« Heaps</a><a class="docs-footer-nextpage" href="../generated/streams/">Streams »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Sunday 4 December 2022 02:29">Sunday 4 December 2022</span>. Using Julia version 1.8.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
