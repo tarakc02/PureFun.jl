@@ -95,8 +95,9 @@ normalize(ts, o) = isempty(ts) ? ts : ins_tree(head(ts), tail(ts), o)
 
 _merge(ts1, ts2, o) = merge_trees(normalize(ts1, o), normalize(ts2, o), o)
 
-Base.merge(h1, h2) = Heap(_merge(trees(h1), trees(h2), ordering(h1)),
-                          ordering(h2))
+function Base.merge(h1::Heap, h2::Heap)
+    Heap(_merge(trees(h1), trees(h2), ordering(h1)), ordering(h2))
+end
 
 function (ins_tree(t1::N, trees, o)::List{N}) where N
     isempty(trees) && return cons(t1, trees)
