@@ -11,9 +11,6 @@ end
 
 # halfish {{{
 
-"""
-initialize a RandomAccess.List from a RandomAccess.Digit
-"""
 function digit_to_list(digit::Digit)
     T = eltype(digit)
     e = Linked.List{ Digit{T} }()
@@ -22,9 +19,6 @@ function digit_to_list(digit::Digit)
 end
 
 
-"""
-split a `Digit` approximately in half and return the two halves as `List`s
-"""
 function PureFun.halfish(d::Digit)
     if isleaf(d)
         f = digit_to_list(d)

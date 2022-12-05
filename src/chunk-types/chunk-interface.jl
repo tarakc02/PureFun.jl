@@ -21,8 +21,8 @@ abstract type Chunk{N,T} <: PureFun.PFList{T} where N end
 Backed by [Static
 Arrays](https://juliaarrays.github.io/StaticArrays.jl/stable/), `StaticChunks`
 implement all list functions but are constrained to a maximum size. Useful in
-conjunction with `PureFun.Chunky.@list`, which chains together small chunks to
-build general list types that benefit from [data
+conjunction with [`PureFun.Chunky.@list`](@ref), which chains together small
+chunks to build general list types that benefit from [data
 locality](https://gameprogrammingpatterns.com/data-locality.html).
 
 # Examples
@@ -76,8 +76,8 @@ end
 
 Backed by `Base.Vector`, `VectorChunk`s implement all list functions but are
 constrained to a maximum size. Useful in conjunction with
-`PureFun.Chunky.@list`, which chains together small chunks to build general
-list types that benefit from [data
+[`PureFun.Chunky.@list`](@ref), which chains together small chunks to build
+general list types that benefit from [data
 locality](https://gameprogrammingpatterns.com/data-locality.html).
 
 # Examples

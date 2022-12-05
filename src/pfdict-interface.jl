@@ -22,3 +22,10 @@ end
 Return a new dictionary with the value at key `i` set to `v`
 """
 Base.setindex(d::PFDict, v, i) = throw(MethodError(setindex, (d, v, i)))
+
+"""
+    get(d::PFDict, key, default)
+
+Get the value associated with `key`, or return `default`.
+"""
+Base.get(d::PFDict, key, default) = throw(MethodError(get, (d, key, default)))
