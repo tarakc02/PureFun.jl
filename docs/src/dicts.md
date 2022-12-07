@@ -22,15 +22,10 @@ in compact and efficient dictionaries
 Tries.@trie
 ```
 
-## `HashTable`: $\S{10.3.1}$ exercise 10.11
-
-Between the path-compressed tries and the ultra-fast `BitMap` used for the
-edgemaps, this dictionary type is very fast for both updates and lookups.
-Updates/inserts will become even more efficient once there is a fix for
-[#17](@ref)
+## `HashMap`: $\S{10.3.1}$ exercise 10.11
 
 ```@docs
-HashTable.HashMap
+HashMaps.@hashmap
 ```
 
 ## `Association.List`

@@ -22,6 +22,15 @@ PureFun.Batched.@deque CDeque ChunkyList
 PureFun.Tries.@trie LTrie PureFun.Association.List
 PureFun.Tries.@trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
 
+PureFun.Tries.@trie(BitMapTrie64,
+                    PureFun.Contiguous.bitmap(64),
+                    PureFun.Contiguous.biterate(6))
+
+PureFun.HashMaps.@hashmap(HAMT,
+                          approx   = Main.BitMapTrie64,
+                          exact    = PureFun.Association.List,
+                          hashfunc = hash ∘ hash)
+
 PureFun.@dict2set LSet LTrie
 
 queues  = [LDeque, RDeque, CDeque,
@@ -45,8 +54,7 @@ heaps   = [PureFun.Pairing.Heap,
 dicts = [PureFun.RedBlack.RBDict,
          PureFun.Association.List,
          LTrie, RBTrie,
-         PureFun.HashTable.HashMap16,
-         PureFun.HashTable.HashMap128
+         HAMT
         ]
 
 sets = [PureFun.RedBlack.RBSet, LSet]
