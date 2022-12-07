@@ -55,7 +55,7 @@ function test_etc(D)
 end
 
 function test(D)
-    test_constructors(D), test_accessors(D), test_etc(D)
+    test_constructors(D), test_accessors(D), test_etc(D), test_empty(D)
 end
 
 end
