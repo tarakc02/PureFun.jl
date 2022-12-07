@@ -39,17 +39,18 @@ makedocs(sitename="PureFun.jl",
          repo = "https://github.com/tarakc02/PureFun.jl/blob/main/{path}#{line}",
          pages = [
             "index.md",
-            "Lists" => "lists.md",
-            "Queues/Deques" => "queues.md",
-            "Heaps" => "heaps.md",
-            "Dictionaries" => "dicts.md",
-            "Streams" => "generated/streams.md",
+            "Lists"                    => "lists.md",
+            "Queues/Deques"            => "queues.md",
+            "Heaps"                    => "heaps.md",
+            "Dictionaries"             => "dicts.md",
+            "Sets"                     => "sets.md",
+            "Streams"                  => "generated/streams.md",
             "Small size optimizations" => "contiguous.md",
-            "Examples" => [
-                "Estimating π" => "generated/estimating-pi.md",
-                "Balanced Parentheses" => "generated/balanced-parentheses.md",
+            "Examples"                 => [
+                "Estimating π"                => "generated/estimating-pi.md",
+                "Balanced Parentheses"        => "generated/balanced-parentheses.md",
                 "Ramanujan (taxicab) numbers" => "generated/taxicab.md",
-                "Generating Suffixes" => "generated/suffixes.md"
+                "Generating Suffixes"         => "generated/suffixes.md"
                ]
         ])
 
