@@ -58,12 +58,19 @@ suffixes(test)
 
 input_lists = List.(1:k for k in 25:25:500);
 input_lengths = length.(input_lists);
-input_sizes = Base.summarysize.(input_lists);
 
-# Now, we measure the time and the space used to generate suffixes:
+#=
 
-suffix_times = map(input_lists) do l
-    @belapsed suffixes($l) evals=1 samples=2
+Now, we measure the time and the space used to generate suffixes. I'd like to
+avoid running benchmarking code on a documentation server. But it seems
+reasonable by looking at the code that the time required to generate suffixes
+will be proportional to the amount of memory allocated, so I'll use memory
+allocated during the operation as a proxy for time:
+
+=#
+
+allocated = map(input_lists) do l
+    @allocated suffixes(l)
 end;
 
 suffix_sizes = map(suffixes.(input_lists)) do s
@@ -85,14 +92,14 @@ plot(input_lengths, suffix_sizes/1000,
 
 #=
 
-Similarly, the time required to generate the suffixes is approximately linear
-in the length of the input:
+Similarly, the amount of memory allocated in the process of generating the
+suffixes is approximately linear in the length of the input:
 
 =#
 
-plot(input_lengths, 1e6*suffix_times,
+plot(input_lengths, allocated/1000,
      seriestype = :scatter,
      xlabel = "# of input elements",
-     ylabel = "μs",
-     title = "Time to generate all suffixes of a list",
+     ylabel = "memory allocated (kB)",
+     title = "Total memory allocated during construction of suffixes",
      legend = false)
