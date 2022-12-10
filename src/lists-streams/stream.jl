@@ -57,10 +57,8 @@ Base.isempty(s::Empty) = true
 
 function Stream(iter)
     T = Base.@default_eltype(iter)
-    el = iterate(iter)
-    isnothing(el) && return Empty{T}()
-    #init, state = el
-    return @stream(T, el[1], Stream(T, iter, el[2]))
+    isempty(iter) && return Empty{T}()
+    return @stream(T, first(iter), Stream(T, iter, iterate(iter)[2]))
 end
 
 function Stream(T, iter, state)
@@ -105,7 +103,7 @@ function _accumulate(T, f, xs::NonEmpty, init)
     @stream T force(nextval) _accumulate(T, f, tail(xs), force(nextval))
 end
 
-function Base.accumulate(f, xs::NonEmpty, init)
+function Base.accumulate(f, xs::NonEmpty; init)
     initval = f(init, head(xs))
     T = typeof(initval)
     @stream T initval _accumulate(T, f, tail(xs), initval)

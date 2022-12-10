@@ -23,7 +23,7 @@ end
 
 function approx_pi(n)
     summands = pi_summands(n, 1)
-    sums = accumulate(+, summands, 0.0)
+    sums = accumulate(+, summands, init=0.0)
     map(x -> 4x, sums)
 end
 
