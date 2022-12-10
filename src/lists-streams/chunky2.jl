@@ -154,25 +154,6 @@ end
 
 # iteration {{{
 
-
-#Base.@propagate_inbounds function Base.iterate(l::List, fullstate=(chunks(l),()))
-#    cs = fullstate[1]
-#    state = fullstate[2]
-#    if state !== ()
-#        y = iterate(Base.tail(state)...)
-#        y !== nothing && return (y[1], (cs, (state[1], state[2], y[2])))
-#    end
-#    x = (state === () ? iterate(cs) : iterate(cs, state[1]))
-#    x === nothing && return nothing
-#    y = iterate(x[1])
-#    while y === nothing
-#        x = iterate(cs, x[2])
-#        x === nothing && return nothing
-#        y = iterate(x[1])
-#    end
-#    return y[1], (cs, (x[2], x[1], y[2]))
-#end
-
 function Base._xfadjoint_unwrap(l::List)
     itr′, wrap = Base._xfadjoint_unwrap(chunks(l))
     return itr′, wrap ∘ Base.FlatteningRF
