@@ -1,4 +1,7 @@
 module Tries
+
+export @trie
+
 using ..PureFun
 
 # helpers {{{
@@ -241,36 +244,6 @@ function Base.setindex(trie::Trie, value, k)
     _setind(trie, i, key, kv, ch)
 end
 
-#function PureFun.update_at(f::Function, t::Trie, k, default)
-#    func(x) = Some(Pair(k, f(x)))
-#    func() = func(default)
-#    isempty(trie) && return initval(t, iterable_key(k), func())
-#    i, ch = _split(trie, key)
-#    _update_at(trie, i, key, func, ch)
-#end
-#
-#function _update_at(trie, i, key, func, ch)
-#    j = ind(trie)
-#    if j < i
-#        st = subtries(trie)
-#        # we know this exists
-#        nxt = st[key[j]]
-#        nu = _update_at(nxt, i, key, func, ch)
-#        return typeof(trie)(_kv(trie), j, setindex(st, nu, key[j]))
-#    elseif j > i
-#        st = empty(subtries(trie))
-#        nu = singleton(trie, key, func())
-#        nu_st = setindex(st, trie, ch)
-#        return typeof(trie)(nothing, i, setindex(nu_st, nu, key[i]))
-#    elseif _isvalid(trie) && lastindex(_key(trie)) == lastindex(key)
-#        return typeof(trie)(#kv -- should be func()#, j, subtries(trie))
-#    else
-#        nu = singleton(trie, key, kv)
-#        return typeof(trie)(_kv(trie), j, setindex(subtries(trie), nu, key[j]))
-#    end
-#end
-
-
 function _setind(trie, i, key, kv, ch)
     j = ind(trie)
     if j < i
@@ -296,8 +269,7 @@ end
 
 # iteration {{{
 
-_edgelist(t) = PureFun.Linked.List(collect(values(subtries(t))))
-#_edgelist(t) = reverse(foldl(pushfirst, values(subtries(t)), init = PureFun.Linked.List{valtype(t)}()))
+_edgelist(t) = PureFun.Lazy.Stream(values(subtries(t)))
 
 function Base.iterate(t::Trie)
     _isvalid(t) ?
@@ -314,7 +286,9 @@ function Base.iterate(trie::Trie, state)
         iterate(t, newstate)
 end
 
-Base.IteratorSize(t::Trie) = Base.SizeUnknown()
+function Base.length(t::Trie)
+    mapreduce( length, +, values(subtries(t)), init = _isvalid(t) )
+end
 
 # }}}
 
