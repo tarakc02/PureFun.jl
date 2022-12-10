@@ -1,5 +1,7 @@
 module HashMaps
 
+export @hashmap
+
 using ..PureFun
 
 abstract type HashMap{K,V} <: PureFun.PFDict{K,V} end
