@@ -19,12 +19,12 @@ PureFun.Batched.@deque LDeque PureFun.Linked.List
 PureFun.Batched.@deque RDeque PureFun.RandomAccess.List
 PureFun.Batched.@deque CDeque ChunkyList
 
-PureFun.Tries.@trie LTrie PureFun.Association.List
-PureFun.Tries.@trie RBTrie PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
+PureFun.Tries.@trie LTrie edgemap=PureFun.Association.List
+PureFun.Tries.@trie RBTrie edgemap=PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
 
 PureFun.Tries.@trie(BitMapTrie64,
-                    PureFun.Contiguous.bitmap(64),
-                    PureFun.Contiguous.biterate(6))
+                    edgemap = PureFun.Contiguous.bitmap(64),
+                    keyfunc = PureFun.Contiguous.biterate(6))
 
 PureFun.HashMaps.@hashmap(HAMT,
                           approx   = Main.BitMapTrie64,

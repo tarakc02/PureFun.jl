@@ -99,8 +99,8 @@ our own hash function (in this case, it is just the hash of the hash):
 julia> using PureFun, PureFun.Tries, PureFun.HashMaps
 
 julia> PureFun.Tries.@trie(BitMapTrie64,
-                           PureFun.Contiguous.bitmap(64),
-                           PureFun.Contiguous.biterate(6))
+                           edgemap = PureFun.Contiguous.bitmap(64),
+                           keyfunc = PureFun.Contiguous.biterate(6))
 
 julia> HashMaps.@hashmap(HAMT,
                          approx   = Main.BitMapTrie64,

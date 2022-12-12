@@ -37,8 +37,8 @@ _itereltype(f, ::Type{T}) where T = eltype(Core.Compiler.return_type(f, Tuple{T}
 # trie types {{{
 
 @doc raw"""
-    Trie.@trie Name edgemap
-    Trie.@trie Name edgemap keyfunc
+    @trie(Name, edgemap = ...)
+    Trie.@trie(Name, edgemap = ..., keyfunc = ...)
 
 Tries are defined by an optional `keyfunc`, which takes keys and returns an
 iterator of simpler keys, and the `edgemap`, which maps the simpler keys to
@@ -51,7 +51,7 @@ been defined, it can be used like any other [`PureFun.PFDict`](@ref)
 
 ```jldoctest
 julia> using PureFun.Tries
-julia> Tries.@trie SimpleMap PureFun.Association.List
+julia> @trie(SimpleMap, edgemap=PureFun.Association.List)
 
 julia> s = SimpleMap{String,Int}()
 SimpleMap{String, Int64}()
@@ -78,7 +78,8 @@ type has extra type parameters. For example, here we must specify the ordering
 parameter for our RedBlack dictionary in order to use it as the `edgemap`:
 
 ```jldoctest
-julia> Tries.@trie RedBlackMap PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering}
+julia> @trie(RedBlackMap,
+             edgemap = PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering})
 
 julia> RedBlackMap(("hello" => "world", "reject" => "fascism"))
 RedBlackMap{String, String}(...):
@@ -94,7 +95,9 @@ dictionary for small integer keys. By combining them, we end up with a
 [bitmap-trie](https://en.wikipedia.org/wiki/Bitwise_trie_with_bitmap)
 
 ```jldoctest
-julia> PureFun.Tries.@trie BitMapTrie PureFun.Contiguous.bitmap(16) PureFun.Contiguous.biterate(4)
+julia> @trie(BitMapTrie,
+             edgemap = PureFun.Contiguous.bitmap(16),
+             keyfunc = PureFun.Contiguous.biterate(4))
 
 julia> BitMapTrie(x => Char(x) for x in rand(UInt16, 5))
 BitMapTrie{UInt16, Char}(...):
@@ -104,7 +107,9 @@ BitMapTrie{UInt16, Char}(...):
   0xa2ce => 'ꋎ'
   0xadff => '귿'
 
-julia> PureFun.Tries.@trie BitMapTrie64 PureFun.Contiguous.bitmap(64) PureFun.Contiguous.biterate(6)
+julia> @trie(BitMapTrie64,
+             edgemap = PureFun.Contiguous.bitmap(64),
+             keyfunc = PureFun.Contiguous.biterate(6))
 
 julia> b = BitMapTrie64(x => 2x for x in 1:1_000)
 BitMapTrie64{Int64, Int64}(...):
@@ -127,7 +132,9 @@ julia> b[13]
 Tries themselves can be edgemaps for other tries:
 
 ```jldoctest
-julia> @trie BitMapTrie PureFun.Contiguous.bitmap(16) PureFun.Contiguous.biterate(4)
+julia> @trie(BitMapTrie,
+             edgemap = PureFun.Contiguous.bitmap(16),
+             keyfunc = PureFun.Contiguous.biterate(4))
 julia> PureFun.Tries.@trie StringTrie Main.BitMapTrie codeunits
 
 julia> StringTrie(("hello" => 1, "world" => 2))
@@ -136,7 +143,10 @@ StringTrie{String, Int64}(...):
   "hello" => 1
 ```
 """
-macro trie(Name, edgemap, keyfunc=triekey)
+macro trie(Name, kwargs...)
+    pieces = Dict(ex.args[1] => ex.args[2] for ex in kwargs if ex.head == :(=))
+    edgemap = pieces[:edgemap]
+    keyfunc = get(pieces, :keyfunc, triekey)
     :(
       struct $Name{K,V} <: Trie{K,V}
          kv::Option{Pair{K,V}}
