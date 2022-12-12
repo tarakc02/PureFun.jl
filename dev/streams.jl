@@ -60,15 +60,13 @@ to recalculate them.
 Like all of the data structures in PureFun.jl, Streams are iterators
 themselves, and calling a function from `Base.Iterators` on a Stream works as
 expected. Calling `Stream` on an iterator, on the other hand, is kind of like a
-lazy `collect`, it materializes computed values as they are iterated out. We
-can use the two together to efficiently chain together operations:
+lazy `collect`, it materializes computed values as they are iterated out:
 
 =#
 
 using Base.Iterators: zip, drop, take
-const accumulate, filter, map = Iterators.accumulate, Iterators.filter, Iterators.map
 
-foo = map(x -> 2x, accumulate(+, filter(isodd, integers))) |> Stream
+foo = map(x -> 2x, accumulate(+, filter(isodd, integers), init=0.0)) |> Stream
 bar = zip(foo, drop(foo, 1)) |> Stream
 
 collect(take(bar, 7))
