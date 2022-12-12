@@ -33,6 +33,9 @@ Literate.markdown(joinpath(@__DIR__, "src/suffixes.jl"),
                   joinpath(@__DIR__, "src/generated");
                   config = Dict("execute" => true))
 
+Literate.markdown(joinpath(@__DIR__, "src/hamt.jl"),
+                  joinpath(@__DIR__, "src/generated");
+                  config = Dict("execute" => true))
 
 push!(LOAD_PATH,"../src/")
 makedocs(sitename="PureFun.jl",
@@ -50,7 +53,8 @@ makedocs(sitename="PureFun.jl",
                 "Estimating π"                => "generated/estimating-pi.md",
                 "Balanced Parentheses"        => "generated/balanced-parentheses.md",
                 "Ramanujan (taxicab) numbers" => "generated/taxicab.md",
-                "Generating Suffixes"         => "generated/suffixes.md"
+                "Generating Suffixes"         => "generated/suffixes.md",
+                "Hash Array Mapped Tries"     => "generated/hamt.md"
                ]
         ])
 

@@ -72,14 +72,14 @@ end
 # }}}
 
 # bitmap: maps small integer keys to values {{{
-struct BitMap{B<:Bits, K<:Int, V} <: PureFun.PFDict{K, V}
+struct BitMap{B<:Bits, K<:Integer, V} <: PureFun.PFDict{K, V}
     b::B
     elems::PureFun.VectorCopy.List{V}
     function BitMap{B,K,V}() where {B,K,V}
         new{B,K,V}(B(), PureFun.VectorCopy.List{V}())
     end
-    function BitMap(b, elems)
-        new{typeof(b), Int, eltype(elems)}(b,elems)
+    function BitMap(b, elems, K)
+        new{typeof(b), K, eltype(elems)}(b,elems)
     end
 end
 
@@ -127,13 +127,14 @@ function Base.setindex(bm::BitMap, v, ix)
     b = setbit(inds(bm), ix)
     at = whichind(b, ix)
     el = hasind ? setindex(elems(bm), v, at) : insert(elems(bm), at, v)
-    BitMap(b, el)
+    BitMap(b, el, keytype(bm))
 end
 
 Base.isempty(bm::BitMap) = isempty(inds(bm))
 function Base.empty(bm::BitMap)
     BitMap( empty(inds(bm)),
-            empty(elems(bm)) )
+            empty(elems(bm)),
+            keytype(bm))
 end
 
 _uint_with_bits(::Val{8}) = UInt8

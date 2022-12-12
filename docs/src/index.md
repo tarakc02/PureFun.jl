@@ -85,23 +85,28 @@ element added.
 - [Sets](@ref): insert keys, test for membership, various set operations
   including `intersect` and `union`
 
-# Customizable data structures: Batched.@deque, Tries.@trie, Chunky.@list
+# Build your own data structures: Batched.@deque, Tries.@trie, Chunky.@list
 
-These use generic design strategies to produce more powerful data structures
+These use generic design strategies to assemble more powerful data structures
 from simpler ones.
 
-[`PureFun.Batched.@deque`](@ref) takes a list implementation and adds efficient access
-(push/pop/last) to the rear of the list, making it into a double-ended queue.
-The resulting deque maintains the advantages of the list used to create it, so
-for example a deque made from [`PureFun.RandomAccess.List`](@ref) will maintain
-fast indexing (get/set index) operations.
+- [`PureFun.Batched.@deque`](@ref) takes a list implementation and adds
+  efficient access (push/pop/last) to the rear of the list, making it into a
+  double-ended queue. The resulting deque maintains the advantages of the list
+  used to create it, so for example a deque made from
+  [`PureFun.RandomAccess.List`](@ref) will maintain fast indexing (get/set
+  index) operations.
 
-[`PureFun.Chunky.@list`](@ref) takes any list implementation, and uses it to
-store chunks of elements rather than single elements, in order to improve
-iteration speed.
+- [`PureFun.Chunky.@list`](@ref) takes any list implementation, and uses it to
+  store chunks of elements contiguously in memory, rather than single elements,
+  in order to improve iteration speed.
 
-[`PureFun.Tries.@trie`](@ref) builds efficient dictionaries for complex key
-types by chaining together dictionaries of simpler keys.
+- [`PureFun.Tries.@trie`](@ref) builds efficient dictionaries for aggregate key
+  types by chaining together dictionaries of single keys.
+
+- [`PureFun.HashMaps.@hashmap`](@ref) nests dictionaries and combines them with
+  hash functions to produce dictionary types that achieve efficient lookups and
+  insertions for arbitrary key types.
 
 # `PureFun.Contiguous`: small size optimizations
 
