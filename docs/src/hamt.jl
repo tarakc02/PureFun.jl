@@ -320,14 +320,14 @@ bmt = BitMapTrie((0 => "wee", 1 => "hello", 2 => "world"))
 
 #=
 
-In the worst case, a lookup in `BitMapTrie` takes 13 memory accesses, one for
+In the worst case, a lookup in `BitMapTrie` takes 11 memory accesses, one for
 each chunk of bits that we use to represent the 64 bit input[^biteratelength].
 But due to path compression, if our keys are spread out we'll only ever have to
 lookup a couple of the indexes before uniquely identifying a key. For that
 reason, when combined with a good hash function, `BitMapTrie` makes an ideal
 `approx` dictionary for a hash table:
 
-[^biteratelength]: since 5 doesn't divide evenly into 64, the last index
+[^biteratelength]: since 6 doesn't divide evenly into 64, the last index
                    produced by `biterate` will only have 4 bits and sit in the
                    range $[1,16]$. Also we can reduce the worst-case number of
                    memory accesses in this case by using a smaller key, such as
