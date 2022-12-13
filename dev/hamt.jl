@@ -16,13 +16,17 @@ randpairs(n) = (k => v for (k,v) in zip(nstrings(n), rand(Int, n)))
 
 function test_dicttype(D)
     @testset "basic tests for $D" begin
+
         kvs = randpairs(100)
         testdict = D(kvs)
+
         @test all(testdict[p.first] == p.second for p in kvs)
         @test empty(testdict) |> isempty
+
         e = D{String,String}()
-        d1 = setindex(e, "world", "hello")
         @test isempty(e)
+
+        d1 = setindex(e, "world", "hello")
         @test length(d1) == 1
         @test d1["hello"] == "world"
     end
@@ -44,12 +48,12 @@ tradeoffs explored below.
 function bench_dicttype(D, n)
     kvs = randpairs(n)
     testdict = D(kvs)
-    ks = keys(testdict)
-    search_hit  = @belapsed $testdict[k] setup=k=rand($ks)
-    search_miss = @belapsed get($testdict, "nonexisting key", -1)
+    ks = collect(kv.first for kv in kvs)
+    search_hit  = @benchmark $testdict[k] setup=k=rand($ks)
+    search_miss = @benchmark get($testdict, "nonexisting key", -1)
     (size = n,
-     search_hit_ns  = round(Int, search_hit * 1e9),
-     search_miss_ns = round(Int, search_miss * 1e9))
+     search_hit_ns  = round(Int, median(search_hit).time),
+     search_miss_ns = round(Int, median(search_miss).time))
 end;
 
 #=
@@ -58,16 +62,16 @@ As a reference point, we see how `Base.Dict` looks:
 
 ```julia
 julia> bench_dicttype(Dict, 10)
-(size = 10, search_hit_ns = 10, search_miss_ns = 11)
+(size = 10, search_hit_ns = 12, search_miss_ns = 11)
 
 julia> bench_dicttype(Dict, 100)
-(size = 100, search_hit_ns = 10, search_miss_ns = 11)
+(size = 100, search_hit_ns = 11, search_miss_ns = 11)
 
 julia> bench_dicttype(Dict, 100_000)
-(size = 100000, search_hit_ns = 10, search_miss_ns = 11)
+(size = 100000, search_hit_ns = 12, search_miss_ns = 11)
 
 julia> bench_dicttype(Dict, 1_000_000)
-(size = 100000, search_hit_ns = 10, search_miss_ns = 11)
+(size = 1000000, search_hit_ns = 12, search_miss_ns = 18)
 ```
 
 ## Introduction: hashmaps
@@ -113,16 +117,16 @@ times slow down as the collection gets larger.
 
 ```julia
 julia> bench_dicttype(RedBlackHashMap, 10)
-(size = 10, search_hit_ns = 33, search_miss_ns = 17)
+(size = 10, search_hit_ns = 31, search_miss_ns = 16)
 
 julia> bench_dicttype(RedBlackHashMap, 100)
-(size = 100, search_hit_ns = 32, search_miss_ns = 25)
+(size = 100, search_hit_ns = 35, search_miss_ns = 24)
 
 julia> bench_dicttype(RedBlackHashMap, 100_000)
-(size = 100000, search_hit_ns = 58, search_miss_ns = 58)
+(size = 100000, search_hit_ns = 69, search_miss_ns = 59)
 
 julia> bench_dicttype(RedBlackHashMap, 1_000_000)
-(size = 1000000, search_hit_ns = 85, search_miss_ns = 64)
+(size = 1000000, search_hit_ns = 81, search_miss_ns = 71)
 ```
 
 Alas, anyone who's been using `Base.Dict` will have become accustomed to
@@ -178,13 +182,13 @@ Once again I ran the benchmarks locally:
 
 ```julia
 julia> bench_dicttype(BitMapHashMap, 10)
-(size = 10, search_hit_ns = 22, search_miss_ns = 11)
+(size = 10, search_hit_ns = 23, search_miss_ns = 11)
 
 julia> bench_dicttype(BitMapHashMap, 100)
-(size = 100, search_hit_ns = 22, search_miss_ns = 18)
+(size = 100, search_hit_ns = 24, search_miss_ns = 18)
 
 julia> bench_dicttype(BitMapHashMap, 100_000)
-(size = 100000, search_hit_ns = 63, search_miss_ns = 11416)
+(size = 100000, search_hit_ns = 4171, search_miss_ns = 11417)
 ```
 
 [^addone]: When taking the modulo to convert the hash to a valid key for the bitmap
@@ -235,22 +239,6 @@ test_dicttype(RedBlackTrie)
 
 #=
 
-In terms of performance:
-
-```julia
-julia> bench_dicttype(RedBlackTrie, 10)
-(size = 10, search_hit_ns = 19, search_miss_ns = 11)
-
-julia> bench_dicttype(RedBlackTrie, 100)
-(size = 100, search_hit_ns = 20, search_miss_ns = 23)
-
-julia> bench_dicttype(RedBlackTrie, 100_000)
-(size = 100000, search_hit_ns = 55, search_miss_ns = 49)
-
-julia> bench_dicttype(RedBlackTrie, 1_000_000)
-(size = 1000000, search_hit_ns = 87, search_miss_ns = 64)
-```
-
 We can use any key type that decomposes into a sequence of simpler keys, for
 example we can use a trie to organize integer sequences stored as linked lists:
 
@@ -263,6 +251,24 @@ RedBlackTrie((1 ⇀ 2 ⇀ ∅     => "inorder",
               2 ⇀ 1 ⇀ 3 ⇀ ∅ => "random"))
 
 #=
+
+Because we started with already randomized string keys (which we expect to be
+nicely distributed), the `RedBlackTrie` can shine without need for a hash
+function:
+
+```julia
+julia> bench_dicttype(RedBlackTrie, 10)
+(size = 10, search_hit_ns = 40, search_miss_ns = 26)
+
+julia> bench_dicttype(RedBlackTrie, 100)
+(size = 100, search_hit_ns = 55, search_miss_ns = 39)
+
+julia> bench_dicttype(RedBlackTrie, 100_000)
+(size = 100000, search_hit_ns = 89, search_miss_ns = 68)
+
+julia> bench_dicttype(RedBlackTrie, 1_000_000)
+(size = 1000000, search_hit_ns = 109, search_miss_ns = 86)
+```
 
 ## `biterate`: iterating over sequences of bits
 
@@ -297,8 +303,8 @@ array trie:
 =#
 
 @trie(BitMapTrie,
-      edgemap = PureFun.Contiguous.bitmap(32),
-      keyfunc = PureFun.Contiguous.biterate(5))
+      edgemap = PureFun.Contiguous.bitmap(64),
+      keyfunc = PureFun.Contiguous.biterate(6))
 
 #=
 
@@ -332,7 +338,7 @@ reason, when combined with a good hash function, `BitMapTrie` makes an ideal
 
 @hashmap(HAMT,
          approx = BitMapTrie,
-         exact = PureFun.Association.List)
+         exact  = PureFun.Association.List)
 
 test_dicttype(HAMT)
 
@@ -340,24 +346,26 @@ test_dicttype(HAMT)
 
 ```julia
 julia> bench_dicttype(HAMT, 10)
-(size = 10, search_hit_ns = 30, search_miss_ns = 14)
+(size = 10, search_hit_ns = 31, search_miss_ns = 14)
 
 julia> bench_dicttype(HAMT, 100)
-(size = 100, search_hit_ns = 32, search_miss_ns = 21)
+(size = 100, search_hit_ns = 42, search_miss_ns = 21)
 
 julia> bench_dicttype(HAMT, 100_000)
-(size = 100000, search_hit_ns = 58, search_miss_ns = 48)
+(size = 100000, search_hit_ns = 58, search_miss_ns = 49)
 
 julia> bench_dicttype(HAMT, 1_000_000)
-(size = 1000000, search_hit_ns = 76, search_miss_ns = 48)
+(size = 1000000, search_hit_ns = 75, search_miss_ns = 49)
 ```
 
 The HAMT is described as a constant-time container, so why does it look like
-search times increase with the number of elements?
+search times increase (gradually -- notice that each of the last two steps are
+1000x increases in number of elements) with the number of elements?
 
 Our hash function maps all keys to hashes of the same length. As a result, the
-worst-case lookup time is in fact constant, defined by the total number of
-hops, 5 bits at a time, required to consume 64 bits[^caveat].
+worst-case lookup time after having calculated the hash is in fact constant,
+defined by the total number of hops, 5 bits at a time, required to consume 64
+bits[^caveat].
 
 But as we can see, in practice lookups are much faster than the theoretical
 worst-case due to the path compression in the tries. We only end up using as
