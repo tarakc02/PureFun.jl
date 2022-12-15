@@ -33,10 +33,10 @@ other list type in PureFun.jl:
 ```jldoctest
 julia> using PureFun, PureFun.Linked, PureFun.Chunky, PureFun.Contiguous
 
-julia> Chunky.@list ChunkyList Linked.List Contiguous.StaticChunk{16}
+julia> Chunky.@list CList list=Linked.List chunk=Contiguous.StaticChunk{16}
 
-julia> clist = ChunkyList(1:100)
-100-element ChunkyList{Int64}
+julia> clist = CList(1:100)
+100-element CList{Int64}
 1
 2
 3
@@ -59,7 +59,7 @@ chunks of `Base.Vector`:
 ```jldoctest
 julia> using PureFun, PureFun.RandomAccess, PureFun.Chunky, PureFun.Contiguous
 
-julia> Chunky.@list CRList RandomAccess.List Contiguous.VectorChunk{256}
+julia> Chunky.@list CRList list=RandomAccess.List chunk=Contiguous.VectorChunk{256}
 
 julia> em = CRList{Float64}()
 0-element CRList{Float64}
@@ -73,7 +73,10 @@ julia> 1.0 ⇀ 2.0 ⇀ em
 ```
 
 """
-macro list(Name, ListType, ChunkType)
+macro list(Name, kwargs...)
+    pieces = Dict(ex.args[1] => ex.args[2] for ex in kwargs if ex.head == :(=))
+    ListType = pieces[:list]
+    ChunkType = pieces[:chunk]
     :(
       struct $Name{T} <: List{T}
           chunks::$(esc(ListType)){$(esc(ChunkType)){T}}
