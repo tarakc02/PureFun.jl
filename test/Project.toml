@@ -1,3 +1,4 @@
 [deps]
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SplittablesTesting = "3bda5eb5-c32a-4f64-8618-df3be8968470"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

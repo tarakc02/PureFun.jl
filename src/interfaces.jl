@@ -16,6 +16,9 @@ import StaticArrays.pushfirst,
        StaticArrays.pop,
        StaticArrays.popfirst
 
+import SplittablesBase.halve,
+       SplittablesBase.amount
+
 import Base.setindex
 
 include("pflist-interface.jl")

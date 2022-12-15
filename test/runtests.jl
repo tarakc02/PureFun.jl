@@ -1,5 +1,6 @@
 using PureFun
 using Test
+using SplittablesTesting
 
 @test [] == detect_ambiguities(Core, PureFun)
 @test [] == detect_ambiguities(Base, PureFun)
@@ -69,6 +70,7 @@ for l in lists
     println(); println(l)
     tmp = l(1:10); tmp2 = empty(tmp);
     ListTests.test(l)
+    SplittablesTesting.test_ordered((data = l(1:30), ))
 end
 
 for s in streams

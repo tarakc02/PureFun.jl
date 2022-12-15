@@ -206,7 +206,7 @@ julia> halves[2]
 ...
 ```
 """
-function halfish(xs)
+function halfish(xs::PFList)
     len = length(xs)
     at = cld(len, 2)
     rest = xs
@@ -219,3 +219,5 @@ function halfish(xs)
     return reverse(revtop), rest
 end
 
+halve(xs::PFList) = halfish(xs)
+amount(xs::PFList) = length(xs)
