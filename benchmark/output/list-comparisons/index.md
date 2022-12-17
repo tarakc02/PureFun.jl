@@ -13,7 +13,7 @@ set_default_plot_size(w, h)
 
 # Iteration
 
-This script attempts to evaluate relative iteration performance of a handful of
+This section attempts to evaluate relative iteration performance of a handful of
 list types. We review two specific iteration patterns:
 
 - inorder iteration (via `(map)foldl`)
@@ -86,7 +86,7 @@ plot(foldreduce,
      Guide.colorkey(pos = [.5w, -.3h]))
 end
 ````
-![](list-comparisons-5.svg)
+![](index-5.svg)
 
 Due to the tree-based underlying representation, list types based on
 `RandomAccess.List`s are able to better optimize reductions, when compared to
@@ -94,20 +94,20 @@ performance on folds:
 
 ````julia
 iter_results |>
-    @filter(_.size == 1_000) |>
+    @filter(_.size == 1_000_000) |>
     @mutate(fold_μs = _.fold * 1_000_000, reduce_μs = _.reduce * 1_000_000) |>
     @select(:list_type, :size, :fold_μs, :reduce_μs)
 ````
 
 ````
 5x4 query result
-list_type                 │ size │ fold_μs │ reduce_μs
-──────────────────────────┼──────┼─────────┼──────────
-linked List               │ 1000 │ 1.5541  │ 1.5542   
-random access list        │ 1000 │ 4.75    │ 0.8458   
-chunky random access list │ 1000 │ 1.1167  │ 0.6375   
-chunky linked list        │ 1000 │ 0.6291  │ 0.4791   
-vector                    │ 1000 │ 0.3083  │ 0.225    
+list_type                 │ size    │ fold_μs │ reduce_μs
+──────────────────────────┼─────────┼─────────┼──────────
+linked List               │ 1000000 │ 1913.98 │ 1917.94  
+chunky linked list        │ 1000000 │ 689.325 │ 422.196  
+random access list        │ 1000000 │ 6902.66 │ 1429.47  
+chunky random access list │ 1000000 │ 1359.59 │ 509.65   
+vector                    │ 1000000 │ 317.729 │ 250.317  
 ````
 
 All of the non-vector types require constant time for `pushfirst`:
@@ -121,7 +121,7 @@ plot(pushfirst_results,
      Guide.colorkey(pos = [.5w, -.3h]))
 end
 ````
-![](list-comparisons-9.svg)
+![](index-9.svg)
 
 # Indexing
 
@@ -152,7 +152,7 @@ plot(index_results,
      Guide.colorkey(pos = [.5w, -.3h]))
 end
 ````
-![](list-comparisons-11.svg)
+![](index-11.svg)
 
 ---
 

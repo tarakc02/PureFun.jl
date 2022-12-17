@@ -179,33 +179,33 @@
               </metadata>
               <g stroke-width="0.3" fill="#000000" fill-opacity="0.000" class="geometry" id="img-9e612630-47">
                 <g transform="translate(188.54,72.21)" id="img-9e612630-48" stroke-dasharray="none" class="color_linked_List" stroke="#FE4365">
-                  <path fill="none" d="M-40.56,35.34 L-24.33,17.42 -8.11,5.04 8.11,-7.47 24.33,-19 40.56,-31.32 " class="primitive"/>
+                  <path fill="none" d="M-40.56,35.34 L-24.33,17.41 -8.11,5.04 8.11,-7.32 24.33,-19.19 40.56,-31.28 " class="primitive"/>
                 </g>
-                <g transform="translate(188.54,73.53)" id="img-9e612630-49" stroke-dasharray="none" class="color_random_access_list" stroke="#ECA25C">
-                  <path fill="none" d="M-40.56,30.42 L-24.33,18.65 -8.11,6.83 8.11,-6.65 24.33,-18.15 40.56,-31.11 " class="primitive"/>
+                <g transform="translate(188.54,73.59)" id="img-9e612630-49" stroke-dasharray="none" class="color_chunky_linked_list" stroke="#ECA25C">
+                  <path fill="none" d="M-40.56,14.33 L-24.33,14.01 -8.11,9.49 8.11,-0.63 24.33,-12.26 40.56,-24.94 " class="primitive"/>
                 </g>
-                <g transform="translate(188.54,71.93)" id="img-9e612630-50" stroke-dasharray="none" class="color_chunky_random_access_list" stroke="#3F9778">
-                  <path fill="none" d="M-40.56,12.69 L-24.33,12.63 -8.11,9.87 8.11,0.05 24.33,-11.09 40.56,-24.15 " class="primitive"/>
+                <g transform="translate(188.54,73.56)" id="img-9e612630-50" stroke-dasharray="none" class="color_random_access_list" stroke="#3F9778">
+                  <path fill="none" d="M-40.56,30.39 L-24.33,18.88 -8.11,6.82 8.11,-6.69 24.33,-18.27 40.56,-31.13 " class="primitive"/>
                 </g>
-                <g transform="translate(188.54,73.62)" id="img-9e612630-51" stroke-dasharray="none" class="color_chunky_linked_list" stroke="#EEDBFF">
-                  <path fill="none" d="M-40.56,14.53 L-24.33,14.53 -8.11,9.63 8.11,-0.93 24.33,-12.26 40.56,-25.51 " class="primitive"/>
+                <g transform="translate(188.54,71.96)" id="img-9e612630-51" stroke-dasharray="none" class="color_chunky_random_access_list" stroke="#EEDBFF">
+                  <path fill="none" d="M-40.56,12.84 L-24.33,12.78 -8.11,9.9 8.11,-0.11 24.33,-11.14 40.56,-24.27 " class="primitive"/>
                 </g>
                 <g transform="translate(188.54,79.75)" id="img-9e612630-52" stroke-dasharray="none" class="color_vector" stroke="#236EAD">
-                  <path fill="none" d="M-40.56,24.19 L-24.33,17.79 -8.11,7.36 8.11,-4.47 24.33,-16.4 40.56,-28.47 " class="primitive"/>
+                  <path fill="none" d="M-40.56,24.2 L-24.33,17.8 -8.11,7.36 8.11,-4.47 24.33,-16.45 40.56,-28.43 " class="primitive"/>
                 </g>
               </g>
               <g class="geometry" id="img-9e612630-53">
                 <g stroke-width="0.3" id="img-9e612630-54">
                   <g class="color_vector" fill-opacity="1" stroke="#7C92B3" fill="#236EAD" id="img-9e612630-55">
                     <g class="marker" id="img-9e612630-56">
-                      <g transform="translate(229.1,51.28)" id="img-9e612630-57">
+                      <g transform="translate(229.1,51.32)" id="img-9e612630-57">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
                   <g class="color_vector" fill-opacity="1" stroke="#7C92B3" fill="#236EAD" id="img-9e612630-58">
                     <g class="marker" id="img-9e612630-59">
-                      <g transform="translate(212.87,63.35)" id="img-9e612630-60">
+                      <g transform="translate(212.87,63.3)" id="img-9e612630-60">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
@@ -238,149 +238,149 @@
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-73">
+                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-73">
                     <g class="marker" id="img-9e612630-74">
-                      <g transform="translate(229.1,48.12)" id="img-9e612630-75">
+                      <g transform="translate(229.1,47.69)" id="img-9e612630-75">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-76">
+                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-76">
                     <g class="marker" id="img-9e612630-77">
-                      <g transform="translate(212.87,61.36)" id="img-9e612630-78">
+                      <g transform="translate(212.87,60.82)" id="img-9e612630-78">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-79">
+                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-79">
                     <g class="marker" id="img-9e612630-80">
-                      <g transform="translate(196.65,72.69)" id="img-9e612630-81">
+                      <g transform="translate(196.65,71.85)" id="img-9e612630-81">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-82">
+                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-82">
                     <g class="marker" id="img-9e612630-83">
-                      <g transform="translate(180.43,83.25)" id="img-9e612630-84">
+                      <g transform="translate(180.43,81.86)" id="img-9e612630-84">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-85">
+                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-85">
                     <g class="marker" id="img-9e612630-86">
-                      <g transform="translate(164.2,88.16)" id="img-9e612630-87">
+                      <g transform="translate(164.2,84.74)" id="img-9e612630-87">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-88">
+                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-88">
                     <g class="marker" id="img-9e612630-89">
-                      <g transform="translate(147.98,88.16)" id="img-9e612630-90">
+                      <g transform="translate(147.98,84.8)" id="img-9e612630-90">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-91">
+                  <g class="color_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-91">
                     <g class="marker" id="img-9e612630-92">
-                      <g transform="translate(229.1,47.78)" id="img-9e612630-93">
+                      <g transform="translate(229.1,42.43)" id="img-9e612630-93">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-94">
+                  <g class="color_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-94">
                     <g class="marker" id="img-9e612630-95">
-                      <g transform="translate(212.87,60.84)" id="img-9e612630-96">
+                      <g transform="translate(212.87,55.29)" id="img-9e612630-96">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-97">
+                  <g class="color_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-97">
                     <g class="marker" id="img-9e612630-98">
-                      <g transform="translate(196.65,71.98)" id="img-9e612630-99">
+                      <g transform="translate(196.65,66.87)" id="img-9e612630-99">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-100">
+                  <g class="color_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-100">
                     <g class="marker" id="img-9e612630-101">
-                      <g transform="translate(180.43,81.8)" id="img-9e612630-102">
+                      <g transform="translate(180.43,80.38)" id="img-9e612630-102">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-103">
+                  <g class="color_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-103">
                     <g class="marker" id="img-9e612630-104">
-                      <g transform="translate(164.2,84.56)" id="img-9e612630-105">
+                      <g transform="translate(164.2,92.44)" id="img-9e612630-105">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-106">
+                  <g class="color_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-106">
                     <g class="marker" id="img-9e612630-107">
-                      <g transform="translate(147.98,84.62)" id="img-9e612630-108">
+                      <g transform="translate(147.98,103.95)" id="img-9e612630-108">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_random_access_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-109">
+                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-109">
                     <g class="marker" id="img-9e612630-110">
-                      <g transform="translate(229.1,42.42)" id="img-9e612630-111">
+                      <g transform="translate(229.1,48.65)" id="img-9e612630-111">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_random_access_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-112">
+                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-112">
                     <g class="marker" id="img-9e612630-113">
-                      <g transform="translate(212.87,55.37)" id="img-9e612630-114">
+                      <g transform="translate(212.87,61.33)" id="img-9e612630-114">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_random_access_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-115">
+                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-115">
                     <g class="marker" id="img-9e612630-116">
-                      <g transform="translate(196.65,66.88)" id="img-9e612630-117">
+                      <g transform="translate(196.65,72.96)" id="img-9e612630-117">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_random_access_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-118">
+                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-118">
                     <g class="marker" id="img-9e612630-119">
-                      <g transform="translate(180.43,80.35)" id="img-9e612630-120">
+                      <g transform="translate(180.43,83.08)" id="img-9e612630-120">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_random_access_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-121">
+                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-121">
                     <g class="marker" id="img-9e612630-122">
-                      <g transform="translate(164.2,92.18)" id="img-9e612630-123">
+                      <g transform="translate(164.2,87.61)" id="img-9e612630-123">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_random_access_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-124">
+                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-124">
                     <g class="marker" id="img-9e612630-125">
-                      <g transform="translate(147.98,103.95)" id="img-9e612630-126">
+                      <g transform="translate(147.98,87.93)" id="img-9e612630-126">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
                   <g class="color_linked_List" fill-opacity="1" stroke="#B58486" fill="#FE4365" id="img-9e612630-127">
                     <g class="marker" id="img-9e612630-128">
-                      <g transform="translate(229.1,40.89)" id="img-9e612630-129">
+                      <g transform="translate(229.1,40.93)" id="img-9e612630-129">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
                   <g class="color_linked_List" fill-opacity="1" stroke="#B58486" fill="#FE4365" id="img-9e612630-130">
                     <g class="marker" id="img-9e612630-131">
-                      <g transform="translate(212.87,53.2)" id="img-9e612630-132">
+                      <g transform="translate(212.87,53.02)" id="img-9e612630-132">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
                   <g class="color_linked_List" fill-opacity="1" stroke="#B58486" fill="#FE4365" id="img-9e612630-133">
                     <g class="marker" id="img-9e612630-134">
-                      <g transform="translate(196.65,64.73)" id="img-9e612630-135">
+                      <g transform="translate(196.65,64.88)" id="img-9e612630-135">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
@@ -467,55 +467,55 @@
                 <unitbox value="-0.12079914386003597 0.17021736487307998 6.2415982877200715 -10.34043472974616"/>
               </metadata>
               <g stroke-width="0.3" fill="#000000" fill-opacity="0.000" class="geometry" id="img-9e612630-165">
-                <g transform="translate(82.37,72.21)" id="img-9e612630-166" stroke="#FE4365" stroke-dasharray="none" class="color_linked_List">
-                  <path fill="none" d="M-41.39,35.34 L-24.83,17.42 -8.28,5.04 8.28,-7.47 24.83,-19 41.39,-31.33 " class="primitive"/>
+                <g transform="translate(82.37,72.24)" id="img-9e612630-166" stroke="#FE4365" stroke-dasharray="none" class="color_linked_List">
+                  <path fill="none" d="M-41.39,35.31 L-24.83,17.54 -8.28,5.01 8.28,-7.35 24.83,-19.21 41.39,-31.3 " class="primitive"/>
                 </g>
-                <g transform="translate(82.37,65.74)" id="img-9e612630-167" stroke="#ECA25C" stroke-dasharray="none" class="color_random_access_list">
-                  <path fill="none" d="M-41.39,31.11 L-24.83,18.27 -8.28,5.8 8.28,-5.98 24.83,-17.91 41.39,-31.3 " class="primitive"/>
+                <g transform="translate(82.37,75.55)" id="img-9e612630-167" stroke="#ECA25C" stroke-dasharray="none" class="color_chunky_linked_list">
+                  <path fill="none" d="M-41.39,28.39 L-24.83,17.46 -8.28,6.31 8.28,-5.49 24.83,-17.26 41.39,-29.41 " class="primitive"/>
                 </g>
-                <g transform="translate(82.37,72.46)" id="img-9e612630-168" stroke="#3F9778" stroke-dasharray="none" class="color_chunky_random_access_list">
-                  <path fill="none" d="M-41.39,27.95 L-24.83,18.79 -8.28,6.48 8.28,-5.85 24.83,-17.59 41.39,-29.78 " class="primitive"/>
+                <g transform="translate(82.37,65.71)" id="img-9e612630-168" stroke="#3F9778" stroke-dasharray="none" class="color_random_access_list">
+                  <path fill="none" d="M-41.39,31.15 L-24.83,18.2 -8.28,5.85 8.28,-5.96 24.83,-17.92 41.39,-31.32 " class="primitive"/>
                 </g>
-                <g transform="translate(82.37,75.1)" id="img-9e612630-169" stroke="#EEDBFF" stroke-dasharray="none" class="color_chunky_linked_list">
-                  <path fill="none" d="M-41.39,26.76 L-24.83,17.61 -8.28,6.76 8.28,-5.08 24.83,-16.84 41.39,-29.22 " class="primitive"/>
+                <g transform="translate(82.37,72.47)" id="img-9e612630-169" stroke="#EEDBFF" stroke-dasharray="none" class="color_chunky_random_access_list">
+                  <path fill="none" d="M-41.39,27.94 L-24.83,18.78 -8.28,6.51 8.28,-5.88 24.83,-17.56 41.39,-29.79 " class="primitive"/>
                 </g>
-                <g transform="translate(82.37,79.52)" id="img-9e612630-170" stroke="#236EAD" stroke-dasharray="none" class="color_vector">
-                  <path fill="none" d="M-41.39,28.03 L-24.83,18.8 -8.28,5.98 8.28,-5.79 24.83,-17.57 41.39,-29.46 " class="primitive"/>
+                <g transform="translate(82.37,79.39)" id="img-9e612630-170" stroke="#236EAD" stroke-dasharray="none" class="color_vector">
+                  <path fill="none" d="M-41.39,28.16 L-24.83,18.16 -8.28,6.05 8.28,-5.66 24.83,-17.42 41.39,-29.29 " class="primitive"/>
                 </g>
               </g>
               <g class="geometry" id="img-9e612630-171">
                 <g stroke-width="0.3" id="img-9e612630-172">
                   <g class="color_vector" fill-opacity="1" stroke="#7C92B3" fill="#236EAD" id="img-9e612630-173">
                     <g class="marker" id="img-9e612630-174">
-                      <g transform="translate(123.76,50.06)" id="img-9e612630-175">
+                      <g transform="translate(123.76,50.1)" id="img-9e612630-175">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
                   <g class="color_vector" fill-opacity="1" stroke="#7C92B3" fill="#236EAD" id="img-9e612630-176">
                     <g class="marker" id="img-9e612630-177">
-                      <g transform="translate(107.2,61.95)" id="img-9e612630-178">
+                      <g transform="translate(107.2,61.97)" id="img-9e612630-178">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
                   <g class="color_vector" fill-opacity="1" stroke="#7C92B3" fill="#236EAD" id="img-9e612630-179">
                     <g class="marker" id="img-9e612630-180">
-                      <g transform="translate(90.64,73.73)" id="img-9e612630-181">
+                      <g transform="translate(90.64,73.72)" id="img-9e612630-181">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
                   <g class="color_vector" fill-opacity="1" stroke="#7C92B3" fill="#236EAD" id="img-9e612630-182">
                     <g class="marker" id="img-9e612630-183">
-                      <g transform="translate(74.09,85.5)" id="img-9e612630-184">
+                      <g transform="translate(74.09,85.43)" id="img-9e612630-184">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
                   <g class="color_vector" fill-opacity="1" stroke="#7C92B3" fill="#236EAD" id="img-9e612630-185">
                     <g class="marker" id="img-9e612630-186">
-                      <g transform="translate(57.53,98.32)" id="img-9e612630-187">
+                      <g transform="translate(57.53,97.55)" id="img-9e612630-187">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
@@ -527,149 +527,149 @@
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-191">
+                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-191">
                     <g class="marker" id="img-9e612630-192">
-                      <g transform="translate(123.76,45.88)" id="img-9e612630-193">
+                      <g transform="translate(123.76,42.68)" id="img-9e612630-193">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-194">
+                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-194">
                     <g class="marker" id="img-9e612630-195">
-                      <g transform="translate(107.2,58.27)" id="img-9e612630-196">
+                      <g transform="translate(107.2,54.9)" id="img-9e612630-196">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-197">
+                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-197">
                     <g class="marker" id="img-9e612630-198">
-                      <g transform="translate(90.64,70.02)" id="img-9e612630-199">
+                      <g transform="translate(90.64,66.59)" id="img-9e612630-199">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-200">
+                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-200">
                     <g class="marker" id="img-9e612630-201">
-                      <g transform="translate(74.09,81.86)" id="img-9e612630-202">
+                      <g transform="translate(74.09,78.97)" id="img-9e612630-202">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-203">
+                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-203">
                     <g class="marker" id="img-9e612630-204">
-                      <g transform="translate(57.53,92.72)" id="img-9e612630-205">
+                      <g transform="translate(57.53,91.25)" id="img-9e612630-205">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-206">
+                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#9B8AAB" fill="#EEDBFF" id="img-9e612630-206">
                     <g class="marker" id="img-9e612630-207">
-                      <g transform="translate(40.97,101.86)" id="img-9e612630-208">
+                      <g transform="translate(40.97,100.41)" id="img-9e612630-208">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-209">
+                  <g class="color_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-209">
                     <g class="marker" id="img-9e612630-210">
-                      <g transform="translate(123.76,42.68)" id="img-9e612630-211">
+                      <g transform="translate(123.76,34.39)" id="img-9e612630-211">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-212">
+                  <g class="color_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-212">
                     <g class="marker" id="img-9e612630-213">
-                      <g transform="translate(107.2,54.87)" id="img-9e612630-214">
+                      <g transform="translate(107.2,47.79)" id="img-9e612630-214">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-215">
+                  <g class="color_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-215">
                     <g class="marker" id="img-9e612630-216">
-                      <g transform="translate(90.64,66.61)" id="img-9e612630-217">
+                      <g transform="translate(90.64,59.76)" id="img-9e612630-217">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-218">
+                  <g class="color_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-218">
                     <g class="marker" id="img-9e612630-219">
-                      <g transform="translate(74.09,78.93)" id="img-9e612630-220">
+                      <g transform="translate(74.09,71.56)" id="img-9e612630-220">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-221">
+                  <g class="color_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-221">
                     <g class="marker" id="img-9e612630-222">
-                      <g transform="translate(57.53,91.25)" id="img-9e612630-223">
+                      <g transform="translate(57.53,83.92)" id="img-9e612630-223">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_chunky_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-224">
+                  <g class="color_random_access_list" fill-opacity="1" stroke="#6D9A87" fill="#3F9778" id="img-9e612630-224">
                     <g class="marker" id="img-9e612630-225">
-                      <g transform="translate(40.97,100.41)" id="img-9e612630-226">
+                      <g transform="translate(40.97,96.86)" id="img-9e612630-226">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_random_access_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-227">
+                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-227">
                     <g class="marker" id="img-9e612630-228">
-                      <g transform="translate(123.76,34.44)" id="img-9e612630-229">
+                      <g transform="translate(123.76,46.15)" id="img-9e612630-229">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_random_access_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-230">
+                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-230">
                     <g class="marker" id="img-9e612630-231">
-                      <g transform="translate(107.2,47.83)" id="img-9e612630-232">
+                      <g transform="translate(107.2,58.29)" id="img-9e612630-232">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_random_access_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-233">
+                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-233">
                     <g class="marker" id="img-9e612630-234">
-                      <g transform="translate(90.64,59.76)" id="img-9e612630-235">
+                      <g transform="translate(90.64,70.06)" id="img-9e612630-235">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_random_access_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-236">
+                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-236">
                     <g class="marker" id="img-9e612630-237">
-                      <g transform="translate(74.09,71.55)" id="img-9e612630-238">
+                      <g transform="translate(74.09,81.86)" id="img-9e612630-238">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_random_access_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-239">
+                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-239">
                     <g class="marker" id="img-9e612630-240">
-                      <g transform="translate(57.53,84.02)" id="img-9e612630-241">
+                      <g transform="translate(57.53,93.01)" id="img-9e612630-241">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
-                  <g class="color_random_access_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-242">
+                  <g class="color_chunky_linked_list" fill-opacity="1" stroke="#AA8B71" fill="#ECA25C" id="img-9e612630-242">
                     <g class="marker" id="img-9e612630-243">
-                      <g transform="translate(40.97,96.86)" id="img-9e612630-244">
+                      <g transform="translate(40.97,103.95)" id="img-9e612630-244">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
                   <g class="color_linked_List" fill-opacity="1" stroke="#B58486" fill="#FE4365" id="img-9e612630-245">
                     <g class="marker" id="img-9e612630-246">
-                      <g transform="translate(123.76,40.88)" id="img-9e612630-247">
+                      <g transform="translate(123.76,40.94)" id="img-9e612630-247">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
                   <g class="color_linked_List" fill-opacity="1" stroke="#B58486" fill="#FE4365" id="img-9e612630-248">
                     <g class="marker" id="img-9e612630-249">
-                      <g transform="translate(107.2,53.21)" id="img-9e612630-250">
+                      <g transform="translate(107.2,53.02)" id="img-9e612630-250">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
                   </g>
                   <g class="color_linked_List" fill-opacity="1" stroke="#B58486" fill="#FE4365" id="img-9e612630-251">
                     <g class="marker" id="img-9e612630-252">
-                      <g transform="translate(90.64,64.73)" id="img-9e612630-253">
+                      <g transform="translate(90.64,64.88)" id="img-9e612630-253">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
@@ -683,7 +683,7 @@
                   </g>
                   <g class="color_linked_List" fill-opacity="1" stroke="#B58486" fill="#FE4365" id="img-9e612630-257">
                     <g class="marker" id="img-9e612630-258">
-                      <g transform="translate(57.53,89.62)" id="img-9e612630-259">
+                      <g transform="translate(57.53,89.78)" id="img-9e612630-259">
                         <circle cx="0" cy="0" r="0.9" class="primitive"/>
                       </g>
                     </g>
@@ -740,19 +740,19 @@
               <text dy="0.35em">linked List</text>
             </g>
           </g>
-          <g transform="translate(135.47,25.13)" id="img-9e612630-273" class="color_random_access_list">
+          <g transform="translate(135.47,25.13)" id="img-9e612630-273" class="color_chunky_linked_list">
+            <g class="primitive">
+              <text dy="0.35em">chunky linked list</text>
+            </g>
+          </g>
+          <g transform="translate(135.47,28.75)" id="img-9e612630-274" class="color_random_access_list">
             <g class="primitive">
               <text dy="0.35em">random access list</text>
             </g>
           </g>
-          <g transform="translate(135.47,28.75)" id="img-9e612630-274" class="color_chunky_random_access_list">
+          <g transform="translate(135.47,32.38)" id="img-9e612630-275" class="color_chunky_random_access_list">
             <g class="primitive">
               <text dy="0.35em">chunky random access list</text>
-            </g>
-          </g>
-          <g transform="translate(135.47,32.38)" id="img-9e612630-275" class="color_chunky_linked_list">
-            <g class="primitive">
-              <text dy="0.35em">chunky linked list</text>
             </g>
           </g>
           <g transform="translate(135.47,36.01)" id="img-9e612630-276" class="color_vector">
@@ -765,13 +765,13 @@
           <g transform="translate(133.57,21.5)" id="img-9e612630-278" fill="#FE4365" stroke="#B58486" class="color_linked_List">
             <path d="M-0.91,-0.91 L0.91,-0.91 0.91,0.91 -0.91,0.91  z" class="primitive"/>
           </g>
-          <g transform="translate(133.57,25.13)" id="img-9e612630-279" fill="#ECA25C" stroke="#AA8B71" class="color_random_access_list">
+          <g transform="translate(133.57,25.13)" id="img-9e612630-279" fill="#ECA25C" stroke="#AA8B71" class="color_chunky_linked_list">
             <path d="M-0.91,-0.91 L0.91,-0.91 0.91,0.91 -0.91,0.91  z" class="primitive"/>
           </g>
-          <g transform="translate(133.57,28.75)" id="img-9e612630-280" fill="#3F9778" stroke="#6D9A87" class="color_chunky_random_access_list">
+          <g transform="translate(133.57,28.75)" id="img-9e612630-280" fill="#3F9778" stroke="#6D9A87" class="color_random_access_list">
             <path d="M-0.91,-0.91 L0.91,-0.91 0.91,0.91 -0.91,0.91  z" class="primitive"/>
           </g>
-          <g transform="translate(133.57,32.38)" id="img-9e612630-281" fill="#EEDBFF" stroke="#9B8AAB" class="color_chunky_linked_list">
+          <g transform="translate(133.57,32.38)" id="img-9e612630-281" fill="#EEDBFF" stroke="#9B8AAB" class="color_chunky_random_access_list">
             <path d="M-0.91,-0.91 L0.91,-0.91 0.91,0.91 -0.91,0.91  z" class="primitive"/>
           </g>
           <g transform="translate(133.57,36.01)" id="img-9e612630-282" fill="#236EAD" stroke="#7C92B3" class="color_vector">

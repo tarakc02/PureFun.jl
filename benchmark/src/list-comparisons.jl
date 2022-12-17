@@ -13,7 +13,7 @@ set_default_plot_size(w, h)
 
 # Iteration
 
-This script attempts to evaluate relative iteration performance of a handful of
+This section attempts to evaluate relative iteration performance of a handful of
 list types. We review two specific iteration patterns:
 
 - inorder iteration (via `(map)foldl`)
@@ -98,7 +98,7 @@ performance on folds:
 =#
 
 iter_results |>
-    @filter(_.size == 1_000) |>
+    @filter(_.size == 1_000_000) |>
     @mutate(fold_μs = _.fold * 1_000_000, reduce_μs = _.reduce * 1_000_000) |>
     @select(:list_type, :size, :fold_μs, :reduce_μs)
 
