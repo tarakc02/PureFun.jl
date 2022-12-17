@@ -23,7 +23,7 @@ test: deps
 
 benchmarks:
 	julia --project=benchmark -e "using Pkg; Pkg.resolve(); Pkg.instantiate()"
-	julia --project=benchmark benchmark/runbenchmarks.jl
+	julia --project=benchmark -O3 benchmark/runbenchmarks.jl
 
 deps: 
 	julia --project -e "using Pkg; Pkg.resolve(); Pkg.instantiate()"
