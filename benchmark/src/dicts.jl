@@ -34,7 +34,11 @@ and insert. Specifically, we have the red-black dictionary and both the 32 and
          approx = BitMapTrie32,
          exact  = PureFun.Association.List)
 
-dictionaries = [PureFun.RedBlack.RBDict, HAMT32, HAMT64, Base.Dict]
+dictionaries = Dict(
+    PureFun.RedBlack.RBDict => "Red-Black Dict",
+    HAMT32 => "32-way array-mapped trie",
+    HAMT64 => "64-way array-mapped trie",
+    Base.Dict => "Base.Dict")
 
 #=
 
@@ -42,7 +46,8 @@ dictionaries = [PureFun.RedBlack.RBDict, HAMT32, HAMT64, Base.Dict]
 
 =#
 
-function bench_lookup(DictType, sizes = 10 .^ (1:7))
+function bench_lookup(DT, sizes = 10 .^ (1:7))
+    DictType, label = DT
     search_hit = Vector{Int}(undef, length(sizes))
     search_miss = Vector{Int}(undef, length(sizes))
     for ix in eachindex(sizes)
@@ -56,7 +61,7 @@ function bench_lookup(DictType, sizes = 10 .^ (1:7))
         search_hit[ix]  = round(Int, median(hit).time)
         search_miss[ix] = round(Int, median(miss).time)
     end
-    DataFrame(dict_type   = string(DictType),
+    DataFrame(dict_type   = label,
               size        = sizes,
               search_hit  = search_hit,
               search_miss = search_miss)
@@ -131,9 +136,10 @@ function ins_time(::Type{Dict}, size)
     quantile(out.times, .8)
 end
 
-function bench_insert(DictType, sizes = 10 .^ (1:7))
+function bench_insert(DT, sizes = 10 .^ (1:7))
+    DictType, label = DT
     times = [ ins_time(DictType, sz) for sz in sizes ]
-    DataFrame(dict_type   = string(DictType),
+    DataFrame(dict_type   = label,
               size        = sizes,
               set_index   = times)
 end;
