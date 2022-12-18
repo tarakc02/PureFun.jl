@@ -91,9 +91,7 @@ end
 
 #=
 
-Due to the tree-based underlying representation, list types based on
-`RandomAccess.List`s are able to better optimize reductions, when compared to
-performance on folds:
+Here's the performance on the largest examples:
 
 =#
 
@@ -115,6 +113,13 @@ plot(pushfirst_results,
      Scale.x_log2, Scale.y_log10,
      Guide.colorkey(pos = [.5w, -.3h]))
 end
+
+# and the measurements for the largest example:
+
+pushfirst_results |>
+    @filter(_.size == 2^10) |>
+    @mutate(time_ns = _.time * 1_000_000_000) |>
+    @select(:list_type, :size, :time)
 
 #=
 
@@ -147,3 +152,7 @@ plot(index_results,
      Scale.x_log10, Scale.y_log10,
      Guide.colorkey(pos = [.5w, -.3h]))
 end
+
+# once again, on the largest examples (times in nanoseconds):
+
+index_results |> @filter(_.size == 1_000_000)

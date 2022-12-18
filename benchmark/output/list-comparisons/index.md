@@ -88,9 +88,7 @@ end
 ````
 ![](index-5.svg)
 
-Due to the tree-based underlying representation, list types based on
-`RandomAccess.List`s are able to better optimize reductions, when compared to
-performance on folds:
+Here's the performance on the largest examples:
 
 ````julia
 iter_results |>
@@ -103,11 +101,11 @@ iter_results |>
 5x4 query result
 list_type                 │ size    │ fold_μs │ reduce_μs
 ──────────────────────────┼─────────┼─────────┼──────────
-linked List               │ 1000000 │ 1913.98 │ 1917.94  
-chunky linked list        │ 1000000 │ 689.325 │ 422.196  
-random access list        │ 1000000 │ 6902.66 │ 1429.47  
-chunky random access list │ 1000000 │ 1359.59 │ 509.65   
-vector                    │ 1000000 │ 317.729 │ 250.317  
+linked List               │ 1000000 │ 1888.98 │ 1889.46  
+random access list        │ 1000000 │ 6884.53 │ 1421.83  
+chunky random access list │ 1000000 │ 1352.6  │ 502.875  
+chunky linked list        │ 1000000 │ 686.729 │ 414.2    
+vector                    │ 1000000 │ 315.054 │ 247.863  
 ````
 
 All of the non-vector types require constant time for `pushfirst`:
@@ -122,6 +120,26 @@ plot(pushfirst_results,
 end
 ````
 ![](index-9.svg)
+
+and the measurements for the largest example:
+
+````julia
+pushfirst_results |>
+    @filter(_.size == 2^10) |>
+    @mutate(time_ns = _.time * 1_000_000_000) |>
+    @select(:list_type, :size, :time)
+````
+
+````
+5x3 query result
+list_type                 │ size │ time      
+──────────────────────────┼──────┼───────────
+linked List               │ 1024 │ 4.625e-9  
+random access list        │ 1024 │ 9.333e-9  
+chunky random access list │ 1024 │ 1.66162e-8
+chunky linked list        │ 1024 │ 7.375e-9  
+vector                    │ 1024 │ 6.08643e-7
+````
 
 # Indexing
 
@@ -152,7 +170,24 @@ plot(index_results,
      Guide.colorkey(pos = [.5w, -.3h]))
 end
 ````
-![](index-11.svg)
+![](index-13.svg)
+
+once again, on the largest examples (times in nanoseconds):
+
+````julia
+index_results |> @filter(_.size == 1_000_000)
+````
+
+````
+5x3 query result
+list_type                 │ size    │ time  
+──────────────────────────┼─────────┼───────
+linked List               │ 1000000 │ 790538
+random access list        │ 1000000 │ 51    
+chunky random access list │ 1000000 │ 70    
+chunky linked list        │ 1000000 │ 139077
+vector                    │ 1000000 │ 3     
+````
 
 ---
 

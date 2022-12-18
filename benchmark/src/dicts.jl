@@ -6,7 +6,7 @@ const w, h = 900px, 600px
 set_default_plot_size(w, h)
 
 nstrings(n) = collect(randstring(rand(8:15)) for _ in 1:n)
-randpairs(n) = (k => v for (k,v) in zip(nstrings(n), rand(Int, n)))
+randpairs(n) = (k => v for (k,v) in zip(nstrings(n), rand(Int, n)));
 
 #=
 
@@ -31,14 +31,14 @@ and insert. Specifically, we have the red-black dictionary and both the 32 and
          exact  = PureFun.Association.List)
 
 @hashmap(HAMT64,
-         approx = BitMapTrie32,
+         approx = BitMapTrie64,
          exact  = PureFun.Association.List)
 
 dictionaries = Dict(
     PureFun.RedBlack.RBDict => "Red-Black Dict",
-    HAMT32 => "32-way array-mapped trie",
-    HAMT64 => "64-way array-mapped trie",
-    Base.Dict => "Base.Dict")
+    HAMT32 => "32-way hash array-mapped trie",
+    HAMT64 => "64-way hash array-mapped trie",
+    Base.Dict => "Base.Dict");
 
 #=
 
@@ -56,7 +56,7 @@ function bench_lookup(DT, sizes = 10 .^ (1:7))
         ks = collect(kv.first for kv in kvs)
 
         hit  = @benchmark $d[k] setup=k=rand($ks)
-        miss = @benchmark get($d, "nonexisting key", -1)
+        miss = @benchmark get($d, k, -1) setup=k=randstring(rand(8:15))
 
         search_hit[ix]  = round(Int, median(hit).time)
         search_miss[ix] = round(Int, median(miss).time)
@@ -78,6 +78,18 @@ Gadfly.with_theme(:dark) do
      Scale.x_log10, Scale.y_log10,
      Guide.colorkey(pos = [.5w, -.3h]))
 end
+
+#=
+
+For the largest containers tested, the hash array mapped tries remain within
+range of `Base.Dict`:
+
+=#
+
+lookup_results |>
+    @filter(_.size == 1e7) |>
+    DataFrame |>
+    x -> sort(x, [:search_miss])
 
 #=
 
@@ -132,7 +144,7 @@ function ins_time(::Type{Dict}, size)
                      setup = (d = Dict(randpairs($sz));
                               k = randstring(rand(8:15));
                               v = rand(Int)),
-                     evals = 1, samples = 20)
+                     evals = 1, samples = samps)
     quantile(out.times, .8)
 end
 
@@ -155,4 +167,11 @@ plot(insert_results,
      Scale.x_log10, Scale.y_log2(minvalue = minimum(insert_results.set_index)),
      Guide.colorkey(pos = [.1w, -.3h]))
 end
+
+# again for the largest containers:
+
+insert_results |>
+    @filter(_.size == 1e7) |>
+    DataFrame |>
+    x -> sort(x, [:set_index])
 

@@ -7,11 +7,7 @@ const w, h = 900px, 600px
 set_default_plot_size(w, h)
 
 nstrings(n) = collect(randstring(rand(8:15)) for _ in 1:n)
-randpairs(n) = (k => v for (k,v) in zip(nstrings(n), rand(Int, n)))
-````
-
-````
-randpairs (generic function with 1 method)
+randpairs(n) = (k => v for (k,v) in zip(nstrings(n), rand(Int, n)));
 ````
 
 # Setup
@@ -34,22 +30,14 @@ and insert. Specifically, we have the red-black dictionary and both the 32 and
          exact  = PureFun.Association.List)
 
 @hashmap(HAMT64,
-         approx = BitMapTrie32,
+         approx = BitMapTrie64,
          exact  = PureFun.Association.List)
 
 dictionaries = Dict(
     PureFun.RedBlack.RBDict => "Red-Black Dict",
-    HAMT32 => "32-way array-mapped trie",
-    HAMT64 => "64-way array-mapped trie",
-    Base.Dict => "Base.Dict")
-````
-
-````
-Dict{UnionAll, String} with 4 entries:
-  HAMT32 => "32-way array-mapped trie"
-  HAMT64 => "64-way array-mapped trie"
-  Dict => "Base.Dict"
-  RBDict => "Red-Black Dict"
+    HAMT32 => "32-way hash array-mapped trie",
+    HAMT64 => "64-way hash array-mapped trie",
+    Base.Dict => "Base.Dict");
 ````
 
 # Lookups
@@ -65,7 +53,7 @@ function bench_lookup(DT, sizes = 10 .^ (1:7))
         ks = collect(kv.first for kv in kvs)
 
         hit  = @benchmark $d[k] setup=k=rand($ks)
-        miss = @benchmark get($d, "nonexisting key", -1)
+        miss = @benchmark get($d, k, -1) setup=k=randstring(rand(8:15))
 
         search_hit[ix]  = round(Int, median(hit).time)
         search_miss[ix] = round(Int, median(miss).time)
@@ -89,6 +77,27 @@ Gadfly.with_theme(:dark) do
 end
 ````
 ![](index-5.svg)
+
+For the largest containers tested, the hash array mapped tries remain within
+range of `Base.Dict`:
+
+````julia
+lookup_results |>
+    @filter(_.size == 1e7) |>
+    DataFrame |>
+    x -> sort(x, [:search_miss])
+````
+
+````
+4×4 DataFrame
+ Row │ dict_type                      size      search_hit  search_miss
+     │ String                         Int64     Int64       Int64
+─────┼──────────────────────────────────────────────────────────────────
+   1 │ Base.Dict                      10000000          12           16
+   2 │ 64-way hash array-mapped trie  10000000          78           53
+   3 │ 32-way hash array-mapped trie  10000000          92           67
+   4 │ Red-Black Dict                 10000000         126          112
+````
 
 # Insertion
 
@@ -138,7 +147,7 @@ function ins_time(::Type{Dict}, size)
                      setup = (d = Dict(randpairs($sz));
                               k = randstring(rand(8:15));
                               v = rand(Int)),
-                     evals = 1, samples = 20)
+                     evals = 1, samples = samps)
     quantile(out.times, .8)
 end
 
@@ -164,7 +173,27 @@ plot(insert_results,
      Guide.colorkey(pos = [.1w, -.3h]))
 end
 ````
-![](index-11.svg)
+![](index-13.svg)
+
+again for the largest containers:
+
+````julia
+insert_results |>
+    @filter(_.size == 1e7) |>
+    DataFrame |>
+    x -> sort(x, [:set_index])
+````
+
+````
+4×3 DataFrame
+ Row │ dict_type                      size      set_index
+     │ String                         Int64     Float64
+─────┼────────────────────────────────────────────────────
+   1 │ Base.Dict                      10000000     441.6
+   2 │ 64-way hash array-mapped trie  10000000     896.25
+   3 │ 32-way hash array-mapped trie  10000000     967.5
+   4 │ Red-Black Dict                 10000000    1357.08
+````
 
 ---
 
