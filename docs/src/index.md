@@ -76,8 +76,8 @@ element added.
 - [Queues](@ref): insert at the end, remove from the front, iterate in
   [FIFO](https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)) order
 
-- [Heaps](@ref): insert elements, remove elements, retrieve the minimum, and
-  iterate in sorted order (wrt an
+- [Heaps](@ref): insert elements, retrieve or remove the minimum, and iterate
+  in sorted order (wrt an
   [`Ordering`](https://docs.julialang.org/en/v1/base/sort/#Alternate-orderings))
 
 - [Dictionaries](@ref): associate keys with values
@@ -85,10 +85,10 @@ element added.
 - [Sets](@ref): insert keys, test for membership, various set operations
   including `intersect` and `union`
 
-# Build your own data structures: Batched.@deque, Tries.@trie, Chunky.@list
+# Customizable container types
 
 These use generic design strategies to assemble more powerful data structures
-from simpler ones.
+from simpler ones:
 
 - [`PureFun.Batched.@deque`](@ref) takes a list implementation and adds
   efficient access (push/pop/last) to the rear of the list, making it into a
