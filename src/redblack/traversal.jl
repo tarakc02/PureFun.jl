@@ -54,6 +54,31 @@ end
 
 # traversal with backtracking {{{
 
+function hansel(node::RB{T,O}, key, hist = Linked.List{NonEmpty{T,O}}()) where {T,O}
+    if isempty(node)
+        hist
+    elseif smaller(key, node)
+        hansel(left(node), key, node ⇀ hist)
+    elseif smaller(node, key)
+        hansel(right(node), key, node ⇀ hist)
+    else
+        node ⇀ hist
+    end
+end
+
+function up_from(tree::RB, query)
+    trail = hansel(tree, query)
+    Iterators.rest(tree,
+                   smaller(first(trail), query) ? next_inorder(trail) : trail)
+end
+
+function down_from(tree::RB, query)
+    trail = hansel(tree, query)
+    Iterators.rest(Iterators.reverse(tree),
+                   smaller(query, first(trail)) ? prv_inorder(trail) : trail)
+end
+
+
 # create a trail to the smallest node from a given root
 function mintrail(node::Black{T,O}) where {T,O} 
     mintrail(cons(node, Linked.Empty{ NonEmpty{T,O} }()))
@@ -100,25 +125,10 @@ end
 # }}}
 
 Base.iterate(::E) = nothing
-function Base.iterate(t::RB)
-    min = mintrail(t)
-    elem(head(min)), min
-end
-function Base.iterate(t::RB, state)
-    next = next_inorder(state)
-    isempty(next) && return nothing
-    return elem(head(next)), next
+function Base.iterate(t::RB, state=mintrail(t))
+    isempty(state) ? nothing : (elem(first(state)), next_inorder(state))
 end
 
-function Base.iterate(r::Iterators.Reverse{<:RB})
-    t = r.itr
-    max = maxtrail(t)
-    elem(head(max)), max
+function Base.iterate(t::Iterators.Reverse{<:RB}, state=maxtrail(t.itr))
+    isempty(state) ? nothing : (elem(first(state)), prv_inorder(state))
 end
-
-function Base.iterate(r::Iterators.Reverse{<:RB}, state)
-    prv = prv_inorder(state)
-    isempty(prv) && return nothing
-    return elem(head(prv)), prv
-end
-

@@ -3,6 +3,8 @@ module RedBlack
 using ..PureFun
 using ..PureFun.Linked
 
+export up_from, down_from
+
 include("basics.jl")
 include("insert.jl")
 include("traversal.jl")
@@ -232,5 +234,74 @@ Iterators.reverse(d::DS) = Iterators.reverse(d.t)
 PureFun.delete(d::DS, key) = typeof(d)(delete(d.t, key))
 PureFun.delete_min(d::DS) = typeof(d)(delete_min(d.t))
 PureFun.delete_max(d::DS) = typeof(d)(delete_max(d.t))
+
+"""
+    up_from(d::Union{RedBlack.RBDict,RedBlack.RBSet}, key)
+    down_from(d::Union{RedBlack.RBDict,RedBlack.RBSet}, key)
+
+iterate elements (k=>v pairs when the collection is a dictionary) either up
+from the largest element (key) that is less than or equal to the qeury key, or
+down from the smallest element (key) that is greater than or equal to the query
+key.
+
+# Examples:
+
+```jldoctest
+julia> d = RedBlack.RBDict(c => Int(c) for c in 'a':'z')
+PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering, Char, Int64} with 26 entries:
+  'a' => 97
+  'b' => 98
+  'c' => 99
+  'd' => 100
+  'e' => 101
+  'f' => 102
+  'g' => 103
+  'h' => 104
+  'i' => 105
+  'j' => 106
+  ⋮   => ⋮
+
+julia> foreach(println, up_from(d, 'w'))
+'w' => 119
+'x' => 120
+'y' => 121
+'z' => 122
+
+julia> foreach(println, down_from(d, 'e'))
+'e' => 101
+'d' => 100
+'c' => 99
+'b' => 98
+'a' => 97
+
+julia> s = RedBlack.RBSet(1:10)
+1
+2
+3
+⋮
+8
+9
+10
+
+
+julia> foreach(println, down_from(s, 7.5))
+7
+6
+5
+4
+3
+2
+1
+
+julia> foreach(println, up_from(s, 7.5))
+8
+9
+10
+```
+"""
+up_from, down_from
+
+up_from(d::DS, key) = up_from(d.t, key)
+down_from(d::DS, key) = down_from(d.t, key)
 
 end
