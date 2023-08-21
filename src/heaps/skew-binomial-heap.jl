@@ -27,7 +27,7 @@ The Skew Binomial Heap $\S{9.3.2}$ is a twist on the [Binomial
 Heap](https://en.wikipedia.org/wiki/Binomial_heap): by basing tree sizes on
 skew-binary (rather than binary) numbers, pushing a new element into a skew
 binomial heap is worst-case $\mathcal{O}(1)$ (as opposed to
-$\mathcal{O}(\log{}n)$ for binomial heaps). `merge`, `delete_min`, and
+$\mathcal{O}(\log{}n)$ for binomial heaps). `merge`, `popmin`, and
 `minimum` are worst-case $\mathcal{O}(\log{}n)$. See also
 [`PureFun.BootstrappedSkewBinomial.Heap`](@ref), which uses structural
 abstraction to improve `minimum` and `merge` to worst-case $\mathcal{O}(1)$
@@ -131,7 +131,7 @@ function Base.minimum(h::Heap)
     root(first( remove_min_tree(trees(h), ordering(h)) ))
 end
 
-function PureFun.delete_min(h::Heap)
+function PureFun.popmin(h::Heap)
     o = ordering(h)
     n, ts2 = remove_min_tree(trees(h), o)
     x = root(n)

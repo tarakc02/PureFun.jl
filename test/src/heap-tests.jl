@@ -21,9 +21,9 @@ function test_accessors(Heap)
     @testset "Element Accessors" begin
         l = Heap(shuffle(1:10))
         @test minimum(l) == 1
-        @test minimum(delete_min(l)) == 2
-        @test minimum(delete_min(delete_min(l))) == 3
-        m = delete_min(delete_min(delete_min(delete_min(l))))
+        @test minimum(popmin(l)) == 2
+        @test minimum(popmin(popmin(l))) == 3
+        m = popmin(popmin(popmin(popmin(l))))
     end
 end
 

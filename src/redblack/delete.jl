@@ -129,12 +129,12 @@ function dmax(node::Black)
     fixup_black(elem(node), left(node), dmax(right(node)))
 end
 
-function PureFun.delete_min(root::Black)
+function PureFun.popmin(root::Black)
     res = dmin(root)
     turn_black(res)
 end
 
-function PureFun.delete_max(root::Black)
+function PureFun.popmax(root::Black)
     res = dmax(root)
     turn_black(res)
 end

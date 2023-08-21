@@ -30,8 +30,8 @@ Pairing heaps ($\S{5.5}$):
 > practice. On the other hand, they have resisted analysis for over ten years!
 
 `push`, `merge`, and `minimum` all run in $\mathcal{O}(1)$ worst-case time.
-`delete_min` can take $\mathcal{O}(n)$ time in the worst-case. However, it has
-been proven that the amortized time required by `delete_min` is no worse than
+`popmin` can take $\mathcal{O}(n)$ time in the worst-case. However, it has
+been proven that the amortized time required by `popmin` is no worse than
 $\mathcal{O}(\log{}n)$, and there is an open conjecture that it is in fact
 $\mathcal{O}(1)$. The amortized bounds here do *not* apply in persistent
 settings. For heaps suited to persistent use-cases, see
@@ -122,7 +122,7 @@ function merge_pairs(l, o)
     foldl(merge, stack)
 end
 
-PureFun.delete_min(h::NonEmpty) = merge_pairs(heaps(h), ordering(h))
+PureFun.popmin(h::NonEmpty) = merge_pairs(heaps(h), ordering(h))
 
 Heap(iter::Heap) = iter
 function Heap(iter, ord=Base.Order.Forward)

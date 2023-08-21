@@ -24,10 +24,10 @@ end
 @benchmark insert(tree, x) setup=(tree=RedBlack.RB(rand(Int, 512)); x=rand(Int))
 @benchmark insert(tree, x) setup=(tree=RedBlack.RB(rand(Int, 1024)); x=rand(Int))
 
-@benchmark delete_min(tree) setup=tree=RedBlack.RB(rand(Int, 512))
-@benchmark delete_min(tree) setup=tree=RedBlack.RB(rand(Int, 1024))
-@benchmark delete_max(tree) setup=tree=RedBlack.RB(rand(Int, 512))
-@benchmark delete_max(tree) setup=tree=RedBlack.RB(rand(Int, 1024))
+@benchmark popmin(tree) setup=tree=RedBlack.RB(rand(Int, 512))
+@benchmark popmin(tree) setup=tree=RedBlack.RB(rand(Int, 1024))
+@benchmark popmax(tree) setup=tree=RedBlack.RB(rand(Int, 512))
+@benchmark popmax(tree) setup=tree=RedBlack.RB(rand(Int, 1024))
 
 @benchmark RedBlack.Black(x, RedBlack.E{Int}(), RedBlack.E{Int}()) setup=x=rand(Int)
 
@@ -44,19 +44,19 @@ end
 @benchmark minimum(tree) setup = tree=RedBlack.RB(1:10)
 
 @benchmark insert(tree, x) setup=(tree = RedBlack.RB(rand(Int, 1000)); x = rand(Int))
-@benchmark delete_min(tree) setup=tree = RedBlack.RB(rand(Int, 1000))
-@benchmark delete_max(tree) setup=tree = RedBlack.RB(rand(Int, 1000))
+@benchmark popmin(tree) setup=tree = RedBlack.RB(rand(Int, 1000))
+@benchmark popmax(tree) setup=tree = RedBlack.RB(rand(Int, 1000))
 
-@benchmark delete_min(tree) setup = tree=RedBlack.RB(1:1000)
-@benchmark delete_max(tree) setup = tree=RedBlack.RB(1:1000)
+@benchmark popmin(tree) setup = tree=RedBlack.RB(1:1000)
+@benchmark popmax(tree) setup = tree=RedBlack.RB(1:1000)
 @benchmark delete(tree, 1000) setup = tree=RedBlack.RB(1:1000)
 @benchmark delete(tree, 1) setup = tree=RedBlack.RB(1:1000)
 
 @benchmark delete(tree, minimum(tree)) setup=tree = RedBlack.RB(rand(Int, 1_000))
 @benchmark delete(tree, 1) setup = tree=RedBlack.RB(1:1_000)
-@benchmark delete_max(tree) setup = tree=RedBlack.RB(1:1_000)
+@benchmark popmax(tree) setup = tree=RedBlack.RB(1:1_000)
 
-@benchmark delete_max(tree) setup=(tree = RedBlack.RB(rand(Int, 1_000)); x=rand(Int))
+@benchmark popmax(tree) setup=(tree = RedBlack.RB(rand(Int, 1_000)); x=rand(Int))
 @benchmark delete(tree, 0) setup=(tree = insert(RedBlack.RB(rand(Int, 1_000)), 0))
 
 end

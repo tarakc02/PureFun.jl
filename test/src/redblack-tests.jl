@@ -136,7 +136,7 @@ end
 
     function test_del(tree)
         m = minimum(tree)
-        t = delete_min(tree)
+        t = popmin(tree)
 
         while !isempty(t)
             @test m ∉ t
@@ -145,7 +145,7 @@ end
             @test is_bst(t)
             @test is_balanced(t)
             m = minimum(t)
-            t = delete_min(t)
+            t = popmin(t)
         end
     end
 
@@ -164,7 +164,7 @@ end
 
     function test_del(tree)
         m = maximum(tree)
-        t = delete_max(tree)
+        t = popmax(tree)
 
         while !isempty(t)
             @test m ∉ t
@@ -173,7 +173,7 @@ end
             @test is_bst(t)
             @test is_balanced(t)
             m = maximum(t)
-            t = delete_max(t)
+            t = popmax(t)
         end
     end
 

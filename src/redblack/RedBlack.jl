@@ -56,7 +56,7 @@ Immutable dictionary implemented using a red-black tree (balanced binary search
 tree). All major operations are $\mathcal{O}(\log{}n)$. Note the ordering
 parameter, the RBDict iterates in sorted order according to the ordering `O`.
 In addition to the main `PFDict` methods, `RBDict` implements `delete`,
-`delete_min`, and `delete_max`.
+`popmin`, and `popmax`.
 
 # Examples
 
@@ -75,22 +75,22 @@ PureFun.RedBlack.RBDict{Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}, 
   "ghi" => 3
   "abc" => 2
 
-julia> delete_min(f)
+julia> popmin(f)
 PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering, String, Int64} with 2 entries:
   "ghi" => 3
   "zyz" => 1
 
-julia> delete_max(f)
+julia> popmax(f)
 PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering, String, Int64} with 2 entries:
   "abc" => 2
   "ghi" => 3
 
-julia> delete_min(b)
+julia> popmin(b)
 PureFun.RedBlack.RBDict{Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}, String, Int64} with 2 entries:
   "ghi" => 3
   "abc" => 2
 
-julia> delete_max(b)
+julia> popmax(b)
 PureFun.RedBlack.RBDict{Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}, String, Int64} with 2 entries:
   "zyz" => 1
   "ghi" => 3
@@ -154,7 +154,7 @@ Base.get(f::Function, d::RBDict, k) = traverse(d.t, k, val, x -> f())
 An immutable ordered set. All major operations are $\mathcal{O}(\log{}n)$. Note
 the ordering parameter, the RBDict iterates in sorted order according to the
 ordering `O`. In addition to the main `PFDict` methods, `RBDict` implements
-`delete`, `delete_min`, and `delete_max`.
+`delete`, `popmin`, and `popmax`.
 
 # Examples
 
@@ -187,7 +187,7 @@ julia> 1 ∈ s1, 1 ∈ s2
 julia> 17 ∈ s1, 17 ∈ s2
 (false, false)
 
-julia> 1 ∈ delete_min(s1)
+julia> 1 ∈ popmin(s1)
 false
 
 julia> 17 ∈ push(s2, 17)
@@ -233,8 +233,8 @@ Base.length(d::DS) = length(d.t)
 Iterators.reverse(d::DS) = Iterators.reverse(d.t)
 
 PureFun.delete(d::DS, key) = typeof(d)(delete(d.t, key))
-PureFun.delete_min(d::DS) = typeof(d)(delete_min(d.t))
-PureFun.delete_max(d::DS) = typeof(d)(delete_max(d.t))
+PureFun.popmin(d::DS) = typeof(d)(popmin(d.t))
+PureFun.popmax(d::DS) = typeof(d)(popmax(d.t))
 
 """
     up_from(d::Union{RedBlack.RBDict,RedBlack.RBSet}, key)

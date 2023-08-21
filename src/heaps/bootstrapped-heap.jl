@@ -73,13 +73,13 @@ end
 
 Base.minimum(h::NonEmpty) = elem(h)
 
-function PureFun.delete_min(h::NonEmpty)
+function PureFun.popmin(h::NonEmpty)
     isempty(h.prim_heap) && return empty(h)
     x  = elem(h)
     p = h.prim_heap
     y  = elem(minimum(p))
     p1 = minimum(p).prim_heap
-    p2 = delete_min(p)
+    p2 = popmin(p)
     NonEmpty(y, ordering(h), merge(p1, p2))
 end
 

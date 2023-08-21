@@ -20,7 +20,7 @@ interface:
 - `push(xs, x)` returns a new heap containing `x` as well as all elements in
   `xs`
 - `minimum`
-- `delete_min`
+- `popmin`
 - `merge`
 
 Heaps iterate in sorted order, so `first(xs::Heap) == minimum(xs)`
@@ -58,7 +58,7 @@ BootstrappedSkewBinomial.Heap
 
 ```@docs
 PureFun.minimum(::PFHeap)
-PureFun.delete_min
+PureFun.popmin
 PureFun.push(::PFHeap, x)
 Base.merge(::PFHeap, ::PFHeap)
 ```

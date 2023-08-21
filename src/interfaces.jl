@@ -5,7 +5,7 @@ export cons, pushfirst, ⇀,
        append, ⧺,
        head, tail,
        setindex, insert,
-       delete_min, delete_max,
+       popmin, popmax,
        delete, update_at,
        drop, pop, popfirst,
        halfish
@@ -52,7 +52,7 @@ container_type(pf) = container_type(typeof(pf))
 container_type(T::Type) = T
 
 # optional method for ordered collections
-function delete_max end
+function popmax end
 
 abstract type PFStream{T} end
 
