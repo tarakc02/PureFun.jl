@@ -136,6 +136,7 @@ function Base.empty(d::RBDict{O,K,V}) where {O,K,V}
     RBDict{O,K,V}(t)
 end
 
+PureFun.push(d::RBDict, pair) = RBDict(insert(d.t, pair))
 Base.setindex(d::RBDict, v, k) = RBDict(insert(d.t, Pair(k,v)))
 val(p) = elem(p).second
 Base.get(d::RBDict, k, default) = traverse(d.t, k, val, x -> default)
