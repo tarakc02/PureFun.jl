@@ -84,3 +84,22 @@ which(mapfoldl, Tuple{typeof(x -> x^2), typeof(+), typeof(_tmp)})
 @btime foldl(+, xs) setup=xs=MyList(rand(Int,100));
 @btime bloop1(xs) setup=xs=MyList(rand(Int,100));
 @btime bloop2(xs) setup=xs=MyList(rand(Int,100));
+
+using PureFun
+using Random
+nstrings(n) = collect(randstring(rand(8:15)) for _ in 1:n)
+randpairs(n) = (k => v for (k,v) in zip(nstrings(n), rand(Int, n)));
+PureFun.Tries.@trie(RedBlackMap, edgemap = PureFun.RedBlack.RBDict{Base.Order.ForwardOrdering})
+PureFun.Tries.@trie LTrie edgemap=PureFun.Association.List
+trie = RedBlackMap(["hello" => 1])
+push(trie, "h" => -1)
+push(trie, "" => -1)
+push(trie, "hella" => -1)["hello"]
+t1 = RedBlackMap(s => i for (s,i) in randpairs(1000))
+#t2 = LTrie(t1)
+#rb = PureFun.RedBlack.RBDict(s => i for (s,i) in randpairs(100))
+push(t1, "0" => 31)
+push(t1, "" => 31)
+#push(t2, "" => 31)
+#push(t2, "0" => 31)
+

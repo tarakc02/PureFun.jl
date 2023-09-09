@@ -240,38 +240,34 @@ function singleton(trie, key, kv)
                  empty(subtries(trie)))
 end
 
-function initval(trie, key, kv)
-    newnode = singleton(trie, key, kv)
-    i = firstindex(key)
-    typeof(trie)(_kv(trie), i, setindex(subtries(trie), newnode, key[i]))
-end
-
 function Base.setindex(trie::Trie, value, k)
     kv = Some(Pair(k, value))
     key = iterable_key(trie, k)
-    isempty(trie) && return initval(trie, key, kv)
+    isempty(trie) && return typeof(trie)(kv, 1+lastindex(key), subtries(trie))
     i, ch = _split(trie, key)
     _setind(trie, i, key, kv, ch)
 end
 
 function _setind(trie, i, key, kv, ch)
     j = ind(trie)
-    if j < i
+    if lastindex(key) < i <= j
+        typeof(trie)(kv, i, setindex(empty(subtries(trie)), trie, ch))
+    elseif j < i
         st = subtries(trie)
         # we know this exists
         nxt = st[key[j]]
         nu = _setind(nxt, i, key, kv, ch)
-        return typeof(trie)(_kv(trie), j, setindex(st, nu, key[j]))
+        typeof(trie)(_kv(trie), j, setindex(st, nu, key[j]))
     elseif j > i
         st = empty(subtries(trie))
-        nu = singleton(trie, key, kv)
         nu_st = setindex(st, trie, ch)
-        return typeof(trie)(nothing, i, setindex(nu_st, nu, key[i]))
+        typeof(trie)(nothing, i,
+                     setindex(nu_st, singleton(trie, key, kv), key[i]))
     elseif _isvalid(trie) && lastindex(_key(trie)) == lastindex(key)
-        return typeof(trie)(kv, j, subtries(trie))
+        typeof(trie)(kv, j, subtries(trie))
     else
         nu = singleton(trie, key, kv)
-        return typeof(trie)(_kv(trie), j, setindex(subtries(trie), nu, key[j]))
+        typeof(trie)(_kv(trie), j, setindex(subtries(trie), nu, key[j]))
     end
 end
 
@@ -279,25 +275,34 @@ end
 
 # iteration {{{
 
-_edgelist(t) = PureFun.Lazy.Stream(values(subtries(t)))
-
 function Base.iterate(t::Trie)
+    subs = values(subtries(t))
+    states = (subs, ()) ⇀ PureFun.Linked.List{Any}()
     _isvalid(t) ?
-        (something(_kv(t)), _edgelist(t)) :
-        iterate(t, _edgelist(t))
+        (something(_kv(t)), states) :
+        iterate(t, states)
 end
 
-function Base.iterate(trie::Trie, state)
-    isempty(state) && return nothing
-    t = head(state)
-    newstate = _edgelist(t) ⧺ tail(state)
-    _isvalid(t) ?
-        (something(_kv(t)), newstate) :
-        iterate(t, newstate)
+function Base.iterate(t::Trie, states)
+    isempty(states) && return nothing
+    subs, st = first(states)
+    it = st === () ? iterate(subs) : iterate(subs, st)
+    it === nothing && return iterate(t, popfirst(states))
+    trie, newstate = it
+    newsubs = values(subtries(trie))
+    substates = (newsubs, ()) ⇀ (subs, newstate) ⇀ popfirst(states)
+    _isvalid(trie) ?
+        (something(_kv(trie)), substates) :
+        iterate(t, substates)
 end
 
 function Base.length(t::Trie)
-    mapreduce( length, +, values(subtries(t)), init = _isvalid(t) )
+    isempty(t) && return 0
+    s = _isvalid(t)
+    for st in values(subtries(t))
+        s += length(st)
+    end
+    s
 end
 
 # }}}

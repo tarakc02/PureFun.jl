@@ -51,6 +51,13 @@ function test_etc(D)
         @test haskey(d, "bear")
         @test haskey(d, "bees")
         @test haskey(d, "b❤️")
+        nstrings(n) = collect(randstring(rand(8:15)) for _ in 1:n)
+        randpairs(n) = (k => v for (k,v) in zip(nstrings(n), rand(Int, n)));
+        d = D(s => i for (s,i) in randpairs(100))
+        d_we = push(d, "" => -1)
+        d_00 = push(d, "0" => -42)
+        @test d_we[""] == -1
+        @test d_00["0"] == -42
     end
 end
 
